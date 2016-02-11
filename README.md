@@ -3,9 +3,9 @@
 
 Continuous integration status: ![Build status](https://travis-ci.org/Mosquito-Mashers/Decisionator.svg)
 
-[Build History](https://travis-ci.org/Mosquito-Mashers/Decisionator/builds)
+#### [Build History](https://travis-ci.org/Mosquito-Mashers/Decisionator/builds)
 
-Items to be claimed in backlog: [![Stories in Ready](https://badge.waffle.io/Mosquito-Mashers/Decisionator.png?label=ready&title=Ready)](https://waffle.io/Mosquito-Mashers/Decisionator)
+Items to be claimed in backlog for thisa sprint: [![Stories in Ready](https://badge.waffle.io/Mosquito-Mashers/Decisionator.png?label=ready&title=Ready)](https://waffle.io/Mosquito-Mashers/Decisionator)
 
 [Issues](https://github.com/Mosquito-Mashers/Decisionator/issues) | [Milestones](https://github.com/Mosquito-Mashers/Decisionator/milestones) | [Metrics](https://github.com/Mosquito-Mashers/Decisionator/graphs/contributors)
 ___
