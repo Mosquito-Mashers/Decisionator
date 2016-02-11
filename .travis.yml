@@ -11,7 +11,7 @@ android:
     - android-23
 
 before_install:
- - chmod +x gradlew
+ 
  
 script:
    - ./gradlew clean build
