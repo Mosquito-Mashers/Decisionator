@@ -41,6 +41,7 @@ ___
 How to contribute to the project
 
 1. Clone repo into local machine
+    * **git clone http://github.com/Mosquito-Mashers/Decisionator.git**
 2. Build and run (master branch should be clean)
 3. checkout new branch
     *  **git checkout -b {branch-name}**
@@ -61,7 +62,7 @@ How to contribute to the project
         * Enter username and password
 6. If done working and your branch closes #issue_number
     * **git add -A**
-    * **git commit -am "Description of the changes ***Fixes #issue_number***"**
+    * **git commit -am "Description of the changes Fixes #issue_number"**
         * This will close the particular issue once it is merged with master
     * **git push origin {branch_name}**
     * On Github, select your branch from the dropdown menu and click the button to create ***New Pull Request***
