@@ -21,7 +21,7 @@
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Simulated On Success"
+                android:text="Listing of friends to invite"
                 android:id="@+id/simulatedLogin"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true" />

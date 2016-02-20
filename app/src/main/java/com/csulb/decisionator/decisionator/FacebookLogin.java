@@ -18,6 +18,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.Profile;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
@@ -37,7 +38,7 @@ public class FacebookLogin extends AppCompatActivity {
     private SharedPreferences prefs;
 
     private CallbackManager callbackManager;
-    private LogManager logManager;
+    private LoginManager logManager;
     private LoginButton loginButton;
     private TextView info;
     private Button goToLobby;
@@ -56,15 +57,8 @@ public class FacebookLogin extends AppCompatActivity {
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-
-        if(checkLogin())
-        {
-            goToLobby.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            goToLobby.setVisibility(View.GONE);
-        }
+        logManager = LoginManager.getInstance();
+        logManager.logOut();
 
         goToLobby.setOnClickListener(new View.OnClickListener() {
             @Override
