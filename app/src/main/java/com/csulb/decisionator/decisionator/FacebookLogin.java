@@ -2,10 +2,14 @@ package com.csulb.decisionator.decisionator;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -19,6 +23,8 @@ import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONObject;
 
+import java.util.logging.LogManager;
+
 public class FacebookLogin extends AppCompatActivity {
 
     //Keys for the intent
@@ -26,9 +32,15 @@ public class FacebookLogin extends AppCompatActivity {
     protected final static String USER_ID = "com.csulb.decisionator.USER_ID";
     protected final static String USER_AUTH = "com.csulb.decisionator.USER_AUTH";
 
+    private String token;
+    private boolean isLoggedIn;
+    private SharedPreferences prefs;
+
     private CallbackManager callbackManager;
+    private LogManager logManager;
     private LoginButton loginButton;
     private TextView info;
+    private Button goToLobby;
     private Intent loginSuccess;
 
     @Override
@@ -40,45 +52,44 @@ public class FacebookLogin extends AppCompatActivity {
         setContentView(R.layout.activity_facebook_login);
         info = (TextView)findViewById(R.id.info);
         loginButton = (LoginButton)findViewById(R.id.login_button);
+        goToLobby = (Button) findViewById(R.id.goToLobby);
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+        if(checkLogin())
+        {
+            goToLobby.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            goToLobby.setVisibility(View.GONE);
+        }
+
+        goToLobby.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(loginSuccess);
+            }
+        });
+
         loginSuccess = new Intent(this, LobbyActivity.class);
 
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult){
-            /*
-                GraphRequest request = GraphRequest.newMeRequest(
-                        loginResult.getAccessToken(),
-                        new GraphRequest.GraphJSONObjectCallback() {
-                            @Override
-                            public void onCompleted(JSONObject object, GraphResponse response) {
-                                try {
-                                    String name = object.getString("name");
-                                    String email = object.getString("email");
-                                    String birthday = object.getString("birthday"); // 01/31/1980 format
-                                }
-                                catch (Exception e)
-                                {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,name,email,gender, birthday");
-                request.setParameters(parameters);
-                request.executeAsync();
-
-            */
+                token = loginResult.getAccessToken().toString();
                 Profile me = Profile.getCurrentProfile();
                 me.getFirstName();
-
-
 
                 //JSONObject profile = Util.parseJson(facebook.request("me"));
                 loginSuccess.putExtra(USER_F_NAME, me.getFirstName());
                 loginSuccess.putExtra(USER_ID, loginResult.getAccessToken().getUserId());
                 loginSuccess.putExtra(USER_AUTH, loginResult.getAccessToken());
 
-                startActivity(loginSuccess);
+                goToLobby.setVisibility(View.VISIBLE);
+                isLoggedIn = true;
+                prefs.edit().putBoolean("isLoggedIn", isLoggedIn).commit(); // isLoggedIn is a boolean value of your login status
             }
             @Override
             public void onCancel() {
@@ -93,5 +104,14 @@ public class FacebookLogin extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private boolean checkLogin()
+    {
+        boolean loggedIn = false;
+
+        loggedIn = prefs.getBoolean("isLoggedIn",false);
+
+        return loggedIn;
     }
 }

@@ -2,6 +2,7 @@ package com.csulb.decisionator.decisionator;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -28,6 +29,7 @@ public class EventCreationActivity extends AppCompatActivity {
         inviteFriends = (Button) findViewById(R.id.inviteFriendsBtn);
         categories = (RadioGroup) findViewById(R.id.eventCategories);
 
+        inviteClicked = new Intent(this, LocationActivity.class);
         context = getApplicationContext();
 
         inviteFriends.setOnClickListener(new View.OnClickListener() {
@@ -42,6 +44,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 {
                     showPopup("The category is null", context);
                 }
+                startActivity(inviteClicked);
             }
         });
     }
