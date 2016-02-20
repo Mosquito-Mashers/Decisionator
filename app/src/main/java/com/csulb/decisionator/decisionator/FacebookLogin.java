@@ -1,8 +1,8 @@
 package com.csulb.decisionator.decisionator;
 
-
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.csulb.decisionator.decisionator.backend.UserEndpoint;
+import com.csulb.decisionator.decisionator.backend.userApi.model.User;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -24,6 +27,7 @@ import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.logging.LogManager;
 
 public class FacebookLogin extends AppCompatActivity {
@@ -108,4 +112,6 @@ public class FacebookLogin extends AppCompatActivity {
 
         return loggedIn;
     }
+
+   
 }
