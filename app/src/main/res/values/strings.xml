@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Decisionator</string>
-    <string name="facebook_app_id">108292099561717</string>
+    <string name="facebook_app_id">539338236238328</string>
+    <string name="welcomeMessage">Welcome </string>
 </resources>
