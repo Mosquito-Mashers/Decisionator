@@ -35,9 +35,10 @@ public class EventCreationActivity extends AppCompatActivity {
         inviteFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectedCategory = (RadioButton) findViewById(categories.getCheckedRadioButtonId());
                 showPopup("The topic is " + eventTopic.getText(),context);
-                if(selectedCategory.getText() != null) {
+                if(categories.getCheckedRadioButtonId() > 0)
+                {
+                    selectedCategory = (RadioButton) findViewById(categories.getCheckedRadioButtonId());
                     showPopup("The category is " + selectedCategory.getText().toString(), context);
                 }
                 else
