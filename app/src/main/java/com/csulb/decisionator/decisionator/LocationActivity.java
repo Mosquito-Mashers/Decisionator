@@ -12,6 +12,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.tv.TvContract;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -41,6 +42,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     TextView currentCoords;
     TextView relativeAddress;
     Button returnHomebtn;
+    Button decisionate;
     ProgressBar coordProg;
     ProgressBar addrProg;
 
@@ -48,6 +50,17 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
     Intent eventInitiated;
     Intent returnHome;
+
+    Location userLoc;
+    /////////////////////////////////////////////
+    //Debug//////////////////////////////////////
+    Location loc1;
+    Location loc2;
+    Location loc3;
+    Location loc4;
+    /////////////////////////////////////////////
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +69,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         currentCoords = (TextView) findViewById(R.id.currentLocation);
         relativeAddress = (TextView) findViewById(R.id.relativeAddress);
         returnHomebtn = (Button) findViewById(R.id.returnHome);
+        decisionate = (Button) findViewById(R.id.makeDecision);
         coordProg = (ProgressBar) findViewById(R.id.coordLoading);
         addrProg = (ProgressBar) findViewById(R.id.addrLoading);
 
@@ -78,18 +92,55 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
+        setDummyLocations();
+
         returnHomebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loginManager.logOut();
-                prefs.edit().putBoolean("isLoggedIn",false);
+                prefs.edit().putBoolean("isLoggedIn", false);
                 startActivity(returnHome);
+            }
+        });
+
+        decisionate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Location midLocation = new Location("");
+                Address midAddr;
+
+                Location finalLocation = new Location("");
+                Address finalAddr;
+
+                ArrayList<Location> debugLocations = new ArrayList<Location>();
+
+                debugLocations.add(loc1);
+                debugLocations.add(loc2);
+                debugLocations.add(loc3);
+                debugLocations.add(loc4);
+                debugLocations.add(userLoc);
+
+                midLocation = getMidLocation(debugLocations);
+                midAddr = getAddress(midLocation);
+
+                String topic = eventInitiated.getStringExtra(EventCreationActivity.EVENT_TOPIC);
+
+                // Search for restaurants nearby
+                Uri gmmIntentUri = Uri.parse("geo:"+midLocation.getLatitude()+","+midLocation.getLongitude()+"?q="+topic);
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+
+
+                finalAddr = getAddress(finalLocation);
             }
         });
     }
 
     @Override
     public void onLocationChanged(Location location) {
+        userLoc = location;
+
         coordProg.setVisibility(View.GONE);
         addrProg.setVisibility(View.GONE);
 
@@ -177,5 +228,38 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         TextView friend4Lat = (TextView) findViewById(R.id.friend4Lat);
         TextView friend4Long = (TextView) findViewById(R.id.friend4Long);
         TextView friend4Addr = (TextView) findViewById(R.id.friend4Addr);
+
+        loc1 = new Location("Dummy");
+        loc2 = new Location("Dummy");
+        loc3 = new Location("Dummy");
+        loc4 = new Location("Dummy");
+
+        loc1.setLatitude(33.787154);
+        loc1.setLongitude(-118.156446);
+
+        friend1Lat.setText("" + loc1.getLatitude() + ", ");
+        friend1Long.setText("" + loc1.getLongitude());
+        friend1Addr.setText(getAddress(loc1).getAddressLine(0));
+
+        loc2.setLatitude(33.791149);
+        loc2.setLongitude(-118.136737);
+
+        friend2Lat.setText("" + loc2.getLatitude() + ", ");
+        friend2Long.setText("" + loc2.getLongitude());
+        friend2Addr.setText(getAddress(loc2).getAddressLine(0));
+
+        loc3.setLatitude(33.808249);
+        loc3.setLongitude(-118.072546);
+
+        friend3Lat.setText("" + loc3.getLatitude() + ", ");
+        friend3Long.setText("" + loc3.getLongitude());
+        friend3Addr.setText(getAddress(loc3).getAddressLine(0));
+
+        loc4.setLatitude(33.760605);
+        loc4.setLongitude(-118.133185);
+
+        friend4Lat.setText("" + loc4.getLatitude() + ", ");
+        friend4Long.setText("" + loc4.getLongitude());
+        friend4Addr.setText(getAddress(loc4).getAddressLine(0));
     }
 }

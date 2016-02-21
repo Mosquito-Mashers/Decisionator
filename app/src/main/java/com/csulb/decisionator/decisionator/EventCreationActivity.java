@@ -13,6 +13,7 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 public class EventCreationActivity extends AppCompatActivity {
+    protected final static String EVENT_TOPIC = "com.decisionator.decisionator.evenetcreationactivity.EVENT_TOPIC";
 
     EditText eventTopic;
     Button inviteFriends;
@@ -35,7 +36,9 @@ public class EventCreationActivity extends AppCompatActivity {
         inviteFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showPopup("The topic is " + eventTopic.getText(),context);
+                String topic = eventTopic.getText().toString();
+                inviteClicked.putExtra(EVENT_TOPIC,topic);
+                showPopup("The topic is " + topic,context);
                 if(categories.getCheckedRadioButtonId() > 0)
                 {
                     selectedCategory = (RadioButton) findViewById(categories.getCheckedRadioButtonId());

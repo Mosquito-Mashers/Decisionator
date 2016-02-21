@@ -127,6 +127,76 @@
                 android:textAlignment="center"
                 android:text="Final Decision"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="15dp"
+                    android:text="Midpoint coordinates:" />
+                <TextView
+                    android:id="@+id/midLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="20dp" />
+                </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="15dp"
+                    android:text="Midpoint relative address:" />
+                <TextView
+                    android:id="@+id/midAddr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="20dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="15dp"
+                    android:text="Final coordinates:" />
+                <TextView
+                    android:id="@+id/finalLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="20dp" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="15dp"
+                    android:text="Final relative address:" />
+                <TextView
+                    android:id="@+id/finalAddr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="20dp" />
+            </LinearLayout>
+
 
 
 
@@ -181,6 +251,11 @@
                     android:textAlignment="center"
                     android:textSize="20dp" />
             </LinearLayout>
+            <Button
+                android:id="@+id/makeDecision"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Decisionate!"/>
             <Button
                 android:id="@+id/returnHome"
                 android:layout_width="match_parent"
