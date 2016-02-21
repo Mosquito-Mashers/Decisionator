@@ -159,4 +159,23 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
         return midLocation;
     }
+
+    private void setDummyLocations()
+    {
+        TextView friend1Lat = (TextView) findViewById(R.id.friend1Lat);
+        TextView friend1Long = (TextView) findViewById(R.id.friend1Long);
+        TextView friend1Addr = (TextView) findViewById(R.id.friend1Addr);
+
+        TextView friend2Lat = (TextView) findViewById(R.id.friend2Lat);
+        TextView friend2Long = (TextView) findViewById(R.id.friend2Long);
+        TextView friend2Addr = (TextView) findViewById(R.id.friend2Addr);
+
+        TextView friend3Lat = (TextView) findViewById(R.id.friend3Lat);
+        TextView friend3Long = (TextView) findViewById(R.id.friend3Long);
+        TextView friend3Addr = (TextView) findViewById(R.id.friend3Addr);
+
+        TextView friend4Lat = (TextView) findViewById(R.id.friend4Lat);
+        TextView friend4Long = (TextView) findViewById(R.id.friend4Long);
+        TextView friend4Addr = (TextView) findViewById(R.id.friend4Addr);
+    }
 }
