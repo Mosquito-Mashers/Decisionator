@@ -53,7 +53,7 @@ public class EventCreationActivity extends AppCompatActivity {
         });
     }
 
-    private void showPopup(CharSequence text, Context ctx)
+    public void showPopup(CharSequence text, Context ctx)
     {
         int duration = Toast.LENGTH_SHORT;
 
