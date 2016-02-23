@@ -12,9 +12,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
-import com.amazonaws.mobileconnectors.cognito.Dataset;
-import com.amazonaws.mobileconnectors.cognito.DefaultSyncCallback;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
@@ -29,7 +26,6 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class FacebookLogin extends AppCompatActivity {
@@ -38,6 +34,10 @@ public class FacebookLogin extends AppCompatActivity {
     protected final static String USER_F_NAME = "com.csulb.decisionator.USER_F_NAME";
     protected final static String USER_ID = "com.csulb.decisionator.USER_ID";
     protected final static String USER_AUTH = "com.csulb.decisionator.USER_AUTH";
+    protected final static String CRED_ACCT_ID = "com.csulb.decisionator.CRED_ACCT_ID";
+    protected final static String POOL_ID = "com.csulb.decisionator.POOL_ID";
+    protected final static String UN_ROLE_ARN = "com.csulb.decisionator.UN_ROLE_ARN";
+    protected final static String AU_ROLE_ARN = "com.csulb.decisionator.AU_ROLE_ARN";
 
     private String token;
     private boolean isLoggedIn;
@@ -92,18 +92,23 @@ public class FacebookLogin extends AppCompatActivity {
                 logins.put("graph.facebook.com", AccessToken.getCurrentAccessToken().getToken());
                 credentialsProvider.setLogins(logins);
 
-
-                new DemoTask().execute();
-
-
                 token = loginResult.getAccessToken().toString();
                 Profile me = Profile.getCurrentProfile();
                 me.getFirstName();
 
+                User currentUser = new User();
+                currentUser.setUserID(me.getId());
+                currentUser.setfName(me.getFirstName());
+                currentUser.setlName(me.getLastName());
+
+
+                new addUserToDB().execute(currentUser);
+
                 //JSONObject profile = Util.parseJson(facebook.request("me"));
                 loginSuccess.putExtra(USER_F_NAME, me.getFirstName());
-                loginSuccess.putExtra(USER_ID, loginResult.getAccessToken().getUserId());
+                loginSuccess.putExtra(USER_ID, me.getId());
                 loginSuccess.putExtra(USER_AUTH, loginResult.getAccessToken());
+                loginSuccess.putExtra(POOL_ID,credentialsProvider.getIdentityPoolId());
 
                 goToLobby.setVisibility(View.VISIBLE);
                 isLoggedIn = true;
@@ -124,74 +129,23 @@ public class FacebookLogin extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    private boolean checkLogin()
+    public CognitoCachingCredentialsProvider getCredentials()
     {
-        boolean loggedIn = false;
-
-        loggedIn = prefs.getBoolean("isLoggedIn",false);
-
-        return loggedIn;
+        return credentialsProvider;
     }
 
-    private void sync()
-    {
-        // Initialize the Cognito Sync client
-        CognitoSyncManager syncClient = new CognitoSyncManager(
-                getApplicationContext(),
-                Regions.US_EAST_1, // Region
-                credentialsProvider);
+    class addUserToDB extends AsyncTask<User, Void, Void> {
 
-// Create a record in a dataset and synchronize with the server
-        Dataset dataset = syncClient.openOrCreateDataset("myDataset");
-        dataset.put("myKey", "myValue");
-        dataset.synchronize(new DefaultSyncCallback() {
-            @Override
-            public void onSuccess(Dataset dataset, List newRecords) {
+        protected Void doInBackground(User... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
+            User temp = mapper.load(User.class, arg0[0].getUserID());
+
+            if(temp == null)
+            {
+                mapper.save(arg0[0]);
             }
-        });
-    }
-
-    class DemoTask extends AsyncTask<Void, Void, Void> {
-
-        protected Void doInBackground(Void... arg0) {
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-
-            User currentUser = new User();
-            currentUser.setUserID("russell-2345");
-            currentUser.setfName("Russell");
-            currentUser.setlName("Tang");
-            currentUser.setLongitude(-118.6654);
-            currentUser.setLatitude(33.5643);
-            mapper.save(currentUser);
-            return null;
-        }
-
-        protected void onPostExecute(Void result) {
-            // TODO: do something with the feed
-        }
-        @Override
-        protected void onPreExecute() {}
-
-        @Override
-        protected void onProgressUpdate(Void... values) {}
-    }
-
-    class updateTable extends AsyncTask<User, Void, Void>
-    {
-        @Override
-        protected Void doInBackground(User... params) {
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-
-            User currentUser = new User();
-            currentUser.setUserID("russell-2345");
-            currentUser.setfName("Russell");
-            currentUser.setlName("Tang");
-            currentUser.setLongitude(-118.6654);
-            currentUser.setLatitude(33.5643);
-            mapper.save(currentUser);
             return null;
         }
     }

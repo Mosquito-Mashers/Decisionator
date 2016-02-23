@@ -2,9 +2,9 @@ package com.csulb.decisionator.decisionator;
 
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
-import android.support.v7.app.AppCompatActivity;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,13 +12,22 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+
 public class EventCreationActivity extends AppCompatActivity {
     protected final static String EVENT_TOPIC = "com.decisionator.decisionator.evenetcreationactivity.EVENT_TOPIC";
+
+    private CognitoCachingCredentialsProvider credentialsProvider;
+    private String uID;
 
     EditText eventTopic;
     Button inviteFriends;
     RadioGroup categories;
     RadioButton selectedCategory;
+    Intent fromLobby;
     Intent inviteClicked;
     Context context;
 
@@ -26,6 +35,16 @@ public class EventCreationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_creation);
+
+        fromLobby = getIntent();
+
+        uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
+
+        credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),    /* get the context for the application */
+                fromLobby.getStringExtra(FacebookLogin.POOL_ID), // Identity Pool ID
+                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
+        );
         eventTopic = (EditText) findViewById(R.id.eventTopic);
         inviteFriends = (Button) findViewById(R.id.inviteFriendsBtn);
         categories = (RadioGroup) findViewById(R.id.eventCategories);
@@ -36,8 +55,19 @@ public class EventCreationActivity extends AppCompatActivity {
         inviteFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
                 String topic = eventTopic.getText().toString();
                 inviteClicked.putExtra(EVENT_TOPIC,topic);
+
+                Event evnt = new Event();
+
+                evnt.setEventID("1");
+                evnt.setHostID(uID);
+                evnt.setTopic(topic);
+
+                new addEventToDB().execute(evnt);
+
                 showPopup("The topic is " + topic,context);
                 if(categories.getCheckedRadioButtonId() > 0)
                 {
@@ -60,4 +90,45 @@ public class EventCreationActivity extends AppCompatActivity {
         Toast toast = Toast.makeText(ctx, text, duration);
         toast.show();
     }
+
+    private CognitoCachingCredentialsProvider validateCredentials()
+    {
+        FacebookLogin fb = new FacebookLogin();
+
+
+        return fb.getCredentials();
+    }
+
+    class addEventToDB extends AsyncTask<Event, Void, Void> {
+
+        protected Void doInBackground(Event... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+            mapper.save(arg0[0]);
+
+            return null;
+        }
+    }
+    /*
+    class getLatestEvent extends AsyncTask<Void, Void, Integer> {
+
+        protected Integer doInBackground(Void... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            ddbClient.getTa
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            scanExpression.
+
+            Event temp = mapper.load(Event.class, arg0[0].getEventID());
+
+            if(temp == null)
+            {
+                mapper.save(arg0[0]);
+            }
+            return null;
+        }
+    }
+    */
 }
