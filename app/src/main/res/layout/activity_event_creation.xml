@@ -81,7 +81,7 @@
                     android:id="@+id/topicPredicate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Lets go to..."
+                    android:text="Lets go to a..."
                     android:textSize="20dp"/>
                 <EditText
                     android:id="@+id/eventTopic"
