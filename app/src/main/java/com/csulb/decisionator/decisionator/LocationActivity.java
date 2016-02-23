@@ -58,6 +58,9 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     Location loc2;
     Location loc3;
     Location loc4;
+    Location midLocation = new Location("");
+    Address midAddr;
+    ArrayList<Location> debugLocations = new ArrayList<Location>();
     /////////////////////////////////////////////
 
 
@@ -106,27 +109,19 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         decisionate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Location midLocation = new Location("");
-                Address midAddr;
+
 
                 Location finalLocation = new Location("");
                 Address finalAddr;
 
-                ArrayList<Location> debugLocations = new ArrayList<Location>();
 
-                debugLocations.add(loc1);
-                debugLocations.add(loc2);
-                debugLocations.add(loc3);
-                debugLocations.add(loc4);
-                debugLocations.add(userLoc);
 
-                midLocation = getMidLocation(debugLocations);
-                midAddr = getAddress(midLocation);
+
 
                 String topic = eventInitiated.getStringExtra(EventCreationActivity.EVENT_TOPIC);
 
                 // Search for restaurants nearby
-                Uri gmmIntentUri = Uri.parse("geo:"+midLocation.getLatitude()+","+midLocation.getLongitude()+"?q="+topic);
+                Uri gmmIntentUri = Uri.parse("geo:" + midLocation.getLatitude() + "," + midLocation.getLongitude() + "?q=" + topic);
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
@@ -139,6 +134,17 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
     @Override
     public void onLocationChanged(Location location) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.removeUpdates(this);
         userLoc = location;
 
         coordProg.setVisibility(View.GONE);
@@ -149,6 +155,21 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         Address relativeAddr = getAddress(location);
 
         relativeAddress.setText(relativeAddr.getAddressLine(0));
+
+
+        debugLocations.add(loc1);
+        debugLocations.add(loc2);
+        debugLocations.add(loc3);
+        debugLocations.add(loc4);
+        debugLocations.add(userLoc);
+
+        midLocation = getMidLocation(debugLocations);
+        midAddr = getAddress(midLocation);
+
+        TextView midLoc = (TextView) findViewById(R.id.midLocation);
+        TextView midAddr = (TextView) findViewById(R.id.midAddr);
+        midLoc.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
+        midAddr.setText(getAddress(loc4).getAddressLine(0));
     }
 
     @Override
