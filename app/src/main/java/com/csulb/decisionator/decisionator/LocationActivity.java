@@ -140,10 +140,9 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
                 String topic = eventInitiated.getStringExtra(EventCreationActivity.EVENT_TOPIC);
 
                 // Search for restaurants nearby
-                Uri gmmIntentUri = Uri.parse("geo:" + midLocation.getLatitude() + "," + midLocation.getLongitude() + "?q=" + topic);
+                Uri gmmIntentUri = Uri.parse("geo:" + midLocation.getLatitude() + "," + midLocation.getLongitude() + "?q=" + topic+"&num=1");
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
-                //mapIntent.getData().toString();
                 startActivity(mapIntent);
 
 
