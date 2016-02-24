@@ -146,6 +146,7 @@ public class FacebookLogin extends AppCompatActivity {
             {
                 mapper.save(arg0[0]);
             }
+
             return null;
         }
     }

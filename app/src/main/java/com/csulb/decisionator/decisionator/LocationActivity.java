@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.drm.DrmErrorEvent;
 import android.hardware.camera2.params.Face;
 import android.location.Address;
 import android.location.Geocoder;
@@ -13,6 +14,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.tv.TvContract;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +25,10 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.login.LoginManager;
 
 import java.io.IOException;
@@ -38,6 +44,12 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     protected Context context;
     protected String latitude, longitude;
     protected boolean gps_enabled, network_enabled;
+
+    private String uID;
+    private String poolID;
+    private String eventID;
+
+    private CognitoCachingCredentialsProvider credentialsProvider;
 
     TextView currentCoords;
     TextView relativeAddress;
@@ -78,6 +90,16 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
         returnHome = new Intent(this, FacebookLogin.class);
         eventInitiated = getIntent();
+        uID = eventInitiated.getStringExtra(FacebookLogin.USER_ID);
+        poolID = eventInitiated.getStringExtra(FacebookLogin.POOL_ID);
+        eventID = eventInitiated.getStringExtra(EventCreationActivity.EVENT_ID);
+
+
+        credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),    /* get the context for the application */
+                poolID, // Identity Pool ID
+                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
+        );
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         loginManager = LoginManager.getInstance();
@@ -115,15 +137,13 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
                 Address finalAddr;
 
 
-
-
-
                 String topic = eventInitiated.getStringExtra(EventCreationActivity.EVENT_TOPIC);
 
                 // Search for restaurants nearby
                 Uri gmmIntentUri = Uri.parse("geo:" + midLocation.getLatitude() + "," + midLocation.getLongitude() + "?q=" + topic);
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
+                //mapIntent.getData().toString();
                 startActivity(mapIntent);
 
 
@@ -153,6 +173,20 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         currentCoords.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
 
         Address relativeAddr = getAddress(location);
+
+        User currUser = new User();
+
+        currUser.setUserID(uID);
+        currUser.setLatitude(location.getLatitude());
+        currUser.setLongitude(location.getLongitude());
+
+        Event evnt = new Event();
+        evnt.setEventID(eventID);
+        evnt.setLatitude(location.getLatitude());
+        evnt.setLongitude(location.getLongitude());
+
+        new updateUserLoc().execute(currUser);
+        new updateEventLoc().execute(evnt);
 
         relativeAddress.setText(relativeAddr.getAddressLine(0));
 
@@ -282,5 +316,37 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         friend4Lat.setText("" + loc4.getLatitude() + ", ");
         friend4Long.setText("" + loc4.getLongitude());
         friend4Addr.setText(getAddress(loc4).getAddressLine(0));
+    }
+
+    class updateUserLoc extends AsyncTask<User, Void, Void> {
+
+        protected Void doInBackground(User... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+            User temp = mapper.load(User.class, arg0[0].getUserID());
+
+            temp.setLatitude(arg0[0].getLatitude());
+            temp.setLongitude(arg0[0].getLongitude());
+
+            mapper.save(temp);
+
+            return null;
+        }
+    }
+
+    class updateEventLoc extends AsyncTask<Event, Void, Void> {
+
+        protected Void doInBackground(Event... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+            Event temp = mapper.load(Event.class, arg0[0].getEventID());
+
+            temp.setLatitude(arg0[0].getLatitude());
+            temp.setLongitude(arg0[0].getLongitude());
+
+            mapper.save(temp);
+
+            return null;
+        }
     }
 }

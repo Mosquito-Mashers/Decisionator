@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,11 +18,17 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
+
 public class EventCreationActivity extends AppCompatActivity {
     protected final static String EVENT_TOPIC = "com.decisionator.decisionator.evenetcreationactivity.EVENT_TOPIC";
+    protected final static String EVENT_ID = "com.decisionator.decisionator.evenetcreationactivity.EVENT_ID";
 
     private CognitoCachingCredentialsProvider credentialsProvider;
     private String uID;
+    private String poolID;
 
     EditText eventTopic;
     Button inviteFriends;
@@ -39,10 +46,11 @@ public class EventCreationActivity extends AppCompatActivity {
         fromLobby = getIntent();
 
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
+        poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
 
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
-                fromLobby.getStringExtra(FacebookLogin.POOL_ID), // Identity Pool ID
+                poolID, // Identity Pool ID
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
         eventTopic = (EditText) findViewById(R.id.eventTopic);
@@ -59,12 +67,21 @@ public class EventCreationActivity extends AppCompatActivity {
 
                 String topic = eventTopic.getText().toString();
                 inviteClicked.putExtra(EVENT_TOPIC,topic);
+                inviteClicked.putExtra(FacebookLogin.POOL_ID,poolID);
+                inviteClicked.putExtra(FacebookLogin.USER_ID,uID);
+
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                Date date = new Date();
 
                 Event evnt = new Event();
 
-                evnt.setEventID("1");
+                UUID eventID = UUID.randomUUID();
+                inviteClicked.putExtra(EVENT_ID,eventID.toString());
+
+                evnt.setEventID(eventID.toString());
                 evnt.setHostID(uID);
                 evnt.setTopic(topic);
+                evnt.setDateCreated(date.toString());
 
                 new addEventToDB().execute(evnt);
 
