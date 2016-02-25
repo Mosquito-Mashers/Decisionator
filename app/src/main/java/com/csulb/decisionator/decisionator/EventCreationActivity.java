@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,6 +35,7 @@ public class EventCreationActivity extends AppCompatActivity {
     RadioButton selectedCategory;
     Intent fromLobby;
     Intent inviteClicked;
+    Intent moveToInvite;
     Context context;
 
     @Override
@@ -58,8 +58,49 @@ public class EventCreationActivity extends AppCompatActivity {
         categories = (RadioGroup) findViewById(R.id.eventCategories);
 
         inviteClicked = new Intent(this, LocationActivity.class);
+        moveToInvite = new Intent(this, InviteFriendsActivity.class);
         context = getApplicationContext();
 
+
+        inviteFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                String topic = eventTopic.getText().toString();
+                moveToInvite.putExtra(EVENT_TOPIC,topic);
+                moveToInvite.putExtra(FacebookLogin.POOL_ID,poolID);
+                moveToInvite.putExtra(FacebookLogin.USER_ID,uID);
+
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                Date date = new Date();
+
+                Event evnt = new Event();
+
+                UUID eventID = UUID.randomUUID();
+                moveToInvite.putExtra(EVENT_ID,eventID.toString());
+
+                evnt.setEventID(eventID.toString());
+                evnt.setHostID(uID);
+                evnt.setTopic(topic);
+                evnt.setDateCreated(date.toString());
+
+                new addEventToDB().execute(evnt);
+
+                showPopup("The topic is " + topic,context);
+                if(categories.getCheckedRadioButtonId() > 0)
+                {
+                    selectedCategory = (RadioButton) findViewById(categories.getCheckedRadioButtonId());
+                    showPopup("The category is " + selectedCategory.getText().toString(), context);
+                }
+                else
+                {
+                    showPopup("The category is null", context);
+                }
+                startActivity(moveToInvite);
+            }
+        });
+        /*
         inviteFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,6 +139,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 startActivity(inviteClicked);
             }
         });
+        */
     }
 
     public void showPopup(CharSequence text, Context ctx)

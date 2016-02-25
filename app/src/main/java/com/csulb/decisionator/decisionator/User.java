@@ -12,8 +12,22 @@ public class User {
     private String userID;
     private String fName;
     private String lName;
+
+
+
+    private String profilePic;
     private double latitude;
     private double longitude;
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    private boolean selected = false;
 
 
     @DynamoDBHashKey(attributeName = "userID")
@@ -41,6 +55,15 @@ public class User {
 
     public void setlName(String lName) {
         this.lName = lName;
+    }
+
+    @DynamoDBAttribute(attributeName = "profilePic")
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
     }
 
     @DynamoDBAttribute(attributeName = "latitude")
