@@ -55,6 +55,8 @@ public class InviteFriendsActivity extends AppCompatActivity {
 
         poolID = inEvent.getStringExtra(FacebookLogin.POOL_ID);
         uFName = inEvent.getStringExtra(FacebookLogin.USER_F_NAME);
+        topic = inEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
+        uID = inEvent.getStringExtra(FacebookLogin.USER_ID);
 
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
@@ -176,8 +178,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
                     }
                 }
 
-                topic = inEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
-                uID = inEvent.getStringExtra(FacebookLogin.USER_ID);
+
                 event = new Event();
                 event.setTopic(topic);
                 event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
@@ -228,13 +229,18 @@ public class InviteFriendsActivity extends AppCompatActivity {
             ArrayList<User> temp = new ArrayList<User>();
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
             DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
             PaginatedScanList<User> result = mapper.scan(User.class, scanExpression);
 
             int k;
             for (k = 0; k < result.size(); k++)
             {
-                temp.add(result.get(k));
+                User item = result.get(k);
+                if (!item.getUserID().contentEquals(uID))
+                {
+                    temp.add(item);
+                }
             }
 
             return temp;
