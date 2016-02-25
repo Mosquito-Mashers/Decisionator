@@ -32,6 +32,7 @@ public class LobbyActivity extends AppCompatActivity {
         String poolID = loginSuccess.getStringExtra(FacebookLogin.POOL_ID);
         createEventIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         createEventIntent.putExtra(FacebookLogin.USER_ID, uID);
+        createEventIntent.putExtra(FacebookLogin.USER_F_NAME,uName);
 
         welcomeMessage.setText(welcomeString);
 

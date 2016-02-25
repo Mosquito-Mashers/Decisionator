@@ -37,6 +37,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private CognitoCachingCredentialsProvider credentialsProvider;
 
     private String poolID;
+    private String uFName;
     String topic;
     String uID;
     private Intent inEvent;
@@ -53,6 +54,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
         inEvent = getIntent();
 
         poolID = inEvent.getStringExtra(FacebookLogin.POOL_ID);
+        uFName = inEvent.getStringExtra(FacebookLogin.USER_F_NAME);
 
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
@@ -183,11 +185,12 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 event.setAttendees(responseText.toString());
                 new updateEvent().execute(event);
 
-                startEvent.putExtra(EventCreationActivity.EVENT_ID,event.getEventID());
+                startEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
                 startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, topic);
                 startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
                 startEvent.putExtra(FacebookLogin.USER_ID, uID);
                 startEvent.putExtra(ATTENDEES, responseText.toString());
+                startEvent.putExtra(FacebookLogin.USER_F_NAME, uFName);
 
                 startActivity(startEvent);
             }

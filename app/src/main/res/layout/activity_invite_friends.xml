@@ -14,7 +14,7 @@
 
         <TextView android:layout_width="fill_parent"
             android:layout_height="wrap_content" android:padding="10dp"
-            android:text="Whos coming?" android:textSize="20sp" />
+            android:text="Whos going?" android:textSize="20sp" />
         <Button
             android:id="@+id/inviteButton"
             android:layout_width="match_parent"

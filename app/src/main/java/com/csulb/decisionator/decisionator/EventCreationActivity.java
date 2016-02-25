@@ -28,6 +28,7 @@ public class EventCreationActivity extends AppCompatActivity {
     private CognitoCachingCredentialsProvider credentialsProvider;
     private String uID;
     private String poolID;
+    private String uFname;
 
     EditText eventTopic;
     Button inviteFriends;
@@ -47,6 +48,7 @@ public class EventCreationActivity extends AppCompatActivity {
 
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
         poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
+        uFname = fromLobby.getStringExtra(FacebookLogin.USER_F_NAME);
 
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
@@ -71,6 +73,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 moveToInvite.putExtra(EVENT_TOPIC,topic);
                 moveToInvite.putExtra(FacebookLogin.POOL_ID,poolID);
                 moveToInvite.putExtra(FacebookLogin.USER_ID,uID);
+                moveToInvite.putExtra(FacebookLogin.USER_F_NAME,uFname);
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 Date date = new Date();

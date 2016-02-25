@@ -48,6 +48,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     private String uID;
     private String poolID;
     private String eventID;
+    private String uFName;
 
     private CognitoCachingCredentialsProvider credentialsProvider;
 
@@ -89,11 +90,12 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         coordProg = (ProgressBar) findViewById(R.id.coordLoading);
         addrProg = (ProgressBar) findViewById(R.id.addrLoading);
 
-        returnHome = new Intent(this, FacebookLogin.class);
+        returnHome = new Intent(this, LobbyActivity.class);
         eventInitiated = getIntent();
         uID = eventInitiated.getStringExtra(FacebookLogin.USER_ID);
         poolID = eventInitiated.getStringExtra(FacebookLogin.POOL_ID);
         eventID = eventInitiated.getStringExtra(EventCreationActivity.EVENT_ID);
+        uFName = eventInitiated.getStringExtra(FacebookLogin.USER_F_NAME);
 
 
         credentialsProvider = new CognitoCachingCredentialsProvider(
@@ -123,8 +125,10 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         returnHomebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loginManager.logOut();
-                prefs.edit().putBoolean("isLoggedIn", false);
+                returnHome.putExtra(FacebookLogin.POOL_ID, poolID);
+                returnHome.putExtra(FacebookLogin.USER_ID, uID);
+                returnHome.putExtra(FacebookLogin.USER_F_NAME, uFName);
+
                 startActivity(returnHome);
             }
         });
