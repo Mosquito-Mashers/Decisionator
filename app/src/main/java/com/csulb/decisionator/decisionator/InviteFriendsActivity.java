@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -32,11 +31,15 @@ import java.util.concurrent.ExecutionException;
 
 public class InviteFriendsActivity extends AppCompatActivity {
 
+    protected final static String ATTENDEES = "com.decisionator.decisionator.invitefriendsactivity.ATTENDEES";
+
     private FriendAdapter friendAdapter;
     private CognitoCachingCredentialsProvider credentialsProvider;
 
     private String poolID;
     private Intent inEvent;
+    private Intent startEvent;
+    private Event event;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +81,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 User user = (User) parent.getItemAtPosition(position);
-                Toast.makeText(getApplicationContext(),"Clicked on friend" + user.getfName() + " " + user.getlName(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -120,10 +122,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         CheckBox cb = (CheckBox) v ;
                         User user = (User) cb.getTag();
-                        Toast.makeText(getApplicationContext(),
-                                "Clicked on Checkbox: " + cb.getText() +
-                                        " is " + cb.isChecked(),
-                                Toast.LENGTH_LONG).show();
                         user.setSelected(cb.isChecked());
                     }
                 });
@@ -146,23 +144,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 }
-                /*
-                URL profileURL = null;
-                Bitmap profile = null;
-                try {
-                    profileURL = new URL(user.getProfilePic());
-                    profile = BitmapFactory.decodeStream(profileURL.openConnection().getInputStream());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-                holder.profilePic.setImageBitmap(profile);
-                //holder.profilePic.setImageURI(null);
-                //holder.profilePic.setImageURI(Uri.parse(user.getProfilePic()));
-                */
             }
             holder.name.setText(user.getfName() + " " + user.getlName());
             holder.name.setChecked(user.isSelected());
@@ -181,18 +162,28 @@ public class InviteFriendsActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 StringBuffer responseText = new StringBuffer();
-                responseText.append("The following were selected...\n");
-
                 ArrayList<User> userList = friendAdapter.friends;
                 for (int i = 0; i < userList.size(); i++) {
                     User user = userList.get(i);
                     if (user.isSelected()) {
-                        responseText.append("\n" + user.getfName() + " " + user.getlName());
+                        responseText.append(user.getUserID()+",");
                     }
                 }
 
-                Toast.makeText(getApplicationContext(),
-                        responseText, Toast.LENGTH_LONG).show();
+                String topic = inEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
+                String uID = inEvent.getStringExtra(FacebookLogin.USER_ID);
+                event = new Event();
+                event.setTopic(topic);
+                event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
+                event.setEventID(inEvent.getStringExtra(EventCreationActivity.EVENT_ID));
+                event.setAttendees(responseText.toString());
+                new updateEvent().execute(event);
+
+                startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, topic);
+                startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
+                startEvent.putExtra(FacebookLogin.USER_ID, uID);
+                startEvent.putExtra(ATTENDEES, responseText.toString());
+
             }
         });
     }
@@ -223,21 +214,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
     }
 
     class getAllFriends extends AsyncTask<Void, Void, ArrayList<User>> {
-
-        protected Void doInBackground(User... arg0) {
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-
-            User temp = mapper.load(User.class, arg0[0].getUserID());
-
-            if(temp == null)
-            {
-                mapper.save(arg0[0]);
-            }
-
-            return null;
-        }
-
         @Override
         protected ArrayList<User> doInBackground(Void... params) {
             ArrayList<User> temp = new ArrayList<User>();
@@ -253,6 +229,26 @@ public class InviteFriendsActivity extends AppCompatActivity {
             }
 
             return temp;
+        }
+    }
+
+    class updateEvent extends AsyncTask<Event, Void, Void> {
+        @Override
+        protected Void doInBackground(Event... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            Event temp = mapper.load(Event.class, arg0[0].getEventID());
+            temp.setEventID(arg0[0].getEventID());
+            temp.setHostID(arg0[0].getHostID());
+            temp.setLongitude(arg0[0].getLongitude());
+            temp.setLatitude(arg0[0].getLatitude());
+            temp.setDateCreated(arg0[0].getDateCreated());
+            temp.setAttendees(arg0[0].getAttendees());
+
+            mapper.save(temp);
+
+            return null;
         }
     }
 }
