@@ -37,6 +37,8 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private CognitoCachingCredentialsProvider credentialsProvider;
 
     private String poolID;
+    String topic;
+    String uID;
     private Intent inEvent;
     private Intent startEvent;
     private Event event;
@@ -45,6 +47,8 @@ public class InviteFriendsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invite_friends);
+
+        startEvent = new Intent(this, LocationActivity.class);
 
         inEvent = getIntent();
 
@@ -170,8 +174,8 @@ public class InviteFriendsActivity extends AppCompatActivity {
                     }
                 }
 
-                String topic = inEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
-                String uID = inEvent.getStringExtra(FacebookLogin.USER_ID);
+                topic = inEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
+                uID = inEvent.getStringExtra(FacebookLogin.USER_ID);
                 event = new Event();
                 event.setTopic(topic);
                 event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
@@ -183,7 +187,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
                 startEvent.putExtra(FacebookLogin.USER_ID, uID);
                 startEvent.putExtra(ATTENDEES, responseText.toString());
-
             }
         });
     }
@@ -243,7 +246,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
             temp.setHostID(arg0[0].getHostID());
             temp.setLongitude(arg0[0].getLongitude());
             temp.setLatitude(arg0[0].getLatitude());
-            temp.setDateCreated(arg0[0].getDateCreated());
             temp.setAttendees(arg0[0].getAttendees());
 
             mapper.save(temp);

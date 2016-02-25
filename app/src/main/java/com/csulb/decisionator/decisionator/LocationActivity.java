@@ -5,20 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.drm.DrmErrorEvent;
-import android.hardware.camera2.params.Face;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -27,14 +24,17 @@ import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.login.LoginManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class LocationActivity extends AppCompatActivity implements LocationListener {
 
@@ -59,6 +59,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     ProgressBar addrProg;
 
     private SharedPreferences prefs;
+    Event evnt;
 
     Intent eventInitiated;
     Intent returnHome;
@@ -179,7 +180,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         currUser.setLatitude(location.getLatitude());
         currUser.setLongitude(location.getLongitude());
 
-        Event evnt = new Event();
+        evnt = new Event();
         evnt.setEventID(eventID);
         evnt.setLatitude(location.getLatitude());
         evnt.setLongitude(location.getLongitude());
@@ -317,6 +318,67 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         friend4Addr.setText(getAddress(loc4).getAddressLine(0));
     }
 
+    private void setLocations()
+    {
+        try {
+            ArrayList<User> peopleInvolved = new getPeopleInvolved().execute(evnt).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+
+        TextView friend1Lat = (TextView) findViewById(R.id.friend1Lat);
+        TextView friend1Long = (TextView) findViewById(R.id.friend1Long);
+        TextView friend1Addr = (TextView) findViewById(R.id.friend1Addr);
+
+        TextView friend2Lat = (TextView) findViewById(R.id.friend2Lat);
+        TextView friend2Long = (TextView) findViewById(R.id.friend2Long);
+        TextView friend2Addr = (TextView) findViewById(R.id.friend2Addr);
+
+        TextView friend3Lat = (TextView) findViewById(R.id.friend3Lat);
+        TextView friend3Long = (TextView) findViewById(R.id.friend3Long);
+        TextView friend3Addr = (TextView) findViewById(R.id.friend3Addr);
+
+        TextView friend4Lat = (TextView) findViewById(R.id.friend4Lat);
+        TextView friend4Long = (TextView) findViewById(R.id.friend4Long);
+        TextView friend4Addr = (TextView) findViewById(R.id.friend4Addr);
+
+        loc1 = new Location("Dummy");
+        loc2 = new Location("Dummy");
+        loc3 = new Location("Dummy");
+        loc4 = new Location("Dummy");
+
+        loc1.setLatitude(33.787154);
+        loc1.setLongitude(-118.156446);
+
+        friend1Lat.setText("" + loc1.getLatitude() + ", ");
+        friend1Long.setText("" + loc1.getLongitude());
+        friend1Addr.setText(getAddress(loc1).getAddressLine(0));
+
+        loc2.setLatitude(33.791149);
+        loc2.setLongitude(-118.136737);
+
+        friend2Lat.setText("" + loc2.getLatitude() + ", ");
+        friend2Long.setText("" + loc2.getLongitude());
+        friend2Addr.setText(getAddress(loc2).getAddressLine(0));
+
+        loc3.setLatitude(33.808249);
+        loc3.setLongitude(-118.072546);
+
+        friend3Lat.setText("" + loc3.getLatitude() + ", ");
+        friend3Long.setText("" + loc3.getLongitude());
+        friend3Addr.setText(getAddress(loc3).getAddressLine(0));
+
+        loc4.setLatitude(33.760605);
+        loc4.setLongitude(-118.133185);
+
+        friend4Lat.setText("" + loc4.getLatitude() + ", ");
+        friend4Long.setText("" + loc4.getLongitude());
+        friend4Addr.setText(getAddress(loc4).getAddressLine(0));
+    }
+
     class updateUserLoc extends AsyncTask<User, Void, Void> {
 
         protected Void doInBackground(User... arg0) {
@@ -346,6 +408,29 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
             mapper.save(temp);
 
             return null;
+        }
+    }
+
+    class getPeopleInvolved extends AsyncTask<Event, Void, ArrayList<User>> {
+        @Override
+        protected ArrayList<User> doInBackground(Event... params) {
+            ArrayList<User> temp = new ArrayList<User>();
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            Event result = mapper.load(Event.class, params[0].getEventID());
+
+
+            List<String> peopleInvolved = Arrays.asList(result.getAttendees().split("\\s*,\\s*"));
+            peopleInvolved.add(result.getHostID());
+
+            int k;
+            for (k = 0; k < peopleInvolved.size(); k++)
+            {
+                temp.add(mapper.load(User.class, peopleInvolved.get(k)));
+            }
+
+            return temp;
         }
     }
 }
