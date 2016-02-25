@@ -183,10 +183,13 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 event.setAttendees(responseText.toString());
                 new updateEvent().execute(event);
 
+                startEvent.putExtra(EventCreationActivity.EVENT_ID,event.getEventID());
                 startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, topic);
                 startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
                 startEvent.putExtra(FacebookLogin.USER_ID, uID);
                 startEvent.putExtra(ATTENDEES, responseText.toString());
+
+                startActivity(startEvent);
             }
         });
     }
