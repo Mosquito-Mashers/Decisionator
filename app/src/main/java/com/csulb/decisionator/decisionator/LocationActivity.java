@@ -32,8 +32,10 @@ import com.facebook.login.LoginManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class LocationActivity extends AppCompatActivity implements LocationListener {
@@ -52,29 +54,30 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
     private CognitoCachingCredentialsProvider credentialsProvider;
 
-    TextView currentCoords;
-    TextView relativeAddress;
-    Button returnHomebtn;
-    Button decisionate;
-    ProgressBar coordProg;
-    ProgressBar addrProg;
+    private TextView currentCoords;
+    private TextView relativeAddress;
+    private Button returnHomebtn;
+    private Button decisionate;
+    private ProgressBar coordProg;
+    private ProgressBar addrProg;
 
     private SharedPreferences prefs;
-    Event evnt;
+    private Event evnt;
 
-    Intent eventInitiated;
-    Intent returnHome;
+    private Intent eventInitiated;
+    private Intent returnHome;
+    private Map<String, String> intentPairs = null;
 
-    Location userLoc;
+    private Location userLoc;
     /////////////////////////////////////////////
     //Debug//////////////////////////////////////
-    Location loc1;
-    Location loc2;
-    Location loc3;
-    Location loc4;
-    Location midLocation = new Location("");
-    Address midAddr;
-    ArrayList<Location> debugLocations = new ArrayList<Location>();
+    private Location loc1;
+    private Location loc2;
+    private Location loc3;
+    private Location loc4;
+    private Location midLocation = new Location("");
+    private Address midAddr;
+    private ArrayList<Location> debugLocations = new ArrayList<Location>();
     /////////////////////////////////////////////
 
 
@@ -83,6 +86,65 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
 
+        initializeGlobals();
+
+        initializeListeners();
+
+        prepareIntent(returnHome, intentPairs);
+    }
+
+    private void prepareIntent(Intent returnHome, Map<String, String> intentPairs) {
+        Iterator mapIter = intentPairs.entrySet().iterator();
+
+        while (mapIter.hasNext())
+        {
+            Map.Entry kvPair = (Map.Entry) mapIter.next();
+            returnHome.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
+        }
+    }
+
+    private void initializeListeners() {
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+
+        returnHomebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(returnHome);
+            }
+        });
+
+        decisionate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Location finalLocation = new Location("");
+                Address finalAddr;
+
+                String topic = eventInitiated.getStringExtra(EventCreationActivity.EVENT_TOPIC);
+
+                // Search for restaurants nearby
+                Uri gmmIntentUri = Uri.parse("geo:" + midLocation.getLatitude() + "," + midLocation.getLongitude() + "?q=" + topic+"&num=1");
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+
+                finalAddr = getAddress(finalLocation);
+            }
+        });
+    }
+
+    private void initializeGlobals()
+    {
         currentCoords = (TextView) findViewById(R.id.currentLocation);
         relativeAddress = (TextView) findViewById(R.id.relativeAddress);
         returnHomebtn = (Button) findViewById(R.id.returnHome);
@@ -97,6 +159,11 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         eventID = eventInitiated.getStringExtra(EventCreationActivity.EVENT_ID);
         uFName = eventInitiated.getStringExtra(FacebookLogin.USER_F_NAME);
 
+        intentPairs.put(FacebookLogin.USER_ID, uID);
+        intentPairs.put(FacebookLogin.POOL_ID, poolID);
+        intentPairs.put(EventCreationActivity.EVENT_ID, eventID);
+        intentPairs.put(FacebookLogin.USER_F_NAME, uFName);
+
 
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
@@ -107,53 +174,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         loginManager = LoginManager.getInstance();
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-
         setDummyLocations();
-
-        returnHomebtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                returnHome.putExtra(FacebookLogin.POOL_ID, poolID);
-                returnHome.putExtra(FacebookLogin.USER_ID, uID);
-                returnHome.putExtra(FacebookLogin.USER_F_NAME, uFName);
-
-                startActivity(returnHome);
-            }
-        });
-
-        decisionate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-
-                Location finalLocation = new Location("");
-                Address finalAddr;
-
-
-                String topic = eventInitiated.getStringExtra(EventCreationActivity.EVENT_TOPIC);
-
-                // Search for restaurants nearby
-                Uri gmmIntentUri = Uri.parse("geo:" + midLocation.getLatitude() + "," + midLocation.getLongitude() + "?q=" + topic+"&num=1");
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
-
-
-                finalAddr = getAddress(finalLocation);
-            }
-        });
     }
 
     @Override
