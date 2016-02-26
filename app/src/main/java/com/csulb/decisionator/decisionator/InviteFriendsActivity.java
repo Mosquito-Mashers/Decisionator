@@ -28,6 +28,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class InviteFriendsActivity extends AppCompatActivity {
@@ -41,16 +42,73 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private String uFName;
     String topic;
     String uID;
+    private Map<String, String> intentPairs = null;
+
+    private ArrayList<User> fbFriends;
+    private StringBuffer attendeeList;
+
     private Intent inEvent;
     private Intent startEvent;
     private Event event;
+
+    private ListView friendList;
+    private Button inviteButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invite_friends);
 
+        initializeGlobals();
+
+        initializeListeners();
+    }
+
+    private void initializeListeners() {
+        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                User user = (User) parent.getItemAtPosition(position);
+            }
+        });
+
+
+
+        inviteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                StringBuffer attendeeList = new StringBuffer();
+                ArrayList<User> userList = friendAdapter.friends;
+                for (int i = 0; i < userList.size(); i++) {
+                    User user = userList.get(i);
+                    if (user.isSelected()) {
+                        attendeeList.append(user.getUserID() + ",");
+                    }
+                }
+                event = new Event();
+                event.setTopic(topic);
+                event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
+                event.setEventID(inEvent.getStringExtra(EventCreationActivity.EVENT_ID));
+                event.setAttendees(attendeeList.toString());
+                new updateEvent().execute(event);
+
+                startEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
+                startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, topic);
+                startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
+                startEvent.putExtra(FacebookLogin.USER_ID, uID);
+                startEvent.putExtra(ATTENDEES, attendeeList.toString());
+                startEvent.putExtra(FacebookLogin.USER_F_NAME, uFName);
+
+                startActivity(startEvent);
+            }
+        });
+    }
+
+    private void initializeGlobals() {
         startEvent = new Intent(this, LocationActivity.class);
+        fbFriends = new ArrayList<User>();
 
         inEvent = getIntent();
 
@@ -65,14 +123,11 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
 
-        displayFriendsList();
+        friendAdapter = new FriendAdapter(this, R.layout.list_item_user_info,fbFriends);
 
-        checkButtonClick();
-    }
-
-    private void displayFriendsList()
-    {
-        ArrayList<User> fbFriends = new ArrayList<User>();
+        friendList = (ListView) findViewById(R.id.friendList);
+        inviteButton = (Button) findViewById(R.id.inviteButton);
+        friendList.setAdapter(friendAdapter);
 
         try {
             fbFriends = new getAllFriends().execute().get();
@@ -81,17 +136,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-
-        friendAdapter = new FriendAdapter(this, R.layout.list_item_user_info,fbFriends);
-        ListView friendList = (ListView) findViewById(R.id.friendList);
-        friendList.setAdapter(friendAdapter);
-
-        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                User user = (User) parent.getItemAtPosition(position);
-            }
-        });
     }
 
     private class FriendAdapter extends ArrayAdapter<User>
@@ -170,43 +214,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
 
             return convertView;
         }
-    }
-
-    private void checkButtonClick() {
-
-
-        Button myButton = (Button) findViewById(R.id.inviteButton);
-        myButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                StringBuffer responseText = new StringBuffer();
-                ArrayList<User> userList = friendAdapter.friends;
-                for (int i = 0; i < userList.size(); i++) {
-                    User user = userList.get(i);
-                    if (user.isSelected()) {
-                        responseText.append(user.getUserID()+",");
-                    }
-                }
-
-
-                event = new Event();
-                event.setTopic(topic);
-                event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
-                event.setEventID(inEvent.getStringExtra(EventCreationActivity.EVENT_ID));
-                event.setAttendees(responseText.toString());
-                new updateEvent().execute(event);
-
-                startEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
-                startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, topic);
-                startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
-                startEvent.putExtra(FacebookLogin.USER_ID, uID);
-                startEvent.putExtra(ATTENDEES, responseText.toString());
-                startEvent.putExtra(FacebookLogin.USER_F_NAME, uFName);
-
-                startActivity(startEvent);
-            }
-        });
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
