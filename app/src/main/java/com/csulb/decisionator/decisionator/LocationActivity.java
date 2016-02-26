@@ -206,8 +206,8 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
         TextView midLoc = (TextView) findViewById(R.id.midLocation);
         TextView midAddr = (TextView) findViewById(R.id.midAddr);
-        midLoc.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
-        midAddr.setText(getAddress(loc4).getAddressLine(0));
+        midLoc.setText("Latitude:" + midLocation.getLatitude() + ", Longitude:" + midLocation.getLongitude());
+        midAddr.setText(getAddress(midLocation).getAddressLine(0));
     }
 
     @Override
