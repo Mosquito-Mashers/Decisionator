@@ -3,28 +3,30 @@ package com.csulb.decisionator.decisionator;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
-import android.support.v7.app.AppCompatActivity;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
-import org.json.JSONObject;
-
-import java.util.logging.LogManager;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FacebookLogin extends AppCompatActivity {
 
@@ -32,6 +34,10 @@ public class FacebookLogin extends AppCompatActivity {
     protected final static String USER_F_NAME = "com.csulb.decisionator.USER_F_NAME";
     protected final static String USER_ID = "com.csulb.decisionator.USER_ID";
     protected final static String USER_AUTH = "com.csulb.decisionator.USER_AUTH";
+    protected final static String CRED_ACCT_ID = "com.csulb.decisionator.CRED_ACCT_ID";
+    protected final static String POOL_ID = "com.csulb.decisionator.POOL_ID";
+    protected final static String UN_ROLE_ARN = "com.csulb.decisionator.UN_ROLE_ARN";
+    protected final static String AU_ROLE_ARN = "com.csulb.decisionator.AU_ROLE_ARN";
 
     private String token;
     private boolean isLoggedIn;
@@ -44,11 +50,20 @@ public class FacebookLogin extends AppCompatActivity {
     private Button goToLobby;
     private Intent loginSuccess;
 
+    private CognitoCachingCredentialsProvider credentialsProvider;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_facebook_login);
         FacebookSdk.sdkInitialize(getApplicationContext());
+
+        credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),    /* get the context for the application */
+                "us-east-1:a74e3f8c-6c2b-40b6-89d5-46d4f870a6f2", // Identity Pool ID
+                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
+        );
+
         callbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.activity_facebook_login);
         info = (TextView)findViewById(R.id.info);
@@ -72,14 +87,29 @@ public class FacebookLogin extends AppCompatActivity {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult){
+
+                Map<String, String> logins = new HashMap<String, String>();
+                logins.put("graph.facebook.com", AccessToken.getCurrentAccessToken().getToken());
+                credentialsProvider.setLogins(logins);
+
                 token = loginResult.getAccessToken().toString();
                 Profile me = Profile.getCurrentProfile();
                 me.getFirstName();
 
+                User currentUser = new User();
+                currentUser.setUserID(me.getId());
+                currentUser.setfName(me.getFirstName());
+                currentUser.setlName(me.getLastName());
+                currentUser.setProfilePic(me.getProfilePictureUri(250,250).toString());
+
+
+                new addUserToDB().execute(currentUser);
+
                 //JSONObject profile = Util.parseJson(facebook.request("me"));
                 loginSuccess.putExtra(USER_F_NAME, me.getFirstName());
-                loginSuccess.putExtra(USER_ID, loginResult.getAccessToken().getUserId());
+                loginSuccess.putExtra(USER_ID, me.getId());
                 loginSuccess.putExtra(USER_AUTH, loginResult.getAccessToken());
+                loginSuccess.putExtra(POOL_ID,credentialsProvider.getIdentityPoolId());
 
                 goToLobby.setVisibility(View.VISIBLE);
                 isLoggedIn = true;
@@ -100,12 +130,28 @@ public class FacebookLogin extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    private boolean checkLogin()
+    public CognitoCachingCredentialsProvider getCredentials()
     {
-        boolean loggedIn = false;
+        return credentialsProvider;
+    }
 
-        loggedIn = prefs.getBoolean("isLoggedIn",false);
+    class addUserToDB extends AsyncTask<User, Void, Void> {
 
-        return loggedIn;
+        protected Void doInBackground(User... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            User temp = mapper.load(User.class, arg0[0].getUserID());
+            temp.setProfilePic(arg0[0].getProfilePic());
+            temp.setLatitude(arg0[0].getLatitude());
+            temp.setLongitude(arg0[0].getLongitude());
+            temp.setlName(arg0[0].getlName());
+            temp.setfName(arg0[0].getfName());
+
+
+            mapper.save(temp);
+
+            return null;
+        }
     }
 }

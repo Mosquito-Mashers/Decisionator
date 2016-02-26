@@ -1,13 +1,11 @@
 package com.csulb.decisionator.decisionator;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 public class LobbyActivity extends AppCompatActivity {
 
@@ -29,7 +27,12 @@ public class LobbyActivity extends AppCompatActivity {
         createEventIntent = new Intent(this, EventCreationActivity.class);
 
         String uName = loginSuccess.getStringExtra(FacebookLogin.USER_F_NAME);
+        String uID = loginSuccess.getStringExtra(FacebookLogin.USER_ID);
         String welcomeString = welcomeMessage.getText() + " " + uName + "!";
+        String poolID = loginSuccess.getStringExtra(FacebookLogin.POOL_ID);
+        createEventIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        createEventIntent.putExtra(FacebookLogin.USER_ID, uID);
+        createEventIntent.putExtra(FacebookLogin.USER_F_NAME,uName);
 
         welcomeMessage.setText(welcomeString);
 
