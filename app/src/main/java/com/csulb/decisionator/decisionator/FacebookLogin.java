@@ -26,11 +26,12 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class FacebookLogin extends AppCompatActivity {
 
-    //Keys for the intent
+    //Keys for passing intents
     protected final static String USER_F_NAME = "com.csulb.decisionator.USER_F_NAME";
     protected final static String USER_ID = "com.csulb.decisionator.USER_ID";
     protected final static String USER_AUTH = "com.csulb.decisionator.USER_AUTH";
@@ -39,102 +40,146 @@ public class FacebookLogin extends AppCompatActivity {
     protected final static String UN_ROLE_ARN = "com.csulb.decisionator.UN_ROLE_ARN";
     protected final static String AU_ROLE_ARN = "com.csulb.decisionator.AU_ROLE_ARN";
 
-    private String token;
     private boolean isLoggedIn;
     private SharedPreferences prefs;
 
+    //Facebook api items
     private CallbackManager callbackManager;
     private LoginManager logManager;
     private LoginButton loginButton;
+
+    //Amazon api items
+    private CognitoCachingCredentialsProvider credentialsProvider;
+
+    //Gui items
     private TextView info;
     private Button goToLobby;
     private Intent loginSuccess;
 
-    private CognitoCachingCredentialsProvider credentialsProvider;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_facebook_login);
-        FacebookSdk.sdkInitialize(getApplicationContext());
 
-        credentialsProvider = new CognitoCachingCredentialsProvider(
-                getApplicationContext(),    /* get the context for the application */
-                "us-east-1:a74e3f8c-6c2b-40b6-89d5-46d4f870a6f2", // Identity Pool ID
-                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
-        );
+        //Initialize the global variables for:
+        //Android objects
+        //Api objects
+        initializeGlobals();
 
-        callbackManager = CallbackManager.Factory.create();
+        //Create and assign the appropriate listeners for each gui object
+        initializeListeners();
+
+        //Start the Facebook api callback
+        createFBCallback();
+
         setContentView(R.layout.activity_facebook_login);
-        info = (TextView)findViewById(R.id.info);
-        loginButton = (LoginButton)findViewById(R.id.login_button);
-        goToLobby = (Button) findViewById(R.id.goToLobby);
+    }
 
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        logManager = LoginManager.getInstance();
-        logManager.logOut();
-
-        goToLobby.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(loginSuccess);
-            }
-        });
-
-        loginSuccess = new Intent(this, LobbyActivity.class);
-
+    private void createFBCallback()
+    {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
-            public void onSuccess(LoginResult loginResult){
+            public void onSuccess(LoginResult loginResult) {
 
                 Map<String, String> logins = new HashMap<String, String>();
                 logins.put("graph.facebook.com", AccessToken.getCurrentAccessToken().getToken());
                 credentialsProvider.setLogins(logins);
 
-                token = loginResult.getAccessToken().toString();
+                //Get all relevant facebook data
                 Profile me = Profile.getCurrentProfile();
-                me.getFirstName();
 
+                //Create a new user db object
                 User currentUser = new User();
                 currentUser.setUserID(me.getId());
                 currentUser.setfName(me.getFirstName());
                 currentUser.setlName(me.getLastName());
-                currentUser.setProfilePic(me.getProfilePictureUri(250,250).toString());
+                currentUser.setProfilePic(me.getProfilePictureUri(R.integer.fb_profile_pic, R.integer.fb_profile_pic).toString());
 
-
+                //Start the asynchronous push to the db
                 new addUserToDB().execute(currentUser);
 
-                //JSONObject profile = Util.parseJson(facebook.request("me"));
-                loginSuccess.putExtra(USER_F_NAME, me.getFirstName());
-                loginSuccess.putExtra(USER_ID, me.getId());
-                loginSuccess.putExtra(USER_AUTH, loginResult.getAccessToken());
-                loginSuccess.putExtra(POOL_ID,credentialsProvider.getIdentityPoolId());
+                //Prepare all the intent data to be passed to the next activity
+                Map<String, String> intentValues = null;
 
+                intentValues.put(USER_F_NAME, me.getFirstName());
+                intentValues.put(USER_ID, me.getId());
+                intentValues.put(USER_AUTH, loginResult.getAccessToken().toString());
+                intentValues.put(POOL_ID, credentialsProvider.getIdentityPoolId());
+
+                populateIntent(loginSuccess, intentValues);
+
+                //Show the button to allow the user to move on
                 goToLobby.setVisibility(View.VISIBLE);
                 isLoggedIn = true;
                 prefs.edit().putBoolean("isLoggedIn", isLoggedIn).commit(); // isLoggedIn is a boolean value of your login status
             }
+
             @Override
             public void onCancel() {
-
+                info.setText("Login attempt canceled.");
             }
+
             @Override
             public void onError(FacebookException e) {
                 info.setText("Login attempt failed.");
             }
         });
     }
+
+    private void populateIntent(Intent loginSuccess, Map<String, String> intentValues)
+    {
+        Iterator mapIter = intentValues.entrySet().iterator();
+
+        while (mapIter.hasNext())
+        {
+            Map.Entry kvPair = (Map.Entry) mapIter.next();
+            loginSuccess.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
+        }
+    }
+
+    private void initializeListeners()
+    {
+        goToLobby.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(loginSuccess);
+            }
+        });
+    }
+
+    private void initializeGlobals()
+    {
+        //Initialize the facebook api
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        callbackManager = CallbackManager.Factory.create();
+        logManager = LoginManager.getInstance();
+        logManager.logOut();
+
+        //Initialize Amazon api
+        credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),    /* get the context for the application */
+                "us-east-1:a74e3f8c-6c2b-40b6-89d5-46d4f870a6f2", // Identity Pool ID
+                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
+        );
+
+        //Initialize android objects
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+        //Initialize the intents
+        loginSuccess = new Intent(this, LobbyActivity.class);
+
+        //Assign gui objects
+        info = (TextView)findViewById(R.id.info);
+        loginButton = (LoginButton)findViewById(R.id.login_button);
+        goToLobby = (Button) findViewById(R.id.goToLobby);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    public CognitoCachingCredentialsProvider getCredentials()
-    {
-        return credentialsProvider;
-    }
-
+    //Asynchronous task to add a user to the db, updates user it they already exist
     class addUserToDB extends AsyncTask<User, Void, Void> {
 
         protected Void doInBackground(User... arg0) {
@@ -148,9 +193,7 @@ public class FacebookLogin extends AppCompatActivity {
             temp.setlName(arg0[0].getlName());
             temp.setfName(arg0[0].getfName());
 
-
             mapper.save(temp);
-
             return null;
         }
     }
