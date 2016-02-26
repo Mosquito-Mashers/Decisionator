@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -106,6 +107,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
 
         private class ViewHolder
         {
+            RelativeLayout friendContainer;
             ImageView profilePic;
             CheckBox name;
         }
@@ -122,13 +124,22 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 convertView = vi.inflate(R.layout.list_item_user_info, null);
 
                 holder = new ViewHolder();
+                holder.friendContainer = (RelativeLayout) convertView.findViewById(R.id.friendContainer);
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
                 holder.name = (CheckBox) convertView.findViewById(R.id.userCheckbox);
                 convertView.setTag(holder);
 
-                holder.name.setOnClickListener( new View.OnClickListener() {
+                holder.friendContainer.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        CheckBox cb = (CheckBox) v ;
+                        final RelativeLayout rtl = (RelativeLayout) v;
+                        rtl.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                CheckBox cb = (CheckBox) rtl.getChildAt(0);
+                                cb.setChecked(!cb.isChecked());
+                            }
+                        });
+                        CheckBox cb = (CheckBox) rtl.getChildAt(0);
                         User user = (User) cb.getTag();
                         user.setSelected(cb.isChecked());
                     }

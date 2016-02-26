@@ -5,11 +5,15 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -63,6 +67,15 @@ public class EventCreationActivity extends AppCompatActivity {
         moveToInvite = new Intent(this, InviteFriendsActivity.class);
         context = getApplicationContext();
 
+        eventTopic.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard();
+                }
+            }
+        });
 
         inviteFriends.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +83,7 @@ public class EventCreationActivity extends AppCompatActivity {
 
 
                 String topic = eventTopic.getText().toString();
-                moveToInvite.putExtra(EVENT_TOPIC,topic);
+                moveToInvite.putExtra(EVENT_TOPIC, topic);
                 moveToInvite.putExtra(FacebookLogin.POOL_ID,poolID);
                 moveToInvite.putExtra(FacebookLogin.USER_ID,uID);
                 moveToInvite.putExtra(FacebookLogin.USER_F_NAME,uFname);
@@ -81,7 +94,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 Event evnt = new Event();
 
                 UUID eventID = UUID.randomUUID();
-                moveToInvite.putExtra(EVENT_ID,eventID.toString());
+                moveToInvite.putExtra(EVENT_ID, eventID.toString());
 
                 evnt.setEventID(eventID.toString());
                 evnt.setHostID(uID);
@@ -89,16 +102,13 @@ public class EventCreationActivity extends AppCompatActivity {
                 evnt.setDateCreated(date.toString());
 
                 new addEventToDB().execute(evnt);
-
-                showPopup("The topic is " + topic,context);
                 if(categories.getCheckedRadioButtonId() > 0)
                 {
                     selectedCategory = (RadioButton) findViewById(categories.getCheckedRadioButtonId());
-                    showPopup("The category is " + selectedCategory.getText().toString(), context);
                 }
                 else
                 {
-                    showPopup("The category is null", context);
+                    selectedCategory = (RadioButton) findViewById(R.id.radioLocation);
                 }
                 startActivity(moveToInvite);
             }
@@ -145,20 +155,9 @@ public class EventCreationActivity extends AppCompatActivity {
         */
     }
 
-    public void showPopup(CharSequence text, Context ctx)
-    {
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(ctx, text, duration);
-        toast.show();
-    }
-
-    private CognitoCachingCredentialsProvider validateCredentials()
-    {
-        FacebookLogin fb = new FacebookLogin();
-
-
-        return fb.getCredentials();
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(eventTopic.getWindowToken(), 0);
     }
 
     class addEventToDB extends AsyncTask<Event, Void, Void> {
@@ -171,26 +170,4 @@ public class EventCreationActivity extends AppCompatActivity {
             return null;
         }
     }
-    /*
-    class getLatestEvent extends AsyncTask<Void, Void, Integer> {
-
-        protected Integer doInBackground(Void... arg0) {
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-
-            ddbClient.getTa
-
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-            scanExpression.
-
-            Event temp = mapper.load(Event.class, arg0[0].getEventID());
-
-            if(temp == null)
-            {
-                mapper.save(arg0[0]);
-            }
-            return null;
-        }
-    }
-    */
 }
