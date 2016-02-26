@@ -13,11 +13,11 @@ import java.util.Map;
 public class LobbyActivity extends AppCompatActivity {
 
     //Values retrieved from intent
-    String uName;
-    String uID;
-    String welcomeString;
-    String poolID;
-    Map<String, String> intentPairs = null;
+    private String uName;
+    private String uID;
+    private String welcomeString;
+    private String poolID;
+    private Map<String, String> intentPairs = null;
 
     //Gui items
     private Intent loginSuccess;

@@ -5,24 +5,21 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 
 public class EventCreationActivity extends AppCompatActivity {
@@ -33,21 +30,48 @@ public class EventCreationActivity extends AppCompatActivity {
     private String uID;
     private String poolID;
     private String uFname;
+    private String topic;
+    private UUID eventID;
+    private Map<String, String> intentPairs = null;
 
-    EditText eventTopic;
-    Button inviteFriends;
-    RadioGroup categories;
-    RadioButton selectedCategory;
-    Intent fromLobby;
-    Intent inviteClicked;
-    Intent moveToInvite;
-    Context context;
+    private EditText eventTopic;
+    private Button inviteFriends;
+    private RadioGroup categories;
+    private RadioButton selectedCategory;
+
+    private Intent fromLobby;
+    private Intent moveToInvite;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_event_creation);
 
+        //Initialize the global variables for:
+        //Android objects
+        //Api objects
+        initializeGlobals();
+
+        //Create and assign the appropriate listeners for each gui object
+        initializeListeners();
+
+        prepareIntent(moveToInvite, intentPairs);
+
+        setContentView(R.layout.activity_event_creation);
+    }
+
+    private void prepareIntent(Intent moveToInvite, Map<String, String> intentPairs) {
+        Iterator mapIter = intentPairs.entrySet().iterator();
+
+        while (mapIter.hasNext())
+        {
+            Map.Entry kvPair = (Map.Entry) mapIter.next();
+            moveToInvite.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
+        }
+    }
+
+    private void initializeGlobals() {
+        moveToInvite = new Intent(this, InviteFriendsActivity.class);
         fromLobby = getIntent();
 
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
@@ -59,14 +83,16 @@ public class EventCreationActivity extends AppCompatActivity {
                 poolID, // Identity Pool ID
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
+
+        eventID = UUID.randomUUID();
         eventTopic = (EditText) findViewById(R.id.eventTopic);
         inviteFriends = (Button) findViewById(R.id.inviteFriendsBtn);
         categories = (RadioGroup) findViewById(R.id.eventCategories);
 
-        inviteClicked = new Intent(this, LocationActivity.class);
-        moveToInvite = new Intent(this, InviteFriendsActivity.class);
         context = getApplicationContext();
+    }
 
+    private void initializeListeners() {
         eventTopic.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
             @Override
@@ -80,28 +106,28 @@ public class EventCreationActivity extends AppCompatActivity {
         inviteFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                topic = eventTopic.getText().toString();
 
-
-                String topic = eventTopic.getText().toString();
-                moveToInvite.putExtra(EVENT_TOPIC, topic);
-                moveToInvite.putExtra(FacebookLogin.POOL_ID,poolID);
-                moveToInvite.putExtra(FacebookLogin.USER_ID,uID);
-                moveToInvite.putExtra(FacebookLogin.USER_F_NAME,uFname);
-
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 Date date = new Date();
 
+
+
+                intentPairs.put(EVENT_TOPIC, topic);
+                intentPairs.put(FacebookLogin.POOL_ID, poolID);
+                intentPairs.put(FacebookLogin.USER_ID, uID);
+                intentPairs.put(FacebookLogin.USER_F_NAME, uFname);
+                intentPairs.put(EVENT_ID, eventID.toString());
+
+                prepareIntent(moveToInvite,intentPairs);
+
                 Event evnt = new Event();
-
-                UUID eventID = UUID.randomUUID();
-                moveToInvite.putExtra(EVENT_ID, eventID.toString());
-
                 evnt.setEventID(eventID.toString());
                 evnt.setHostID(uID);
                 evnt.setTopic(topic);
                 evnt.setDateCreated(date.toString());
 
                 new addEventToDB().execute(evnt);
+
                 if(categories.getCheckedRadioButtonId() > 0)
                 {
                     selectedCategory = (RadioButton) findViewById(categories.getCheckedRadioButtonId());
@@ -110,49 +136,10 @@ public class EventCreationActivity extends AppCompatActivity {
                 {
                     selectedCategory = (RadioButton) findViewById(R.id.radioLocation);
                 }
+
                 startActivity(moveToInvite);
             }
         });
-        /*
-        inviteFriends.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-
-                String topic = eventTopic.getText().toString();
-                inviteClicked.putExtra(EVENT_TOPIC,topic);
-                inviteClicked.putExtra(FacebookLogin.POOL_ID,poolID);
-                inviteClicked.putExtra(FacebookLogin.USER_ID,uID);
-
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                Date date = new Date();
-
-                Event evnt = new Event();
-
-                UUID eventID = UUID.randomUUID();
-                inviteClicked.putExtra(EVENT_ID,eventID.toString());
-
-                evnt.setEventID(eventID.toString());
-                evnt.setHostID(uID);
-                evnt.setTopic(topic);
-                evnt.setDateCreated(date.toString());
-
-                new addEventToDB().execute(evnt);
-
-                showPopup("The topic is " + topic,context);
-                if(categories.getCheckedRadioButtonId() > 0)
-                {
-                    selectedCategory = (RadioButton) findViewById(categories.getCheckedRadioButtonId());
-                    showPopup("The category is " + selectedCategory.getText().toString(), context);
-                }
-                else
-                {
-                    showPopup("The category is null", context);
-                }
-                startActivity(inviteClicked);
-            }
-        });
-        */
     }
 
     private void hideKeyboard() {
