@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -28,7 +27,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
 
 public class InviteFriendsActivity extends AppCompatActivity {
 
@@ -41,16 +40,76 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private String uFName;
     String topic;
     String uID;
+    private Map<String, String> intentPairs = null;
+
+    private ArrayList<User> fbFriends;
+    private StringBuffer attendeeList;
+
     private Intent inEvent;
     private Intent startEvent;
     private Event event;
+
+    private ListView friendList;
+    private Button inviteButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invite_friends);
 
+        initializeGlobals();
+
+        initializeListeners();
+    }
+
+    private void initializeListeners() {
+
+
+
+        inviteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                StringBuffer attendeeList = new StringBuffer();
+                String attendees;
+                ArrayList<User> userList = friendAdapter.friends;
+                for (int i = 0; i < userList.size(); i++) {
+                    User user = userList.get(i);
+                    if (user.isSelected()) {
+
+                        attendeeList.append(user.getfName() + " " + user.getlName() + ", ");
+                    }
+                }
+                if(attendeeList.length() > 0) {
+                    attendees = attendeeList.substring(0, attendeeList.length() - 2);
+                }
+                else
+                {
+                    attendees = "None";
+                }
+                event = new Event();
+                event.setTopic(topic);
+                event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
+                event.setEventID(inEvent.getStringExtra(EventCreationActivity.EVENT_ID));
+                event.setAttendees(attendees);
+                new updateEvent().execute(event);
+
+                startEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
+                startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, topic);
+                startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
+                startEvent.putExtra(FacebookLogin.USER_ID, uID);
+                startEvent.putExtra(ATTENDEES, attendees);
+                startEvent.putExtra(FacebookLogin.USER_F_NAME, uFName);
+
+                startActivity(startEvent);
+            }
+        });
+    }
+
+    private void initializeGlobals() {
         startEvent = new Intent(this, LocationActivity.class);
+        fbFriends = new ArrayList<User>();
 
         inEvent = getIntent();
 
@@ -65,33 +124,9 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
 
-        displayFriendsList();
+        new getAllFriends().execute();
 
-        checkButtonClick();
-    }
-
-    private void displayFriendsList()
-    {
-        ArrayList<User> fbFriends = new ArrayList<User>();
-
-        try {
-            fbFriends = new getAllFriends().execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        friendAdapter = new FriendAdapter(this, R.layout.list_item_user_info,fbFriends);
-        ListView friendList = (ListView) findViewById(R.id.friendList);
-        friendList.setAdapter(friendAdapter);
-
-        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                User user = (User) parent.getItemAtPosition(position);
-            }
-        });
+        inviteButton = (Button) findViewById(R.id.inviteButton);
     }
 
     private class FriendAdapter extends ArrayAdapter<User>
@@ -116,38 +151,49 @@ public class InviteFriendsActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
 
             ViewHolder holder = null;
-            Log.v("ConvertView", String.valueOf(position));
 
+
+
+            /*
+            holder.name.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    CheckBox cb = (CheckBox) v;
+                    User user = (User) cb.getTag();
+                    user.setSelected(cb.isChecked());
+                }
+            });
+            */
             if (convertView == null) {
                 LayoutInflater vi = (LayoutInflater)getSystemService(
                         Context.LAYOUT_INFLATER_SERVICE);
                 convertView = vi.inflate(R.layout.list_item_user_info, null);
 
                 holder = new ViewHolder();
-                holder.friendContainer = (RelativeLayout) convertView.findViewById(R.id.friendContainer);
-                holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
-                holder.name = (CheckBox) convertView.findViewById(R.id.userCheckbox);
+
+
+
                 convertView.setTag(holder);
 
-                holder.friendContainer.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        final RelativeLayout rtl = (RelativeLayout) v;
-                        rtl.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                CheckBox cb = (CheckBox) rtl.getChildAt(0);
-                                cb.setChecked(!cb.isChecked());
-                            }
-                        });
-                        CheckBox cb = (CheckBox) rtl.getChildAt(0);
-                        User user = (User) cb.getTag();
-                        user.setSelected(cb.isChecked());
-                    }
-                });
+
             }
             else {
                 holder = (ViewHolder) convertView.getTag();
             }
+
+            holder.friendContainer = (RelativeLayout) convertView.findViewById(R.id.friendContainer);
+            holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
+            holder.name = (CheckBox) convertView.findViewById(R.id.userCheckbox);
+            holder.friendContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    RelativeLayout rtl = (RelativeLayout) v;
+                    CheckBox cb = (CheckBox) rtl.getChildAt(0);
+                    User user = (User)cb.getTag();
+
+                    cb.performClick();
+                    user.setSelected(cb.isChecked());
+                }
+            });
 
             User user = friends.get(position);
 
@@ -156,13 +202,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
             }
             else
             {
-                try {
-                    Bitmap profile = new DownloadImageTask(holder.profilePic).execute(user.getProfilePic()).get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
+                new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
             }
             holder.name.setText(user.getfName() + " " + user.getlName());
             holder.name.setChecked(user.isSelected());
@@ -170,43 +210,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
 
             return convertView;
         }
-    }
-
-    private void checkButtonClick() {
-
-
-        Button myButton = (Button) findViewById(R.id.inviteButton);
-        myButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                StringBuffer responseText = new StringBuffer();
-                ArrayList<User> userList = friendAdapter.friends;
-                for (int i = 0; i < userList.size(); i++) {
-                    User user = userList.get(i);
-                    if (user.isSelected()) {
-                        responseText.append(user.getUserID()+",");
-                    }
-                }
-
-
-                event = new Event();
-                event.setTopic(topic);
-                event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
-                event.setEventID(inEvent.getStringExtra(EventCreationActivity.EVENT_ID));
-                event.setAttendees(responseText.toString());
-                new updateEvent().execute(event);
-
-                startEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
-                startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, topic);
-                startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
-                startEvent.putExtra(FacebookLogin.USER_ID, uID);
-                startEvent.putExtra(ATTENDEES, responseText.toString());
-                startEvent.putExtra(FacebookLogin.USER_F_NAME, uFName);
-
-                startActivity(startEvent);
-            }
-        });
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
@@ -255,6 +258,16 @@ public class InviteFriendsActivity extends AppCompatActivity {
             }
 
             return temp;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<User> res)
+        {
+            friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_user_info,res);
+
+            friendList = (ListView) findViewById(R.id.friendList);
+            friendList.setAdapter(friendAdapter);
+
         }
     }
 
