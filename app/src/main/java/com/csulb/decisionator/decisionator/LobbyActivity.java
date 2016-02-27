@@ -300,7 +300,7 @@ public class LobbyActivity extends AppCompatActivity {
             {
                 Event item = result.get(k);
                 if(item.getAttendees() != null) {
-                    if (item.getHostID().contentEquals(uID) || item.getAttendees().contains(uID)) {
+                    if (item.getHostID().contentEquals(uID) || item.getAttendees().contains(uName)) {
                         temp.add(item);
                     }
                 }
