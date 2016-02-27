@@ -72,6 +72,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 StringBuffer attendeeList = new StringBuffer();
+                String attendees;
                 ArrayList<User> userList = friendAdapter.friends;
                 for (int i = 0; i < userList.size(); i++) {
                     User user = userList.get(i);
@@ -80,7 +81,13 @@ public class InviteFriendsActivity extends AppCompatActivity {
                         attendeeList.append(user.getfName() + " " + user.getlName() + ", ");
                     }
                 }
-                String attendees = attendeeList.substring(0,attendeeList.length()-2);
+                if(attendeeList.length() > 0) {
+                    attendees = attendeeList.substring(0, attendeeList.length() - 2);
+                }
+                else
+                {
+                    attendees = "None";
+                }
                 event = new Event();
                 event.setTopic(topic);
                 event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
