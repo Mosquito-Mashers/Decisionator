@@ -299,9 +299,10 @@ public class LobbyActivity extends AppCompatActivity {
             for (k = 0; k < result.size(); k++)
             {
                 Event item = result.get(k);
-                if (item.getHostID().contentEquals(uID) || item.getAttendees().contains(uID))
-                {
-                    temp.add(item);
+                if(item.getAttendees() != null) {
+                    if (item.getHostID().contentEquals(uID) || item.getAttendees().contains(uID)) {
+                        temp.add(item);
+                    }
                 }
             }
             return temp;
