@@ -32,12 +32,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Host"/>
+                android:text="Hosted by"/>
             <TextView
                 android:id="@+id/hostName"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:id="@+id/goToEvent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"/>
+                android:layout_centerHorizontal="true"
+                android:textSize="10dp"
+                android:text="View event"/>
 
         </LinearLayout>
         <LinearLayout
