@@ -14,6 +14,7 @@ public class Event {
     private String attendees;
     private String topic;
     private String dateCreated;
+    private String category;
     private double latitude;
     private double longitude;
 
@@ -62,6 +63,14 @@ public class Event {
         this.dateCreated = dateCreated;
     }
 
+    @DynamoDBAttribute(attributeName = "category")
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
     @DynamoDBAttribute(attributeName = "latitude")
     public double getLatitude() {
         return latitude;
