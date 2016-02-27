@@ -11,9 +11,6 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 public class Event {
     private String eventID;
     private String hostID;
-
-
-
     private String hostName;
     private String attendees;
     private String topic;
@@ -21,6 +18,7 @@ public class Event {
     private String category;
     private double latitude;
     private double longitude;
+
 
     @DynamoDBHashKey(attributeName = "eventID")
     public String getEventID() {
