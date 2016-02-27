@@ -18,6 +18,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -32,7 +33,7 @@ public class EventCreationActivity extends AppCompatActivity {
     private String uFname;
     private String topic;
     private UUID eventID;
-    private Map<String, String> intentPairs = null;
+    private static final Map<String, String> intentPairs = new HashMap<String, String>();
 
     private EditText eventTopic;
     private Button inviteFriends;
@@ -46,6 +47,7 @@ public class EventCreationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_event_creation);
 
         //Initialize the global variables for:
         //Android objects
@@ -56,8 +58,6 @@ public class EventCreationActivity extends AppCompatActivity {
         initializeListeners();
 
         prepareIntent(moveToInvite, intentPairs);
-
-        setContentView(R.layout.activity_event_creation);
     }
 
     private void prepareIntent(Intent moveToInvite, Map<String, String> intentPairs) {
@@ -109,8 +109,6 @@ public class EventCreationActivity extends AppCompatActivity {
                 topic = eventTopic.getText().toString();
 
                 Date date = new Date();
-
-
 
                 intentPairs.put(EVENT_TOPIC, topic);
                 intentPairs.put(FacebookLogin.POOL_ID, poolID);

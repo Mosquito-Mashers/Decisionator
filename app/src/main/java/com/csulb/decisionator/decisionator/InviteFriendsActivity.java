@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -30,6 +32,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import static com.csulb.decisionator.decisionator.R.color.colorAccent;
 
 public class InviteFriendsActivity extends AppCompatActivity {
 
@@ -66,12 +70,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
     }
 
     private void initializeListeners() {
-        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                User user = (User) parent.getItemAtPosition(position);
-            }
-        });
 
 
 
@@ -123,12 +121,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
 
-        friendAdapter = new FriendAdapter(this, R.layout.list_item_user_info,fbFriends);
-
-        friendList = (ListView) findViewById(R.id.friendList);
-        inviteButton = (Button) findViewById(R.id.inviteButton);
-        friendList.setAdapter(friendAdapter);
-
         try {
             fbFriends = new getAllFriends().execute().get();
         } catch (InterruptedException e) {
@@ -136,6 +128,35 @@ public class InviteFriendsActivity extends AppCompatActivity {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+
+        friendAdapter = new FriendAdapter(this, R.layout.list_item_user_info,fbFriends);
+
+        friendList = (ListView) findViewById(R.id.friendList);
+        inviteButton = (Button) findViewById(R.id.inviteButton);
+
+        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                /*User user = (User) friendList.getItemAtPosition(position);
+                RelativeLayout rtl = (RelativeLayout) view.findViewById(R.id.friendContainer);
+                CheckBox cb = (CheckBox) view.findViewById(R.id.userCheckbox);
+
+                Drawable origBackground = parent.getBackground();
+
+                cb.performClick();
+                if(cb.isChecked()) {
+                    friendList.getChildAt(position).setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                }
+                else
+                {
+                    friendList.getChildAt(position).setBackgroundDrawable(origBackground);
+                }
+                */
+
+            }
+        });
+
+        friendList.setAdapter(friendAdapter);
     }
 
     private class FriendAdapter extends ArrayAdapter<User>
@@ -160,38 +181,49 @@ public class InviteFriendsActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
 
             ViewHolder holder = null;
-            Log.v("ConvertView", String.valueOf(position));
 
+
+
+            /*
+            holder.name.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    CheckBox cb = (CheckBox) v;
+                    User user = (User) cb.getTag();
+                    user.setSelected(cb.isChecked());
+                }
+            });
+            */
             if (convertView == null) {
                 LayoutInflater vi = (LayoutInflater)getSystemService(
                         Context.LAYOUT_INFLATER_SERVICE);
                 convertView = vi.inflate(R.layout.list_item_user_info, null);
 
                 holder = new ViewHolder();
-                holder.friendContainer = (RelativeLayout) convertView.findViewById(R.id.friendContainer);
-                holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
-                holder.name = (CheckBox) convertView.findViewById(R.id.userCheckbox);
+
+
+
                 convertView.setTag(holder);
 
-                holder.friendContainer.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        final RelativeLayout rtl = (RelativeLayout) v;
-                        rtl.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                CheckBox cb = (CheckBox) rtl.getChildAt(0);
-                                cb.setChecked(!cb.isChecked());
-                            }
-                        });
-                        CheckBox cb = (CheckBox) rtl.getChildAt(0);
-                        User user = (User) cb.getTag();
-                        user.setSelected(cb.isChecked());
-                    }
-                });
+
             }
             else {
                 holder = (ViewHolder) convertView.getTag();
             }
+
+            holder.friendContainer = (RelativeLayout) convertView.findViewById(R.id.friendContainer);
+            holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
+            holder.name = (CheckBox) convertView.findViewById(R.id.userCheckbox);
+            holder.friendContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    RelativeLayout rtl = (RelativeLayout) v;
+                    CheckBox cb = (CheckBox) rtl.getChildAt(0);
+                    User user = (User)cb.getTag();
+
+                    cb.performClick();
+                    user.setSelected(cb.isSelected());
+                }
+            });
 
             User user = friends.get(position);
 

@@ -32,10 +32,13 @@ import com.facebook.login.LoginManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 public class LocationActivity extends AppCompatActivity implements LocationListener {
@@ -47,6 +50,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     protected String latitude, longitude;
     protected boolean gps_enabled, network_enabled;
 
+
     private String uID;
     private String poolID;
     private String eventID;
@@ -56,17 +60,20 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
     private TextView currentCoords;
     private TextView relativeAddress;
+    private TextView midLoc;
+    private TextView midAdr;
     private Button returnHomebtn;
     private Button decisionate;
     private ProgressBar coordProg;
     private ProgressBar addrProg;
+
 
     private SharedPreferences prefs;
     private Event evnt;
 
     private Intent eventInitiated;
     private Intent returnHome;
-    private Map<String, String> intentPairs = null;
+    private static final Map<String, String> intentPairs = new HashMap<String, String>();
 
     private Location userLoc;
     /////////////////////////////////////////////
@@ -90,7 +97,16 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
         initializeListeners();
 
+        setInitialLoc();
+
         prepareIntent(returnHome, intentPairs);
+    }
+
+    private void setInitialLoc() {
+        Address relativeAddr = getAddress(userLoc);
+
+        currentCoords.setText("Latitude:" + userLoc.getLatitude() + ", Longitude:" + userLoc.getLongitude());
+        relativeAddress.setText(relativeAddr.getAddressLine(0));
     }
 
     private void prepareIntent(Intent returnHome, Map<String, String> intentPairs) {
@@ -115,7 +131,8 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
 
         returnHomebtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,6 +164,8 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     {
         currentCoords = (TextView) findViewById(R.id.currentLocation);
         relativeAddress = (TextView) findViewById(R.id.relativeAddress);
+        midLoc = (TextView) findViewById(R.id.midLocation);
+        midAdr = (TextView) findViewById(R.id.midAddr);
         returnHomebtn = (Button) findViewById(R.id.returnHome);
         decisionate = (Button) findViewById(R.id.makeDecision);
         coordProg = (ProgressBar) findViewById(R.id.coordLoading);
@@ -225,10 +244,9 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         midLocation = getMidLocation(debugLocations);
         midAddr = getAddress(midLocation);
 
-        TextView midLoc = (TextView) findViewById(R.id.midLocation);
-        TextView midAddr = (TextView) findViewById(R.id.midAddr);
+
         midLoc.setText("Latitude:" + midLocation.getLatitude() + ", Longitude:" + midLocation.getLongitude());
-        midAddr.setText(getAddress(midLocation).getAddressLine(0));
+        midAdr.setText(getAddress(midLocation).getAddressLine(0));
     }
 
     @Override

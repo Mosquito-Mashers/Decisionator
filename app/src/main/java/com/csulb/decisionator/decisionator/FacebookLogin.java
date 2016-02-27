@@ -42,6 +42,7 @@ public class FacebookLogin extends AppCompatActivity {
 
     private boolean isLoggedIn;
     private SharedPreferences prefs;
+    private static final Map<String, String> intentValues = new HashMap<String, String>();
 
     //Facebook api items
     private CallbackManager callbackManager;
@@ -60,6 +61,16 @@ public class FacebookLogin extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Initialize the facebook api
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        callbackManager = CallbackManager.Factory.create();
+        logManager = LoginManager.getInstance();
+
+        setContentView(R.layout.activity_facebook_login);
+
+        logManager.logOut();
+        isLoggedIn = false;
+
         //Initialize the global variables for:
         //Android objects
         //Api objects
@@ -71,7 +82,35 @@ public class FacebookLogin extends AppCompatActivity {
         //Start the Facebook api callback
         createFBCallback();
 
-        setContentView(R.layout.activity_facebook_login);
+        //checkIfLoggedIn();
+    }
+
+    private void checkIfLoggedIn() {
+        AccessToken tok = AccessToken.getCurrentAccessToken();
+        if(tok != null)
+        {
+            //Get all relevant facebook data
+            Profile me = Profile.getCurrentProfile();
+
+            //Create a new user db object
+            User currentUser = new User();
+            currentUser.setUserID(me.getId());
+            currentUser.setfName(me.getFirstName());
+            currentUser.setlName(me.getLastName());
+            currentUser.setProfilePic(me.getProfilePictureUri(R.integer.fb_profile_pic, R.integer.fb_profile_pic).toString());
+
+            //Start the asynchronous push to the db
+            new addUserToDB().execute(currentUser);
+
+            //Prepare all the intent data to be passed to the next activity
+            intentValues.put(USER_F_NAME, me.getFirstName());
+            intentValues.put(USER_ID, me.getId());
+            intentValues.put(USER_AUTH, tok.toString());
+            intentValues.put(POOL_ID, credentialsProvider.getIdentityPoolId());
+
+            populateIntent(loginSuccess, intentValues);
+            startActivity(loginSuccess);
+        }
     }
 
     private void createFBCallback()
@@ -98,8 +137,6 @@ public class FacebookLogin extends AppCompatActivity {
                 new addUserToDB().execute(currentUser);
 
                 //Prepare all the intent data to be passed to the next activity
-                Map<String, String> intentValues = null;
-
                 intentValues.put(USER_F_NAME, me.getFirstName());
                 intentValues.put(USER_ID, me.getId());
                 intentValues.put(USER_AUTH, loginResult.getAccessToken().toString());
@@ -108,9 +145,9 @@ public class FacebookLogin extends AppCompatActivity {
                 populateIntent(loginSuccess, intentValues);
 
                 //Show the button to allow the user to move on
-                goToLobby.setVisibility(View.VISIBLE);
                 isLoggedIn = true;
                 prefs.edit().putBoolean("isLoggedIn", isLoggedIn).commit(); // isLoggedIn is a boolean value of your login status
+                startActivity(loginSuccess);
             }
 
             @Override
@@ -138,22 +175,10 @@ public class FacebookLogin extends AppCompatActivity {
 
     private void initializeListeners()
     {
-        goToLobby.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(loginSuccess);
-            }
-        });
     }
 
     private void initializeGlobals()
     {
-        //Initialize the facebook api
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        callbackManager = CallbackManager.Factory.create();
-        logManager = LoginManager.getInstance();
-        logManager.logOut();
-
         //Initialize Amazon api
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
@@ -171,7 +196,6 @@ public class FacebookLogin extends AppCompatActivity {
         //Assign gui objects
         info = (TextView)findViewById(R.id.info);
         loginButton = (LoginButton)findViewById(R.id.login_button);
-        goToLobby = (Button) findViewById(R.id.goToLobby);
     }
 
     @Override

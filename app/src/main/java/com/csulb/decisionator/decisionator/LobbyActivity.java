@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class LobbyActivity extends AppCompatActivity {
     private String uID;
     private String welcomeString;
     private String poolID;
-    private Map<String, String> intentPairs = null;
+    private static final Map<String, String> intentPairs = new HashMap<String, String>();
 
     //Gui items
     private Intent loginSuccess;
@@ -28,14 +29,13 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_lobby);
 
         initializeGlobals();
 
         initializeListeners();
 
         prepareIntent(createEventIntent, intentPairs);
-
-        setContentView(R.layout.activity_lobby);
     }
 
     private void prepareIntent(Intent createEventIntent, Map<String, String> intentPairs) {
@@ -66,15 +66,15 @@ public class LobbyActivity extends AppCompatActivity {
         welcomeMessage = (TextView) findViewById(R.id.welcomeText);
         createEvent = (Button) findViewById(R.id.createEvent);
 
-        //Prepare outgoing intent
-        intentPairs.put(FacebookLogin.POOL_ID, poolID);
-        intentPairs.put(FacebookLogin.USER_ID, uID);
-        intentPairs.put(FacebookLogin.USER_F_NAME, uName);
-
         //Global string values
         uName = loginSuccess.getStringExtra(FacebookLogin.USER_F_NAME);
         uID = loginSuccess.getStringExtra(FacebookLogin.USER_ID);
         poolID = loginSuccess.getStringExtra(FacebookLogin.POOL_ID);
+
+        //Prepare outgoing intent
+        intentPairs.put(FacebookLogin.POOL_ID, poolID);
+        intentPairs.put(FacebookLogin.USER_ID, uID);
+        intentPairs.put(FacebookLogin.USER_F_NAME, uName);
 
         //GUI Update based on intent
         welcomeString = welcomeMessage.getText() + " " + uName + "!";
