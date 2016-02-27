@@ -121,6 +121,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 Event evnt = new Event();
                 evnt.setEventID(eventID.toString());
                 evnt.setHostID(uID);
+                evnt.setHostName(uFname);
                 evnt.setTopic(topic);
                 evnt.setDateCreated(date.toString());
 

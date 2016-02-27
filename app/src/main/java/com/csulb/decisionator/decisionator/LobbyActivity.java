@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class LobbyActivity extends AppCompatActivity {
 
@@ -84,17 +83,10 @@ public class LobbyActivity extends AppCompatActivity {
         refreshEvents.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    events = new getEvents().execute().get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
-                eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, events);
 
-                eventList = (ListView) findViewById(R.id.eventList);
-                eventList.setAdapter(eventAdapter);
+                new getEvents().execute();
+
+
             }
         });
     }
@@ -137,6 +129,11 @@ public class LobbyActivity extends AppCompatActivity {
         private ArrayList<Event> events;
         private ViewHolder holder;
 
+        public void addEvent(Event ev)
+        {
+            events.add(ev);
+        }
+
         public EventAdapter(Context context, int profilePictureResourceID, ArrayList<Event> eventList)
         {
             super(context, profilePictureResourceID, eventList);
@@ -147,7 +144,7 @@ public class LobbyActivity extends AppCompatActivity {
         private class ViewHolder
         {
             ImageView eventPic;
-            ImageView hostPic;
+            TextView hostName;
             TextView eventTopic;
             TextView attendeeList;
         }
@@ -165,7 +162,7 @@ public class LobbyActivity extends AppCompatActivity {
                 holder = new ViewHolder();
 
                 holder.eventPic = (ImageView) convertView.findViewById(R.id.eventPicture);
-                holder.hostPic = (ImageView) convertView.findViewById(R.id.hostPicture);
+                holder.hostName = (TextView) convertView.findViewById(R.id.hostName);
                 holder.eventTopic = (TextView) convertView.findViewById(R.id.eventTopic);
                 holder.attendeeList = (TextView) convertView.findViewById(R.id.attendeeList);
 
@@ -181,6 +178,14 @@ public class LobbyActivity extends AppCompatActivity {
             Event event = events.get(position);
 
             String cat = event.getCategory();
+
+            holder.eventTopic.setText("The topic is: " + event.getTopic());
+            holder.attendeeList.setText(event.getAttendees());
+
+            //new getHost(holder.hostName).execute(event.getHostID());
+            holder.hostName.setText(event.getHostName());
+
+            //new DownloadImageTask(holder.hostPic).execute(host.getProfilePic());
 
             if( cat == null )
             {
@@ -232,7 +237,7 @@ public class LobbyActivity extends AppCompatActivity {
             bmImage.setImageBitmap(result);
         }
     }
-
+/*
     class getEvents extends AsyncTask<Void, Void, ArrayList<Event>> {
         @Override
         protected ArrayList<Event> doInBackground(Void... params) {
@@ -254,6 +259,77 @@ public class LobbyActivity extends AppCompatActivity {
             }
 
             return temp;
+        }
+    }
+    */
+
+    class getEvents extends AsyncTask<Void, Void, ArrayList<Event>> {
+
+        @Override
+        protected ArrayList<Event> doInBackground(Void... params) {
+            ArrayList<Event> temp = new ArrayList<Event>();
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<Event> result = mapper.scan(Event.class, scanExpression);
+
+            int k;
+            for (k = 0; k < result.size(); k++)
+            {
+                Event item = result.get(k);
+                if (item.getHostID().contentEquals(uID) || item.getAttendees().contains(uID))
+                {
+                    temp.add(item);
+                }
+            }
+            return temp;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Event> res)
+        {
+            eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, res);
+            eventList = (ListView) findViewById(R.id.eventList);
+            eventList.setAdapter(eventAdapter);
+        }
+
+
+    }
+
+    class getHost extends AsyncTask<String, Void, User> {
+
+        private TextView hostName;
+
+        getHost(TextView hstName)
+        {
+            this.hostName = hstName;
+        }
+        @Override
+        protected User doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<User> result = mapper.scan(User.class, scanExpression);
+
+            int k;
+            for (k = 0; k < result.size(); k++)
+            {
+                User item = result.get(k);
+                if (item.getUserID().contentEquals(uID))
+                {
+                    return item;
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(User hst)
+        {
+            hostName.setText(hst.getfName() + " " + hst.getlName());
         }
     }
 }

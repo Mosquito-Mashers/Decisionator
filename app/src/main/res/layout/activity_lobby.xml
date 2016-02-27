@@ -13,50 +13,48 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:weightSum="2">
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:weightSum="2">
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
-            <TextView
-                android:id="@+id/welcomeText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/welcomeMessage"
-                android:layout_centerInParent="true"
-                android:textAlignment="center"
-                android:textSize="35dp"/>
-                <Button
-                    android:id="@+id/refreshEvents"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/welcomeText"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:textSize="10dp"
-                    android:text="Refresh"/>
+                    android:text="@string/welcomeMessage"
+                    android:layout_centerInParent="true"
+                    android:textAlignment="center"
+                    android:textSize="35dp"/>
+                    <Button
+                        android:id="@+id/refreshEvents"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentTop="true"
+                        android:textSize="10dp"
+                        android:text="Refresh"/>
             </RelativeLayout>
-            <Button
-                android:id="@+id/createEvent"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Start an Event"
-                android:layout_weight="1"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="My event feed"
-                android:textAlignment="center"
-                android:textSize="25dp"/>
+                android:layout_weight="1">
+                <Button
+                    android:id="@+id/createEvent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Start an Event"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="My event feed"
+                    android:textAlignment="center"
+                    android:textSize="25dp"/>
+                <ListView
+                    android:id="@+id/eventList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                </ListView>
+            </LinearLayout>
         </LinearLayout>
-        <ListView
-            android:id="@+id/eventList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        </ListView>
-    </LinearLayout>
 </RelativeLayout>

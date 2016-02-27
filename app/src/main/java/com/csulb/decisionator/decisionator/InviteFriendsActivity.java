@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -29,7 +28,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class InviteFriendsActivity extends AppCompatActivity {
 
@@ -78,21 +76,23 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 for (int i = 0; i < userList.size(); i++) {
                     User user = userList.get(i);
                     if (user.isSelected()) {
-                        attendeeList.append(user.getUserID() + ",");
+
+                        attendeeList.append(user.getfName() + " " + user.getlName() + ", ");
                     }
                 }
+                String attendees = attendeeList.substring(0,attendeeList.length()-2);
                 event = new Event();
                 event.setTopic(topic);
                 event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
                 event.setEventID(inEvent.getStringExtra(EventCreationActivity.EVENT_ID));
-                event.setAttendees(attendeeList.toString());
+                event.setAttendees(attendees);
                 new updateEvent().execute(event);
 
                 startEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
                 startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, topic);
                 startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
                 startEvent.putExtra(FacebookLogin.USER_ID, uID);
-                startEvent.putExtra(ATTENDEES, attendeeList.toString());
+                startEvent.putExtra(ATTENDEES, attendees);
                 startEvent.putExtra(FacebookLogin.USER_F_NAME, uFName);
 
                 startActivity(startEvent);
@@ -117,42 +117,9 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
 
-        try {
-            fbFriends = new getAllFriends().execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        new getAllFriends().execute();
 
-        friendAdapter = new FriendAdapter(this, R.layout.list_item_user_info,fbFriends);
-
-        friendList = (ListView) findViewById(R.id.friendList);
         inviteButton = (Button) findViewById(R.id.inviteButton);
-
-        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                /*User user = (User) friendList.getItemAtPosition(position);
-                RelativeLayout rtl = (RelativeLayout) view.findViewById(R.id.friendContainer);
-                CheckBox cb = (CheckBox) view.findViewById(R.id.userCheckbox);
-
-                Drawable origBackground = parent.getBackground();
-
-                cb.performClick();
-                if(cb.isChecked()) {
-                    friendList.getChildAt(position).setBackgroundColor(getResources().getColor(R.color.colorAccent));
-                }
-                else
-                {
-                    friendList.getChildAt(position).setBackgroundDrawable(origBackground);
-                }
-                */
-
-            }
-        });
-
-        friendList.setAdapter(friendAdapter);
     }
 
     private class FriendAdapter extends ArrayAdapter<User>
@@ -217,7 +184,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
                     User user = (User)cb.getTag();
 
                     cb.performClick();
-                    user.setSelected(cb.isSelected());
+                    user.setSelected(cb.isChecked());
                 }
             });
 
@@ -228,13 +195,8 @@ public class InviteFriendsActivity extends AppCompatActivity {
             }
             else
             {
-                try {
-                    Bitmap profile = new DownloadImageTask(holder.profilePic).execute(user.getProfilePic()).get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
+
+                new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
             }
             holder.name.setText(user.getfName() + " " + user.getlName());
             holder.name.setChecked(user.isSelected());
@@ -290,6 +252,16 @@ public class InviteFriendsActivity extends AppCompatActivity {
             }
 
             return temp;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<User> res)
+        {
+            friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_user_info,res);
+
+            friendList = (ListView) findViewById(R.id.friendList);
+            friendList.setAdapter(friendAdapter);
+
         }
     }
 

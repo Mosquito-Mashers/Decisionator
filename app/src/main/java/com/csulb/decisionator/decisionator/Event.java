@@ -11,6 +11,10 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 public class Event {
     private String eventID;
     private String hostID;
+
+
+
+    private String hostName;
     private String attendees;
     private String topic;
     private String dateCreated;
@@ -34,6 +38,15 @@ public class Event {
 
     public void setHostID(String hostID) {
         this.hostID = hostID;
+    }
+
+    @DynamoDBAttribute(attributeName = "hostName")
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
     }
 
     @DynamoDBAttribute(attributeName = "attendees")
