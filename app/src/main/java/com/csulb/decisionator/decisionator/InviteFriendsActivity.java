@@ -195,7 +195,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
             }
             else
             {
-
                 new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
             }
             holder.name.setText(user.getfName() + " " + user.getlName());
