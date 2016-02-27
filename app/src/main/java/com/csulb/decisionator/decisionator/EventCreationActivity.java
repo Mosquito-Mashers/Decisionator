@@ -26,6 +26,10 @@ import java.util.UUID;
 public class EventCreationActivity extends AppCompatActivity {
     protected final static String EVENT_TOPIC = "com.decisionator.decisionator.evenetcreationactivity.EVENT_TOPIC";
     protected final static String EVENT_ID = "com.decisionator.decisionator.evenetcreationactivity.EVENT_ID";
+    protected final static String EVENT_INVITES = "com.decisionator.decisionator.evenetcreationactivity.EVENT_INVITES";
+    protected final static String EVENT_HOST_NAME = "com.decisionator.decisionator.evenetcreationactivity.EVENT_HOST_NAME";
+    protected final static String EVENT_CATEGORY = "com.decisionator.decisionator.evenetcreationactivity.EVENT_CATEGORY";
+
 
     private CognitoCachingCredentialsProvider credentialsProvider;
     private String uID;

@@ -38,6 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <Button
+                android:id="@+id/goToEvent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"

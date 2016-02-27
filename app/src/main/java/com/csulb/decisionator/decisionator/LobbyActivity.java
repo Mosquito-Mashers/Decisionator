@@ -147,6 +147,7 @@ public class LobbyActivity extends AppCompatActivity {
             TextView hostName;
             TextView eventTopic;
             TextView attendeeList;
+            Button eventButton;
         }
 
         @Override
@@ -165,6 +166,7 @@ public class LobbyActivity extends AppCompatActivity {
                 holder.hostName = (TextView) convertView.findViewById(R.id.hostName);
                 holder.eventTopic = (TextView) convertView.findViewById(R.id.eventTopic);
                 holder.attendeeList = (TextView) convertView.findViewById(R.id.attendeeList);
+                holder.eventButton = (Button) convertView.findViewById(R.id.goToEvent);
 
 
                 convertView.setTag(holder);
@@ -175,7 +177,26 @@ public class LobbyActivity extends AppCompatActivity {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            Event event = events.get(position);
+            final Event event = events.get(position);
+
+            holder.eventButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent gotoEvent = new Intent(getApplicationContext(), EventActivity.class);
+
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_ID,event.getEventID());
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_TOPIC, event.getTopic());
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_INVITES, event.getAttendees());
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_HOST_NAME, event.getHostName());
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_CATEGORY, event.getCategory());
+                    gotoEvent.putExtra(FacebookLogin.POOL_ID, poolID);
+                    gotoEvent.putExtra(FacebookLogin.USER_ID, uID);
+                    gotoEvent.putExtra(FacebookLogin.USER_F_NAME, uName);
+
+
+                    startActivity(gotoEvent);
+                }
+            });
 
             String cat = event.getCategory();
 

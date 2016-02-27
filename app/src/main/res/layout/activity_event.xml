@@ -25,11 +25,11 @@
                     android:id="@+id/eventTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="25dp"
-                    android:textAlignment="center"
+                    android:textSize="15dp"
                     android:paddingRight="100dp"
                     android:text="Event Name"/>
                 <Button
+                    android:id="@+id/returnToLobby"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Return to lobby"/>
