@@ -116,7 +116,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 intentPairs.put(FacebookLogin.USER_F_NAME, uFname);
                 intentPairs.put(EVENT_ID, eventID.toString());
 
-                prepareIntent(moveToInvite,intentPairs);
+                prepareIntent(moveToInvite, intentPairs);
 
                 Event evnt = new Event();
                 evnt.setEventID(eventID.toString());
@@ -124,7 +124,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 evnt.setTopic(topic);
                 evnt.setDateCreated(date.toString());
 
-                new addEventToDB().execute(evnt);
+
 
                 if(categories.getCheckedRadioButtonId() > 0)
                 {
@@ -134,6 +134,9 @@ public class EventCreationActivity extends AppCompatActivity {
                 {
                     selectedCategory = (RadioButton) findViewById(R.id.radioLocation);
                 }
+                evnt.setCategory(selectedCategory.getText().toString());
+
+                new addEventToDB().execute(evnt);
 
                 startActivity(moveToInvite);
             }
