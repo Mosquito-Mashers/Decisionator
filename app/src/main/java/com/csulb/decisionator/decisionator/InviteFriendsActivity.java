@@ -148,7 +148,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
 
             ViewHolder holder = null;
 
@@ -163,6 +163,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 }
             });
             */
+
             if (convertView == null) {
                 LayoutInflater vi = (LayoutInflater)getSystemService(
                         Context.LAYOUT_INFLATER_SERVICE);
@@ -188,7 +189,8 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     RelativeLayout rtl = (RelativeLayout) v;
                     CheckBox cb = (CheckBox) rtl.getChildAt(0);
-                    User user = (User)cb.getTag();
+                    User user = friends.get(position);
+
 
                     cb.performClick();
                     user.setSelected(cb.isChecked());
