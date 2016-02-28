@@ -96,7 +96,7 @@ public class FacebookLogin extends AppCompatActivity {
             currentUser.setUserID(me.getId());
             currentUser.setfName(me.getFirstName());
             currentUser.setlName(me.getLastName());
-            currentUser.setProfilePic(me.getProfilePictureUri(R.integer.fb_profile_pic, R.integer.fb_profile_pic).toString());
+            currentUser.setProfilePic(me.getProfilePictureUri(250, 250).toString());
 
             //Start the asynchronous push to the db
             new addUserToDB().execute(currentUser);
