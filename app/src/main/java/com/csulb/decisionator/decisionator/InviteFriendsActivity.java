@@ -11,12 +11,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -43,6 +45,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private Map<String, String> intentPairs = null;
 
     private ArrayList<User> fbFriends;
+    private ArrayList<User> invitedFriends;
     private StringBuffer attendeeList;
 
     private Intent inEvent;
@@ -64,7 +67,22 @@ public class InviteFriendsActivity extends AppCompatActivity {
     }
 
     private void initializeListeners() {
+/*
+        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ImageView profilePic = (ImageView) view.findViewById(R.id.userProfilePicture);
+                CheckBox name = (CheckBox) view.findViewById(R.id.userCheckbox);
 
+                User user = fbFriends.get(position);
+
+                name.performClick();
+                user.setSelected(name.isChecked());
+
+                Toast.makeText(getApplicationContext(), "Clicked " + name.getText().toString(),Toast.LENGTH_SHORT);
+            }
+        });
+*/
 
 
         inviteButton.setOnClickListener(new View.OnClickListener() {
@@ -74,18 +92,14 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 StringBuffer attendeeList = new StringBuffer();
                 String attendees;
                 ArrayList<User> userList = friendAdapter.friends;
-                for (int i = 0; i < userList.size(); i++) {
-                    User user = userList.get(i);
-                    if (user.isSelected()) {
+                for (int i = 0; i < invitedFriends.size(); i++) {
+                    User user = invitedFriends.get(i);
+                    attendeeList.append(user.getfName() + " " + user.getlName() + ", ");
 
-                        attendeeList.append(user.getfName() + " " + user.getlName() + ", ");
-                    }
                 }
-                if(attendeeList.length() > 0) {
+                if (attendeeList.length() > 0) {
                     attendees = attendeeList.substring(0, attendeeList.length() - 2);
-                }
-                else
-                {
+                } else {
                     attendees = "None";
                 }
                 event = new Event();
@@ -110,6 +124,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private void initializeGlobals() {
         startEvent = new Intent(this, LocationActivity.class);
         fbFriends = new ArrayList<User>();
+        invitedFriends = new ArrayList<User>();
 
         inEvent = getIntent();
 
@@ -152,24 +167,15 @@ public class InviteFriendsActivity extends AppCompatActivity {
 
             ViewHolder holder = null;
 
-
-
-            /*
-            holder.name.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    CheckBox cb = (CheckBox) v;
-                    User user = (User) cb.getTag();
-                    user.setSelected(cb.isChecked());
-                }
-            });
-            */
-
             if (convertView == null) {
                 LayoutInflater vi = (LayoutInflater)getSystemService(
                         Context.LAYOUT_INFLATER_SERVICE);
                 convertView = vi.inflate(R.layout.list_item_user_info, null);
 
                 holder = new ViewHolder();
+                holder.friendContainer = (RelativeLayout) convertView.findViewById(R.id.friendContainer);
+                holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
+                holder.name = (CheckBox) convertView.findViewById(R.id.userCheckbox);
 
 
 
@@ -180,10 +186,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
             else {
                 holder = (ViewHolder) convertView.getTag();
             }
-
-            holder.friendContainer = (RelativeLayout) convertView.findViewById(R.id.friendContainer);
-            holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
-            holder.name = (CheckBox) convertView.findViewById(R.id.userCheckbox);
             holder.friendContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -191,9 +193,17 @@ public class InviteFriendsActivity extends AppCompatActivity {
                     CheckBox cb = (CheckBox) rtl.getChildAt(0);
                     User user = friends.get(position);
 
-
                     cb.performClick();
-                    user.setSelected(cb.isChecked());
+                    if(!invitedFriends.contains(user))
+                    {
+                        invitedFriends.add(user);
+                    }
+                    else
+                    {
+                        invitedFriends.remove(user);
+                    }
+                    //user.setSelected(cb.isChecked());
+                    Toast.makeText(getApplicationContext(), "Clicked " + cb.getText().toString(),Toast.LENGTH_SHORT);
                 }
             });
 
@@ -207,8 +217,8 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
             }
             holder.name.setText(user.getfName() + " " + user.getlName());
-            holder.name.setChecked(user.isSelected());
-            holder.name.setTag(user);
+            //holder.name.setChecked(user.isSelected());
+            //holder.name.setTag(user);
 
             return convertView;
         }
@@ -268,6 +278,21 @@ public class InviteFriendsActivity extends AppCompatActivity {
             friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_user_info,res);
 
             friendList = (ListView) findViewById(R.id.friendList);
+            friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    ImageView profilePic = (ImageView) view.findViewById(R.id.userProfilePicture);
+                    CheckBox name = (CheckBox) view.findViewById(R.id.userCheckbox);
+
+                    User user = fbFriends.get(position);
+
+                    name.performClick();
+
+
+                    Toast.makeText(getApplicationContext(), "Clicked " + name.getText().toString(),Toast.LENGTH_SHORT);
+                }
+            });
+
             friendList.setAdapter(friendAdapter);
 
         }
