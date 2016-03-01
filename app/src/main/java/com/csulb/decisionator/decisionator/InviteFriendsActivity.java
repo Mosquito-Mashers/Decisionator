@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -194,15 +193,14 @@ public class InviteFriendsActivity extends AppCompatActivity {
                     User user = friends.get(position);
 
                     cb.performClick();
-                    if(!invitedFriends.contains(user))
-                    {
-                        invitedFriends.add(user);
-                    }
-                    else
+                    if(invitedFriends.contains(user))
                     {
                         invitedFriends.remove(user);
                     }
-                    //user.setSelected(cb.isChecked());
+                    else
+                    {
+                        invitedFriends.add(user);
+                    }
                     Toast.makeText(getApplicationContext(), "Clicked " + cb.getText().toString(),Toast.LENGTH_SHORT);
                 }
             });
@@ -278,21 +276,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
             friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_user_info,res);
 
             friendList = (ListView) findViewById(R.id.friendList);
-            friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    ImageView profilePic = (ImageView) view.findViewById(R.id.userProfilePicture);
-                    CheckBox name = (CheckBox) view.findViewById(R.id.userCheckbox);
-
-                    User user = fbFriends.get(position);
-
-                    name.performClick();
-
-
-                    Toast.makeText(getApplicationContext(), "Clicked " + name.getText().toString(),Toast.LENGTH_SHORT);
-                }
-            });
-
             friendList.setAdapter(friendAdapter);
 
         }
