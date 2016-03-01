@@ -17,7 +17,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -54,7 +53,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private ListView friendList;
     private Button inviteButton;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,24 +64,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
     }
 
     private void initializeListeners() {
-/*
-        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ImageView profilePic = (ImageView) view.findViewById(R.id.userProfilePicture);
-                CheckBox name = (CheckBox) view.findViewById(R.id.userCheckbox);
-
-                User user = fbFriends.get(position);
-
-                name.performClick();
-                user.setSelected(name.isChecked());
-
-                Toast.makeText(getApplicationContext(), "Clicked " + name.getText().toString(),Toast.LENGTH_SHORT);
-            }
-        });
-*/
-
-
         inviteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,7 +147,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
             ViewHolder holder = null;
 
             if (convertView == null) {
-                LayoutInflater vi = (LayoutInflater)getSystemService(
+                LayoutInflater vi = (LayoutInflater) getSystemService(
                         Context.LAYOUT_INFLATER_SERVICE);
                 convertView = vi.inflate(R.layout.list_item_user_info, null);
 
@@ -176,11 +156,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
                 holder.name = (CheckBox) convertView.findViewById(R.id.userCheckbox);
 
-
-
                 convertView.setTag(holder);
-
-
             }
             else {
                 holder = (ViewHolder) convertView.getTag();
@@ -201,7 +177,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
                     {
                         invitedFriends.add(user);
                     }
-                    Toast.makeText(getApplicationContext(), "Clicked " + cb.getText().toString(),Toast.LENGTH_SHORT);
                 }
             });
 
@@ -215,8 +190,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
             }
             holder.name.setText(user.getfName() + " " + user.getlName());
-            //holder.name.setChecked(user.isSelected());
-            //holder.name.setTag(user);
 
             return convertView;
         }
@@ -266,7 +239,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
                     temp.add(item);
                 }
             }
-
             return temp;
         }
 
@@ -277,7 +249,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
 
             friendList = (ListView) findViewById(R.id.friendList);
             friendList.setAdapter(friendAdapter);
-
         }
     }
 
