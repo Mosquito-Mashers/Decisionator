@@ -127,6 +127,11 @@ public class EventActivity extends AppCompatActivity {
         }
     }
 
+    //private GoogleMap generateFriendMap(ArrayList<User> allUsers)
+    //{
+
+    //}
+
     private class FriendAdapter extends ArrayAdapter<User>
     {
         private ArrayList<User> friends;
