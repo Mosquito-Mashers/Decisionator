@@ -211,8 +211,6 @@ public class FacebookLogin extends AppCompatActivity {
 
             User temp = mapper.load(User.class, arg0[0].getUserID());
             temp.setProfilePic(arg0[0].getProfilePic());
-            temp.setLatitude(arg0[0].getLatitude());
-            temp.setLongitude(arg0[0].getLongitude());
             temp.setlName(arg0[0].getlName());
             temp.setfName(arg0[0].getfName());
 

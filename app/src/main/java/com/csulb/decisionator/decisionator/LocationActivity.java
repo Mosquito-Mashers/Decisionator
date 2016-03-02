@@ -37,8 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 public class LocationActivity extends AppCompatActivity implements LocationListener {
@@ -132,6 +130,11 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
             return;
         }
         userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        User lastKnown = new User();
+        lastKnown.setUserID(uID);
+        lastKnown.setLatitude(userLoc.getLatitude());
+        lastKnown.setLongitude(userLoc.getLongitude());
+        new updateUserLoc().execute(lastKnown);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
 
         returnHomebtn.setOnClickListener(new View.OnClickListener() {

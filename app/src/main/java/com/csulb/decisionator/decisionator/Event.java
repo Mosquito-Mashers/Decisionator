@@ -13,6 +13,10 @@ public class Event {
     private String hostID;
     private String hostName;
     private String attendees;
+
+
+
+    private String rsvpList;
     private String topic;
     private String dateCreated;
     private String category;
@@ -54,6 +58,15 @@ public class Event {
 
     public void setAttendees(String attendees) {
         this.attendees = attendees;
+    }
+
+    @DynamoDBAttribute(attributeName = "rsvpList")
+    public String getRsvpList() {
+        return rsvpList;
+    }
+
+    public void setRsvpList(String rsvpList) {
+        this.rsvpList = rsvpList;
     }
 
     @DynamoDBAttribute(attributeName = "topic")
