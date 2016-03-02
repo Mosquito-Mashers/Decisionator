@@ -266,6 +266,7 @@ public class EventActivity extends AppCompatActivity {
             Event eventResult = mapper.load(Event.class, params[0]);
 
             String invitedArray[] = eventResult.getAttendees().split(", ");
+            String rsvpList = eventResult.getRsvpList();
 
             int k;
             for (k = 0; k < userResult.size(); k++)
@@ -277,7 +278,12 @@ public class EventActivity extends AppCompatActivity {
                 {
                     if (invitedArray[i].replaceAll("\\s+$", "").contentEquals(name))
                     {
+                        if(rsvpList != null && rsvpList.contains(item.getfName() + " " + item.getlName()))
+                        {
+                            item.setlName(item.getlName() + " RSVP'ed!");
+                        }
                         temp.add(item);
+
                         continue;
                     }
                 }
