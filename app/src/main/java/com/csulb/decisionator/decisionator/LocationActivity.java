@@ -37,8 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 public class LocationActivity extends AppCompatActivity implements LocationListener {
@@ -264,7 +262,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         Log.d("Latitude","status");
     }
 
-    private Address getAddress(Location location)
+    public Address getAddress(Location location)
     {
         Address address = null;
         double lat = location.getLatitude();
@@ -287,7 +285,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         return address;
     }
 
-    private Location getMidLocation(ArrayList<Location> locations)
+    public Location getMidLocation(ArrayList<Location> locations)
     {
         Location midLocation = new Location("");
 

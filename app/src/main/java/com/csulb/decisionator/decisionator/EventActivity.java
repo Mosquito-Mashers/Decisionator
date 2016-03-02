@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,16 +27,23 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpr
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
@@ -53,6 +63,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String uID;
     private String uName;
     private ArrayList<User> allUsers = new ArrayList<User>();
+    private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
     private CognitoCachingCredentialsProvider credentialsProvider;
 
     private TextView eventTitle;
@@ -104,7 +115,6 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         );
 
         eventTitle = (TextView) findViewById(R.id.eventTitle);
-        mapsContainer = (TextView) findViewById(R.id.gMapsContainer);
         eventHost = (TextView) findViewById(R.id.eventHost);
         invitedList = (ListView) findViewById(R.id.invitedList);
         returnToLobby = (Button) findViewById(R.id.returnToLobby);
@@ -115,7 +125,6 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         new getAllFriends().execute(eID);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        generateFriendMap(allUsers, map);
     }
 
 
@@ -142,14 +151,88 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private void generateFriendMap(ArrayList<User> allUsers, GoogleMap mp)
     {
         int k;
+        int i;
+        ArrayList<Location> locs = new ArrayList<Location>();
+        ArrayList<Marker> markers = new ArrayList<Marker>();
+        Location temp;
         for(k = 0; k < allUsers.size(); k++)
         {
+            temp = new Location("");
             User user = allUsers.get(k);
+
+
+            if(user.getLatitude() == 0 || user.getLongitude() == 0)
+            {
+                user.setLatitude(33.784091);
+                user.setLongitude( -118.114090);
+            }
+            temp.setLatitude(user.getLatitude());
+            temp.setLongitude(user.getLongitude());
+            locs.add(temp);
+
             LatLng loc = new LatLng(user.getLatitude(),user.getLongitude());
-            map.addMarker(new MarkerOptions()
+            Marker mark = map.addMarker(new MarkerOptions()
                     .position(loc)
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.person_icon))
                     .title(user.getfName() + " " + user.getlName()));
         }
+
+        Location mid = getMidLocation(locs);
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(mid.getLatitude(), mid.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
+                .title("Midpoint")).showInfoWindow();
+
+        CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(mid.getLatitude(), mid.getLongitude()));
+        CameraUpdate zoom= CameraUpdateFactory.zoomTo(10);
+
+        map.moveCamera(center);
+        map.animateCamera(zoom);
+
+    }
+    public Address getAddress(Location location)
+    {
+        Address address = null;
+        double lat = location.getLatitude();
+        double longt = location.getLongitude();
+
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+
+        try
+        {
+            List<Address> listAddresses = geocoder.getFromLocation(lat, longt, 1);
+            if(listAddresses.size() > 0)
+            {
+                address = listAddresses.get(0);
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return address;
+    }
+
+    public Location getMidLocation(ArrayList<Location> locations)
+    {
+        Location midLocation = new Location("");
+
+        double sumX = 0;
+        double sumY = 0;
+
+        int k = 0;
+        int locCount = locations.size();
+
+        for(k = 0; k < locCount; k++)
+        {
+            sumX += locations.get(k).getLatitude();
+            sumY += locations.get(k).getLongitude();
+        }
+
+        midLocation.setLatitude( sumX / locCount);
+        midLocation.setLongitude(sumY / locCount);
+
+        return midLocation;
     }
 
     @Override
@@ -233,6 +316,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
+            userPics.add(result);
         }
     }
 
