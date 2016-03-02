@@ -24,6 +24,11 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpr
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,7 +36,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class EventActivity extends AppCompatActivity {
+public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
 
     private FriendAdapter friendAdapter;
 
@@ -47,6 +52,7 @@ public class EventActivity extends AppCompatActivity {
     private String poolID;
     private String uID;
     private String uName;
+    private ArrayList<User> allUsers = new ArrayList<User>();
     private CognitoCachingCredentialsProvider credentialsProvider;
 
     private TextView eventTitle;
@@ -55,6 +61,8 @@ public class EventActivity extends AppCompatActivity {
     private ListView invitedList;
     private Button returnToLobby;
     private ImageView eventCategory;
+
+    private GoogleMap map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +74,7 @@ public class EventActivity extends AppCompatActivity {
         initializeListeners();
 
         prepareIntent(goToLobby,intentPairs);
+
     }
 
 
@@ -105,7 +114,10 @@ public class EventActivity extends AppCompatActivity {
         eventHost.setText(eHost);
 
         new getAllFriends().execute(eID);
+        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+        generateFriendMap(allUsers, map);
     }
+
 
     private void initializeListeners() {
 
@@ -127,10 +139,23 @@ public class EventActivity extends AppCompatActivity {
         }
     }
 
-    //private GoogleMap generateFriendMap(ArrayList<User> allUsers)
-    //{
+    private void generateFriendMap(ArrayList<User> allUsers, GoogleMap mp)
+    {
+        int k;
+        for(k = 0; k < allUsers.size(); k++)
+        {
+            User user = allUsers.get(k);
+            LatLng loc = new LatLng(user.getLatitude(),user.getLongitude());
+            map.addMarker(new MarkerOptions()
+                    .position(loc)
+                    .title(user.getfName() + " " + user.getlName()));
+        }
+    }
 
-    //}
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        generateFriendMap(allUsers,googleMap);
+    }
 
     private class FriendAdapter extends ArrayAdapter<User>
     {
@@ -214,7 +239,6 @@ public class EventActivity extends AppCompatActivity {
     class getAllFriends extends AsyncTask<String, Void, ArrayList<User>> {
         @Override
         protected ArrayList<User> doInBackground(String... params) {
-            ArrayList<User> temp = new ArrayList<User>();
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
@@ -234,12 +258,12 @@ public class EventActivity extends AppCompatActivity {
                 {
                     if (invitedArray[i].replaceAll("\\s+$", "").contentEquals(name))
                     {
-                        temp.add(item);
+                        allUsers.add(item);
                         continue;
                     }
                 }
             }
-            return temp;
+            return allUsers;
         }
 
         @Override
@@ -249,6 +273,7 @@ public class EventActivity extends AppCompatActivity {
 
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
+            generateFriendMap(res, map);
         }
     }
 }
