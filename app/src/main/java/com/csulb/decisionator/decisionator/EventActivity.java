@@ -54,6 +54,7 @@ public class EventActivity extends AppCompatActivity {
     private TextView eventHost;
     private ListView invitedList;
     private Button returnToLobby;
+    private Button rsvp;
     private ImageView eventCategory;
 
     @Override
@@ -99,6 +100,7 @@ public class EventActivity extends AppCompatActivity {
         eventHost = (TextView) findViewById(R.id.eventHost);
         invitedList = (ListView) findViewById(R.id.invitedList);
         returnToLobby = (Button) findViewById(R.id.returnToLobby);
+        rsvp = (Button) findViewById(R.id.rsvpButton);
         eventCategory = (ImageView) findViewById(R.id.eventDescPic);
 
         eventTitle.setText(eTopic);
@@ -113,6 +115,14 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(goToLobby);
+            }
+        });
+        rsvp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                new updateEvent().execute(eID);
+
             }
         });
     }
@@ -181,6 +191,44 @@ public class EventActivity extends AppCompatActivity {
         }
     }
 
+    class updateEvent extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... params) {
+            ArrayList<Event> temp = new ArrayList<Event>();
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            Event event = mapper.load(Event.class, params[0]);
+            User currUser = mapper.load(User.class, uID);
+            String currName = currUser.getfName() + " " + currUser.getlName();
+
+            String rsvps = event.getRsvpList();
+            String rsvpList[];
+            if(rsvps != null) {
+                rsvpList = rsvps.split(", ");
+                int k;
+
+                for (k = 0; k < rsvpList.length; k++) {
+                    if (!rsvpList[k].contentEquals(currName)) {
+                        rsvps += ", " + currName;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                rsvps = currName;
+            }
+
+            event.setRsvpList(rsvps);
+
+            mapper.save(event);
+            return null;
+        }
+    }
+
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
 
@@ -218,6 +266,7 @@ public class EventActivity extends AppCompatActivity {
             Event eventResult = mapper.load(Event.class, params[0]);
 
             String invitedArray[] = eventResult.getAttendees().split(", ");
+            String rsvpList = eventResult.getRsvpList();
 
             int k;
             for (k = 0; k < userResult.size(); k++)
@@ -229,7 +278,12 @@ public class EventActivity extends AppCompatActivity {
                 {
                     if (invitedArray[i].replaceAll("\\s+$", "").contentEquals(name))
                     {
+                        if(rsvpList != null && rsvpList.contains(item.getfName() + " " + item.getlName()))
+                        {
+                            item.setlName(item.getlName() + " RSVP'ed!");
+                        }
                         temp.add(item);
+
                         continue;
                     }
                 }
