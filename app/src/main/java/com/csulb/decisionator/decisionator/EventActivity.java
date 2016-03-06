@@ -477,6 +477,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                if(finalLoc.latitude == 0 || finalLoc.longitude == 0)
+                {
+                    finalLoc = new LatLng(33.78705292, -118.1564652);
+                    venue = "Result not found";
+                }
                 MarkerOptions finalMark = new MarkerOptions()
                         .position(finalLoc)
                         .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))

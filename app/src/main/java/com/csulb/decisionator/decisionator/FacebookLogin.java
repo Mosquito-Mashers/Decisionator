@@ -224,10 +224,7 @@ public class FacebookLogin extends AppCompatActivity {
         //Assign gui objects
         info = (TextView)findViewById(R.id.info);
         loginButton = (LoginButton)findViewById(R.id.login_button);
-
-        LoginManager.getInstance().logInWithReadPermissions(
-                this,
-                Arrays.asList("user_likes"));
+        loginButton.setReadPermissions(Arrays.asList("user_likes"));
         //mProfileTracker.startTracking();
     }
 
