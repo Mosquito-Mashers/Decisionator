@@ -37,8 +37,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -62,6 +71,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String poolID;
     private String uID;
     private String uName;
+    private Event currEvent;
     private ArrayList<User> allUsers = new ArrayList<User>();
     private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
     private CognitoCachingCredentialsProvider credentialsProvider;
@@ -178,6 +188,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         }
 
         Location mid = getMidLocation(locs);
+
+        new getFinalLocation(map).execute();
+
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(mid.getLatitude(), mid.getLongitude()))
                 .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
@@ -329,6 +342,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
             PaginatedScanList<User> userResult = mapper.scan(User.class, scanExpression);
             Event eventResult = mapper.load(Event.class, params[0]);
+            currEvent = eventResult;
 
             String invitedArray[] = eventResult.getAttendees().split(", ");
 
@@ -359,5 +373,103 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             invitedList.setAdapter(friendAdapter);
             generateFriendMap(res, map);
         }
+    }
+
+
+    class getFinalLocation extends AsyncTask<Void, Void, ArrayList<JSONObject>> {
+        private GoogleMap map;
+        ArrayList<JSONObject> places;
+
+        getFinalLocation(GoogleMap gMap)
+        {
+            map = gMap;
+        }
+
+        @Override
+        protected ArrayList<JSONObject> doInBackground(Void... params) {
+            String query = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+            query += "keyword=" + currEvent.getTopic().replace(' ','+');
+            query += "&location="+currEvent.getLatitude() + "," + currEvent.getLongitude();
+            query += "&rankby=distance";
+            //query += "&radius=5000";
+            //query += "&type=restaurant";//TODO: Replace restaurant with currEvent.getCategory
+            //query += "&name="+currEvent.getTopic();
+            query += "&key="+getString(R.string.places_api_key);
+
+            //places = getJSON("https://maps.googleapis.com/maps/api/place/textsearch/json?query=thai&location=33.786189708,-118.122006622&radius=5000&type=restaurant&name=thai&key=AIzaSyCPPNAnmewayl57aDmmNdFFj2TbEYAi60A");
+            //https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=steakhouse&location=33.73531618,117.97386965&rankby=distance&key=AIzaSyCPPNAnmewayl57aDmmNdFFj2TbEYAi60A
+            places = getJSON(query);
+
+            return places;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<JSONObject> places)
+        {
+            if(places.size() > 0) {
+                LatLng finalLoc = new LatLng(0, 0);
+                String venue = "";
+                JSONObject firstResult = places.get(0);
+                try {
+                    JSONArray finalResultList = firstResult.getJSONArray("results");
+                    JSONObject firstRes = finalResultList.getJSONObject(0);
+                    venue = firstRes.getString("name");
+                    JSONObject location = firstRes.getJSONObject("geometry").getJSONObject("location");
+                    String lat = location.getString("lat");
+                    String lng = location.getString("lng");
+                    finalLoc = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                MarkerOptions finalMark = new MarkerOptions()
+                        .position(finalLoc)
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
+                        .title(venue);
+                map.addMarker(finalMark).showInfoWindow();
+
+                CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(finalMark.getPosition().latitude, finalMark.getPosition().longitude));
+                map.moveCamera(center);
+            }
+            CameraUpdate zoom= CameraUpdateFactory.zoomTo(10);
+            map.animateCamera(zoom);
+        }
+    }
+
+    public ArrayList<JSONObject> getJSON(String inUrl) {
+        HttpURLConnection urlConnection = null;
+        URL url = null;
+        JSONObject object = null;
+        ArrayList<JSONObject> objs = new ArrayList<JSONObject>();
+        InputStream inStream = null;
+        try {
+            url = new URL(inUrl.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoOutput(true);
+            urlConnection.setDoInput(true);
+            urlConnection.connect();
+            inStream = urlConnection.getInputStream();
+            BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
+            String temp, response = "";
+            while ((temp = bReader.readLine()) != null) {
+                response += temp;
+            }
+            object = (JSONObject) new JSONTokener(response).nextValue();
+            objs.add(object);
+        } catch (Exception e) {
+
+        } finally {
+            if (inStream != null) {
+                try {
+                    // this will close the bReader as well
+                    inStream.close();
+                } catch (IOException ignored) {
+                }
+            }
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+        return objs;
     }
 }
