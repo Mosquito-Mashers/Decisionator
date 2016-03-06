@@ -20,12 +20,19 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -44,6 +51,8 @@ public class FacebookLogin extends AppCompatActivity {
     private boolean isLoggedIn;
     private SharedPreferences prefs;
     private static final Map<String, String> intentValues = new HashMap<String, String>();
+    private User currentUser;
+    private uProfile userProf;
 
     //Facebook api items
     private CallbackManager callbackManager;
@@ -215,12 +224,16 @@ public class FacebookLogin extends AppCompatActivity {
         //Assign gui objects
         info = (TextView)findViewById(R.id.info);
         loginButton = (LoginButton)findViewById(R.id.login_button);
+
+        LoginManager.getInstance().logInWithReadPermissions(
+                this,
+                Arrays.asList("user_likes"));
         //mProfileTracker.startTracking();
     }
 
     private void validateAndProceed(Profile currUser) {
         //Create a new user db object
-        User currentUser = new User();
+        currentUser = new User();
         currentUser.setUserID(currUser.getId());
         currentUser.setfName(currUser.getFirstName());
         currentUser.setlName(currUser.getLastName());
@@ -239,8 +252,77 @@ public class FacebookLogin extends AppCompatActivity {
         //Show the button to allow the user to move on
         isLoggedIn = true;
         prefs.edit().putBoolean("isLoggedIn", isLoggedIn).commit(); // isLoggedIn is a boolean value of your login status
+        analyzeProfile(AccessToken.getCurrentAccessToken());
         startActivity(loginSuccess);
 
+    }
+
+    private void analyzeProfile(AccessToken token) {
+        userProf = new uProfile();
+        userProf.setUserID(currentUser.getUserID());
+        GraphRequest movieRequest = GraphRequest.newGraphPathRequest(
+                token,
+                "/me/movies",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        String likedMovs = "";
+
+                        JSONObject fbObj = response.getJSONObject();
+                        JSONArray likedMovies = null;
+                        try {
+                            likedMovies = fbObj.getJSONArray("data");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if(likedMovies != null && likedMovies.length() != 0) {
+
+                            for (int k = 0; k < likedMovies.length(); k++) {
+                                try {
+                                    likedMovs += likedMovies.getJSONObject(k).getString("name") + ",";
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            userProf.setMovieLikeTags(likedMovs);
+                        }
+                    }
+                });
+
+        GraphRequest likeRequest = GraphRequest.newGraphPathRequest(
+                token,
+                "/me/likes",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        String likes = "";
+                        JSONObject fbObj = response.getJSONObject();
+
+                        JSONArray likesArr = null;
+                        try {
+                            likesArr = fbObj.getJSONArray("data");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        if(likesArr != null && likesArr.length() != 0) {
+                            for (int k = 0; k < likesArr.length(); k++) {
+                                try {
+                                    likes += likesArr.getJSONObject(k).getString("name") + ",";
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            userProf.setLikeTags(likes);
+                        }
+                        new updateProfile().execute(userProf);
+                    }
+                });
+
+
+
+        movieRequest.executeAsync();
+        likeRequest.executeAsync();
     }
 
     @Override
@@ -260,6 +342,29 @@ public class FacebookLogin extends AppCompatActivity {
                 temp.setProfilePic(arg0[0].getProfilePic());
                 temp.setlName(arg0[0].getlName());
                 temp.setfName(arg0[0].getfName());
+            }
+            else
+            {
+                temp = arg0[0];
+            }
+            mapper.save(temp);
+            return null;
+        }
+    }
+
+    //Asynchronous task to add a user to the db, updates user it they already exist
+    class updateProfile extends AsyncTask<uProfile, Void, Void> {
+
+        protected Void doInBackground(uProfile... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            uProfile temp = mapper.load(uProfile.class, arg0[0].getUserID());
+            if (temp != null) {
+                temp.setMovieLikeTags(arg0[0].getMovieLikeTags());
+                temp.setImageTags(arg0[0].getImageTags());
+                temp.setLikeTags(arg0[0].getLikeTags());
+                temp.setTextTags(arg0[0].getTextTags());
             }
             else
             {
