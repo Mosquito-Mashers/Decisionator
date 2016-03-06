@@ -267,7 +267,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         Log.d("Latitude","status");
     }
 
-    private Address getAddress(Location location)
+    public Address getAddress(Location location)
     {
         Address address = null;
         double lat = location.getLatitude();
@@ -290,7 +290,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         return address;
     }
 
-    private Location getMidLocation(ArrayList<Location> locations)
+    public Location getMidLocation(ArrayList<Location> locations)
     {
         Location midLocation = new Location("");
 

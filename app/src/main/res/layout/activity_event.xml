@@ -39,11 +39,11 @@
                 android:id="@+id/eventDescPic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/gMapsContainer"
+            <fragment
+                android:id="@+id/map"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Google maps item goes here!!!"/>
+                android:layout_height="match_parent"
+                class="com.google.android.gms.maps.MapFragment" />
 
         </LinearLayout>
         <LinearLayout
