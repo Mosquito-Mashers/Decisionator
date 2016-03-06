@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -20,6 +21,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -45,6 +47,8 @@ public class FacebookLogin extends AppCompatActivity {
 
     //Facebook api items
     private CallbackManager callbackManager;
+    private ProfileTracker mProfileTracker;
+    private Profile me;
     private LoginManager logManager;
     private LoginButton loginButton;
 
@@ -120,8 +124,14 @@ public class FacebookLogin extends AppCompatActivity {
 
                 Map<String, String> logins = new HashMap<String, String>();
                 logins.put("graph.facebook.com", AccessToken.getCurrentAccessToken().getToken());
+
                 credentialsProvider.setLogins(logins);
 
+                //new getUserProf().execute();
+
+                //me = Profile.getCurrentProfile();
+
+                /*
                 //Get all relevant facebook data
                 Profile me = Profile.getCurrentProfile();
 
@@ -130,6 +140,7 @@ public class FacebookLogin extends AppCompatActivity {
                 currentUser.setUserID(me.getId());
                 currentUser.setfName(me.getFirstName());
                 currentUser.setlName(me.getLastName());
+                //String profPic = me.getProfilePictureUri(250, 250).toString();
                 currentUser.setProfilePic(me.getProfilePictureUri(250, 250).toString());
 
                 //Start the asynchronous push to the db
@@ -147,6 +158,7 @@ public class FacebookLogin extends AppCompatActivity {
                 isLoggedIn = true;
                 prefs.edit().putBoolean("isLoggedIn", isLoggedIn).commit(); // isLoggedIn is a boolean value of your login status
                 startActivity(loginSuccess);
+                */
             }
 
             @Override
@@ -188,6 +200,14 @@ public class FacebookLogin extends AppCompatActivity {
         //Initialize android objects
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+        ProfileTracker mProfileTracker = new ProfileTracker() {
+            @Override
+            protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
+                this.stopTracking();
+                validateAndProceed(profile2);
+            }
+        };
+        mProfileTracker.startTracking();
 
         //Initialize the intents
         loginSuccess = new Intent(this, LobbyActivity.class);
@@ -195,6 +215,32 @@ public class FacebookLogin extends AppCompatActivity {
         //Assign gui objects
         info = (TextView)findViewById(R.id.info);
         loginButton = (LoginButton)findViewById(R.id.login_button);
+        //mProfileTracker.startTracking();
+    }
+
+    private void validateAndProceed(Profile currUser) {
+        //Create a new user db object
+        User currentUser = new User();
+        currentUser.setUserID(currUser.getId());
+        currentUser.setfName(currUser.getFirstName());
+        currentUser.setlName(currUser.getLastName());
+        //String profPic = me.getProfilePictureUri(250, 250).toString();
+        currentUser.setProfilePic(currUser.getProfilePictureUri(250, 250).toString());
+
+        //Start the asynchronous push to the db
+        new addUserToDB().execute(currentUser);
+        //Prepare all the intent data to be passed to the next activity
+        intentValues.put(USER_F_NAME, currUser.getFirstName());
+        intentValues.put(USER_ID, currUser.getId());
+        intentValues.put(POOL_ID, credentialsProvider.getIdentityPoolId());
+
+        populateIntent(loginSuccess, intentValues);
+
+        //Show the button to allow the user to move on
+        isLoggedIn = true;
+        prefs.edit().putBoolean("isLoggedIn", isLoggedIn).commit(); // isLoggedIn is a boolean value of your login status
+        startActivity(loginSuccess);
+
     }
 
     @Override
@@ -210,12 +256,52 @@ public class FacebookLogin extends AppCompatActivity {
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
             User temp = mapper.load(User.class, arg0[0].getUserID());
-            temp.setProfilePic(arg0[0].getProfilePic());
-            temp.setlName(arg0[0].getlName());
-            temp.setfName(arg0[0].getfName());
-
+            if(temp != null) {
+                temp.setProfilePic(arg0[0].getProfilePic());
+                temp.setlName(arg0[0].getlName());
+                temp.setfName(arg0[0].getfName());
+            }
+            else
+            {
+                temp = arg0[0];
+            }
             mapper.save(temp);
             return null;
+        }
+    }
+    //Asynchronous task to add a user to the db, updates user it they already exist
+    class getUserProf extends AsyncTask<Void, Void, Profile> {
+        private ProfileTracker mProfileTracker;
+        @Override
+        protected Profile doInBackground(Void... arg0) {
+            //Get all relevant facebook data
+            Profile me = Profile.getCurrentProfile();
+
+            if(me == null) {
+                mProfileTracker = new ProfileTracker() {
+                    @Override
+                    protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
+                        // profile2 is the new profile
+                        Log.v("facebook - profile", profile2.getFirstName());
+                        mProfileTracker.stopTracking();
+                    }
+                };
+                mProfileTracker.startTracking();
+                me = Profile.getCurrentProfile();
+            }
+            else
+            {
+                me = Profile.getCurrentProfile();
+            }
+
+            return me;
+        }
+
+        @Override
+        protected void onPostExecute(Profile prof)
+        {
+
+
         }
     }
 }

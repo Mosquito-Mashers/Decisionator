@@ -130,6 +130,12 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
             return;
         }
         userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if(userLoc == null)
+        {
+            userLoc = new Location("No providers");
+            userLoc.setLatitude(33.760605);
+            userLoc.setLongitude(-118.156446);
+        }
         User lastKnown = new User();
         lastKnown.setUserID(uID);
         lastKnown.setLatitude(userLoc.getLatitude());
@@ -340,28 +346,28 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
         friend1Lat.setText("" + loc1.getLatitude() + ", ");
         friend1Long.setText("" + loc1.getLongitude());
-        friend1Addr.setText(getAddress(loc1).getAddressLine(0));
+        //friend1Addr.setText(getAddress(loc1).getAddressLine(0));
 
         loc2.setLatitude(33.791149);
         loc2.setLongitude(-118.136737);
 
         friend2Lat.setText("" + loc2.getLatitude() + ", ");
         friend2Long.setText("" + loc2.getLongitude());
-        friend2Addr.setText(getAddress(loc2).getAddressLine(0));
+        //friend2Addr.setText(getAddress(loc2).getAddressLine(0));
 
         loc3.setLatitude(33.808249);
         loc3.setLongitude(-118.072546);
 
         friend3Lat.setText("" + loc3.getLatitude() + ", ");
         friend3Long.setText("" + loc3.getLongitude());
-        friend3Addr.setText(getAddress(loc3).getAddressLine(0));
+        //friend3Addr.setText(getAddress(loc3).getAddressLine(0));
 
         loc4.setLatitude(33.760605);
         loc4.setLongitude(-118.133185);
 
         friend4Lat.setText("" + loc4.getLatitude() + ", ");
         friend4Long.setText("" + loc4.getLongitude());
-        friend4Addr.setText(getAddress(loc4).getAddressLine(0));
+        //friend4Addr.setText(getAddress(loc4).getAddressLine(0));
     }
 
     private void setLocations()
