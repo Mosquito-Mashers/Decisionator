@@ -409,7 +409,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                         {
                             item.setlName(item.getlName() + " RSVP'ed!");
                         }
-                        temp.add(item);
+                        allUsers.add(item);
 
                         continue;
                     }
