@@ -38,6 +38,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class LocationActivity extends AppCompatActivity implements LocationListener {
 
@@ -84,6 +88,8 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     private Address midAddr;
     private ArrayList<Location> debugLocations = new ArrayList<Location>();
     /////////////////////////////////////////////
+//    private Address myAddr;
+    boolean timeout;
 
 
     @Override
@@ -95,23 +101,31 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
         initializeListeners();
 
-        setInitialLoc();
+        try {
+            setInitialLoc();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
 
         prepareIntent(returnHome, intentPairs);
     }
 
-    private void setInitialLoc() {
-        Address relativeAddr = getAddress(userLoc);
-
-        currentCoords.setText("Latitude:" + userLoc.getLatitude() + ", Longitude:" + userLoc.getLongitude());
-        relativeAddress.setText(relativeAddr.getAddressLine(0));
+    private void setInitialLoc() throws InterruptedException, ExecutionException, TimeoutException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(new getAddressTimed()).get(5, TimeUnit.SECONDS);
+        executor.shutdown();
+        if(timeout)
+            currentCoords.setText("Latitude:" + "Timed out" + ", Longitude:" + "Timed out");
     }
 
     private void prepareIntent(Intent returnHome, Map<String, String> intentPairs) {
         Iterator mapIter = intentPairs.entrySet().iterator();
 
-        while (mapIter.hasNext())
-        {
+        while (mapIter.hasNext()) {
             Map.Entry kvPair = (Map.Entry) mapIter.next();
             returnHome.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
         }
@@ -130,8 +144,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
             return;
         }
         userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if(userLoc == null)
-        {
+        if (userLoc == null) {
             userLoc = new Location("No providers");
             userLoc.setLatitude(33.760605);
             userLoc.setLongitude(-118.156446);
@@ -159,7 +172,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
                 String topic = eventInitiated.getStringExtra(EventCreationActivity.EVENT_TOPIC);
 
                 // Search for restaurants nearby
-                Uri gmmIntentUri = Uri.parse("geo:" + midLocation.getLatitude() + "," + midLocation.getLongitude() + "?q=" + topic+"&num=1");
+                Uri gmmIntentUri = Uri.parse("geo:" + midLocation.getLatitude() + "," + midLocation.getLongitude() + "?q=" + topic + "&num=1");
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 startActivity(mapIntent);
@@ -169,8 +182,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         });
     }
 
-    private void initializeGlobals()
-    {
+    private void initializeGlobals() {
         currentCoords = (TextView) findViewById(R.id.currentLocation);
         relativeAddress = (TextView) findViewById(R.id.relativeAddress);
         midLoc = (TextView) findViewById(R.id.midLocation);
@@ -270,34 +282,28 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.d("Latitude","status");
+        Log.d("Latitude", "status");
     }
 
-    public Address getAddress(Location location)
-    {
+    public Address getAddress (Location location) {
         Address address = null;
         double lat = location.getLatitude();
         double longt = location.getLongitude();
 
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
-        try
-        {
+        try {
             List<Address> listAddresses = geocoder.getFromLocation(lat, longt, 1);
-            if(listAddresses.size() > 0)
-            {
+            if (listAddresses.size() > 0) {
                 address = listAddresses.get(0);
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return address;
     }
 
-    public Location getMidLocation(ArrayList<Location> locations)
-    {
+    public Location getMidLocation(ArrayList<Location> locations) {
         Location midLocation = new Location("");
 
         double sumX = 0;
@@ -306,20 +312,18 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         int k = 0;
         int locCount = locations.size();
 
-        for(k = 0; k < locCount; k++)
-        {
+        for (k = 0; k < locCount; k++) {
             sumX += locations.get(k).getLatitude();
             sumY += locations.get(k).getLongitude();
         }
 
-        midLocation.setLatitude( sumX / locCount);
+        midLocation.setLatitude(sumX / locCount);
         midLocation.setLongitude(sumY / locCount);
 
         return midLocation;
     }
 
-    private void setDummyLocations()
-    {
+    private void setDummyLocations() {
         TextView friend1Lat = (TextView) findViewById(R.id.friend1Lat);
         TextView friend1Long = (TextView) findViewById(R.id.friend1Long);
         TextView friend1Addr = (TextView) findViewById(R.id.friend1Addr);
@@ -370,8 +374,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         //friend4Addr.setText(getAddress(loc4).getAddressLine(0));
     }
 
-    private void setLocations()
-    {
+    private void setLocations() {
         try {
             ArrayList<User> peopleInvolved = new getPeopleInvolved().execute(evnt).get();
         } catch (InterruptedException e) {
@@ -431,6 +434,17 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         friend4Addr.setText(getAddress(loc4).getAddressLine(0));
     }
 
+    class getAddressTimed implements Runnable {
+        @Override
+        public void run() {
+            timeout = true;
+            Address relativeAddr = getAddress(userLoc);
+            currentCoords.setText("Latitude:" + userLoc.getLatitude() + ", Longitude:" + userLoc.getLongitude());
+            relativeAddress.setText(relativeAddr.getAddressLine(0));
+            timeout = false;
+        }
+    }
+
     class updateUserLoc extends AsyncTask<User, Void, Void> {
 
         protected Void doInBackground(User... arg0) {
@@ -446,6 +460,26 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
             return null;
         }
     }
+
+//    class getAddressTimeout extends AsyncTask<Location, Void, Void> {
+//        protected Void doInBackground(Location... arg0) {
+//            myAddr = null;
+//            double lat = arg0.getLatitude();
+//            double longt = arg0.getLongitude();
+//
+//            Geocoder geocoder = new Geocoder(com.csulb.decisionator.decisionator.LocationActivity, Locale.getDefault());
+//            try {
+//                List<Address> listAddresses = geocoder.getFromLocation(lat, longt, 1);
+//                if (listAddresses.size() > 0) {
+//                    address = listAddresses.get(0);
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            return null;
+//        }
+//
+//    }
 
     class updateEventLoc extends AsyncTask<Event, Void, Void> {
 
@@ -477,8 +511,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
             peopleInvolved.add(result.getHostID());
 
             int k;
-            for (k = 0; k < peopleInvolved.size(); k++)
-            {
+            for (k = 0; k < peopleInvolved.size(); k++) {
                 temp.add(mapper.load(User.class, peopleInvolved.get(k)));
             }
 
