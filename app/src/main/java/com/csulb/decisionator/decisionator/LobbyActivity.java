@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -45,6 +46,7 @@ public class LobbyActivity extends AppCompatActivity {
     private TextView welcomeMessage;
     private Button createEvent;
     private Button refreshEvents;
+    private ProgressBar feedProg;
     private EventAdapter eventAdapter;
     private ArrayList<Event> events;
     private ListView eventList;
@@ -101,6 +103,7 @@ public class LobbyActivity extends AppCompatActivity {
         welcomeMessage = (TextView) findViewById(R.id.welcomeText);
         createEvent = (Button) findViewById(R.id.createEvent);
         refreshEvents = (Button) findViewById(R.id.refreshEvents);
+        feedProg = (ProgressBar) findViewById(R.id.feedLoading);
 
         //Global string values
         uName = loginSuccess.getStringExtra(FacebookLogin.USER_F_NAME);
@@ -122,6 +125,7 @@ public class LobbyActivity extends AppCompatActivity {
         //GUI Update based on intent
         welcomeString = welcomeMessage.getText() + " " + uName + "!";
         welcomeMessage.setText(welcomeString);
+        new getEvents().execute();
     }
 
     private class EventAdapter extends ArrayAdapter<Event>
@@ -314,6 +318,7 @@ public class LobbyActivity extends AppCompatActivity {
             eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, res);
             eventList = (ListView) findViewById(R.id.eventList);
             eventList.setAdapter(eventAdapter);
+            feedProg.setVisibility(View.GONE);
         }
 
 

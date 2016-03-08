@@ -12,12 +12,12 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:weightSum="2">
+        android:weightSum="4">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:layout_weight="1">
+                android:layout_weight="3">
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
@@ -48,13 +48,20 @@
                     android:id="@+id/createEvent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Start an Event"/>
+                    android:text="Start a new Event"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="My event feed"
+                    android:text="Your Events"
                     android:textAlignment="center"
                     android:textSize="25dp"/>
+
+                <ProgressBar
+                    android:id="@+id/feedLoading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>
+
                 <ListView
                     android:id="@+id/eventList"
                     android:layout_width="match_parent"
