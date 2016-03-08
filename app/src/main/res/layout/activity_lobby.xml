@@ -29,12 +29,14 @@
                         android:layout_centerInParent="true"
                         android:textAlignment="center"
                         android:textSize="35dp"/>
-                        <Button
+                        <ImageButton
                             android:id="@+id/refreshEvents"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
                             android:layout_alignParentTop="true"
+                            android:src="@mipmap/refresh_icon"
+                            android:background="@color/transparent"
                             android:textSize="10dp"
                             android:text="Refresh"/>
                 </RelativeLayout>

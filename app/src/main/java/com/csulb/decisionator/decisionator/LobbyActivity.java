@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -45,7 +46,7 @@ public class LobbyActivity extends AppCompatActivity {
     private Intent createEventIntent;
     private TextView welcomeMessage;
     private Button createEvent;
-    private Button refreshEvents;
+    private ImageButton refreshEvents;
     private ProgressBar feedProg;
     private EventAdapter eventAdapter;
     private ArrayList<Event> events;
@@ -102,7 +103,7 @@ public class LobbyActivity extends AppCompatActivity {
         //GUI assignments
         welcomeMessage = (TextView) findViewById(R.id.welcomeText);
         createEvent = (Button) findViewById(R.id.createEvent);
-        refreshEvents = (Button) findViewById(R.id.refreshEvents);
+        refreshEvents = (ImageButton) findViewById(R.id.refreshEvents);
         feedProg = (ProgressBar) findViewById(R.id.feedLoading);
 
         //Global string values
@@ -262,31 +263,6 @@ public class LobbyActivity extends AppCompatActivity {
             bmImage.setImageBitmap(result);
         }
     }
-/*
-    class getEvents extends AsyncTask<Void, Void, ArrayList<Event>> {
-        @Override
-        protected ArrayList<Event> doInBackground(Void... params) {
-            ArrayList<Event> temp = new ArrayList<Event>();
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-            PaginatedScanList<Event> result = mapper.scan(Event.class, scanExpression);
-
-            int k;
-            for (k = 0; k < result.size(); k++)
-            {
-                Event item = result.get(k);
-                if (item.getHostID().contentEquals(uID) || item.getAttendees().contains(uID))
-                {
-                    temp.add(item);
-                }
-            }
-
-            return temp;
-        }
-    }
-    */
 
     class getEvents extends AsyncTask<Void, Void, ArrayList<Event>> {
 
