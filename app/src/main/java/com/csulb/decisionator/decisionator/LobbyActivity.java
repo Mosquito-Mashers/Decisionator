@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -43,6 +46,7 @@ public class LobbyActivity extends AppCompatActivity {
 
     //Gui items
     private Intent loginSuccess;
+    private Intent logoutIntent;
     private Intent createEventIntent;
     private TextView welcomeMessage;
     private Button createEvent;
@@ -52,6 +56,29 @@ public class LobbyActivity extends AppCompatActivity {
     private ArrayList<Event> events;
     private ListView eventList;
     private CognitoCachingCredentialsProvider credentialsProvider;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +125,7 @@ public class LobbyActivity extends AppCompatActivity {
         //Intent Initialization
         loginSuccess = getIntent();
         createEventIntent = new Intent(this, EventCreationActivity.class);
+        logoutIntent = new Intent(this, FacebookLogin.class);
         events = new ArrayList<Event>();
 
         //GUI assignments

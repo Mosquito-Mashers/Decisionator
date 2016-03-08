@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -45,8 +48,32 @@ public class EventCreationActivity extends AppCompatActivity {
     private RadioButton selectedCategory;
 
     private Intent fromLobby;
+    private Intent logoutIntent;
     private Intent moveToInvite;
     private Context context;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +103,7 @@ public class EventCreationActivity extends AppCompatActivity {
 
     private void initializeGlobals() {
         moveToInvite = new Intent(this, InviteFriendsActivity.class);
+        logoutIntent = new Intent(this, FacebookLogin.class);
         fromLobby = getIntent();
 
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);

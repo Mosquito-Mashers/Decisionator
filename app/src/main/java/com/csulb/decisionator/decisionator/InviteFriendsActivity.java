@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -47,11 +50,35 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private StringBuffer attendeeList;
 
     private Intent inEvent;
+    private Intent logoutIntent;
     private Intent startEvent;
     private Event event;
 
     private ListView friendList;
     private Button inviteButton;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +129,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
 
     private void initializeGlobals() {
         startEvent = new Intent(this, LocationActivity.class);
+        logoutIntent = new Intent(this, FacebookLogin.class);
         fbFriends = new ArrayList<User>();
         invitedFriends = new ArrayList<User>();
 

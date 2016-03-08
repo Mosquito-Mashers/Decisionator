@@ -17,6 +17,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -70,6 +73,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     private Event evnt;
 
     private Intent eventInitiated;
+    private Intent logoutIntent;
     private Intent returnHome;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
 
@@ -85,6 +89,29 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     private ArrayList<Location> debugLocations = new ArrayList<Location>();
     /////////////////////////////////////////////
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,6 +208,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         addrProg = (ProgressBar) findViewById(R.id.addrLoading);
 
         returnHome = new Intent(this, LobbyActivity.class);
+        logoutIntent = new Intent(this, FacebookLogin.class);
         eventInitiated = getIntent();
         uID = eventInitiated.getStringExtra(FacebookLogin.USER_ID);
         poolID = eventInitiated.getStringExtra(FacebookLogin.POOL_ID);

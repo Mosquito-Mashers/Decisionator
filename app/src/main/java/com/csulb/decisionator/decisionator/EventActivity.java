@@ -12,6 +12,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -61,6 +64,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private FriendAdapter friendAdapter;
 
     private Intent enterEvent;
+    private Intent logoutIntent;
     private Intent goToLobby;
     private Map<String, String> intentPairs = new HashMap<String, String>();
 
@@ -88,6 +92,29 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private GoogleMap map;
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
@@ -106,6 +133,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private void initializeGlobals()
     {
         goToLobby = new Intent(this, LobbyActivity.class);
+        logoutIntent = new Intent(this, FacebookLogin.class);
 
         enterEvent = getIntent();
         eTopic = enterEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
