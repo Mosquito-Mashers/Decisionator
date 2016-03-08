@@ -101,25 +101,16 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
         initializeListeners();
 
-        try {
-            setInitialLoc();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        }
+        setInitialLoc();
 
         prepareIntent(returnHome, intentPairs);
     }
 
-    private void setInitialLoc() throws InterruptedException, ExecutionException, TimeoutException {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(new getAddressTimed()).get(5, TimeUnit.SECONDS);
-        executor.shutdown();
-        if(timeout)
-            currentCoords.setText("Latitude:" + "Timed out" + ", Longitude:" + "Timed out");
+    private void setInitialLoc() {
+        Address relativeAddr = getAddress(userLoc);
+
+        currentCoords.setText("Latitude:" + userLoc.getLatitude() + ", Longitude:" + userLoc.getLongitude());
+        relativeAddress.setText(relativeAddr.getAddressLine(0));
     }
 
     private void prepareIntent(Intent returnHome, Map<String, String> intentPairs) {
@@ -132,7 +123,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     }
 
     private void initializeListeners() {
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //Permission check
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -143,18 +134,44 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
+        //checking for a last know location
         userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (userLoc == null) {
-            userLoc = new Location("No providers");
+
+        //if last known location unavailable, set default to CSULB coordinates
+        if(userLoc == null)
+        {
             userLoc.setLatitude(33.760605);
             userLoc.setLongitude(-118.156446);
         }
+
+        //Timeout
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            executor.submit(new locationUpdate()).get(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            //Not sure if this will flag on my 10 second timeout, but in case it does...
+            this.onLocationChanged(userLoc);
+            System.out.println("Timeout Exception called!");
+        }
+        executor.shutdown();
+
+        //Timeout should be true if the locationUpdate thread was terminated prematurely
+        if(timeout) {
+            this.onLocationChanged(userLoc);
+            System.out.println("time was true");
+        }
+
         User lastKnown = new User();
         lastKnown.setUserID(uID);
         lastKnown.setLatitude(userLoc.getLatitude());
         lastKnown.setLongitude(userLoc.getLongitude());
         new updateUserLoc().execute(lastKnown);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
+
 
         returnHomebtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -285,7 +302,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         Log.d("Latitude", "status");
     }
 
-    public Address getAddress (Location location) {
+    public Address getAddress(Location location) {
         Address address = null;
         double lat = location.getLatitude();
         double longt = location.getLongitude();
@@ -434,17 +451,6 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         friend4Addr.setText(getAddress(loc4).getAddressLine(0));
     }
 
-    class getAddressTimed implements Runnable {
-        @Override
-        public void run() {
-            timeout = true;
-            Address relativeAddr = getAddress(userLoc);
-            currentCoords.setText("Latitude:" + userLoc.getLatitude() + ", Longitude:" + userLoc.getLongitude());
-            relativeAddress.setText(relativeAddr.getAddressLine(0));
-            timeout = false;
-        }
-    }
-
     class updateUserLoc extends AsyncTask<User, Void, Void> {
 
         protected Void doInBackground(User... arg0) {
@@ -461,25 +467,25 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         }
     }
 
-//    class getAddressTimeout extends AsyncTask<Location, Void, Void> {
-//        protected Void doInBackground(Location... arg0) {
-//            myAddr = null;
-//            double lat = arg0.getLatitude();
-//            double longt = arg0.getLongitude();
-//
-//            Geocoder geocoder = new Geocoder(com.csulb.decisionator.decisionator.LocationActivity, Locale.getDefault());
-//            try {
-//                List<Address> listAddresses = geocoder.getFromLocation(lat, longt, 1);
-//                if (listAddresses.size() > 0) {
-//                    address = listAddresses.get(0);
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
-//        }
-//
-//    }
+    class locationUpdate implements Runnable {
+        @Override
+        public void run() {
+            timeout = true;
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, (LocationListener) this);  //TODO: might be a scope issue here with (LocationListener) this, consider getApplicationContext()?
+            timeout = false;
+        }
+    }
 
     class updateEventLoc extends AsyncTask<Event, Void, Void> {
 
