@@ -24,17 +24,30 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
+    //RONS TEST ACTIVITY
+        <activity android:name=".EventActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs "com.example.myapp://" -->
+                <data android:scheme="com.csulb.decisionator.decisionator" />
+            </intent-filter>
+        </activity>
+
+
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <activity android:name=".LobbyActivity" />
+        // lobby activity was here last time
         <activity android:name=".EventCreationActivity" />
         <activity android:name=".LocationActivity" />
         <activity android:name=".InviteFriendsActivity" >
         </activity>
-        <activity android:name=".EventActivity" >
+        <activity android:name=".LobbyActivity" >
         </activity>
     </application>
 

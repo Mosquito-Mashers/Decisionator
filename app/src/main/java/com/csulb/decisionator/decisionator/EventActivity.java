@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,12 +25,15 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpr
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.facebook.FacebookSdk;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import bolts.AppLinks;
 
 public class EventActivity extends AppCompatActivity {
 
@@ -67,9 +71,13 @@ public class EventActivity extends AppCompatActivity {
         initializeListeners();
 
         prepareIntent(goToLobby,intentPairs);
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        Uri targetUrl = AppLinks.getTargetUrlFromInboundIntent(this, getIntent());
+        if (targetUrl != null) {
+            Log.i("Activity", "App Link Target URL: " + targetUrl.toString());
+        }
     }
-
-
 
     private void initializeGlobals()
     {
@@ -281,6 +289,10 @@ public class EventActivity extends AppCompatActivity {
                         if(rsvpList != null && rsvpList.contains(item.getfName() + " " + item.getlName()))
                         {
                             item.setlName(item.getlName() + " RSVP'ed!");
+                        }
+                        else
+                        {
+                            item.setlName(item.getlName() + "?");
                         }
                         temp.add(item);
 

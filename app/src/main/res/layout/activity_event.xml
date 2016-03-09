@@ -56,6 +56,11 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="RSVP!"/>
+            <Button
+                android:id="@+id/shareButton"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Share on FACEBOOK!"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

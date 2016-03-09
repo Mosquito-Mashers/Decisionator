@@ -50,6 +50,10 @@ public class LobbyActivity extends AppCompatActivity {
     private ListView eventList;
     private CognitoCachingCredentialsProvider credentialsProvider;
 
+    //RONS TEST SECTION
+
+    //END RONS TEST SECTION
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
