@@ -232,11 +232,6 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         new getFinalLocation(map).execute();
 
-        map.addMarker(new MarkerOptions()
-                .position(new LatLng(mid.getLatitude(), mid.getLongitude()))
-                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
-                .title("Midpoint")).showInfoWindow();
-
         CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(mid.getLatitude(), mid.getLongitude()));
         CameraUpdate zoom= CameraUpdateFactory.zoomTo(10);
 
@@ -476,13 +471,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             query += "keyword=" + currEvent.getTopic().replace(' ','+');
             query += "&location="+currEvent.getLatitude() + "," + currEvent.getLongitude();
             query += "&rankby=distance";
-            //query += "&radius=5000";
-            //query += "&type=restaurant";//TODO: Replace restaurant with currEvent.getCategory
-            //query += "&name="+currEvent.getTopic();
             query += "&key="+getString(R.string.places_api_key);
-
-            //places = getJSON("https://maps.googleapis.com/maps/api/place/textsearch/json?query=thai&location=33.786189708,-118.122006622&radius=5000&type=restaurant&name=thai&key=AIzaSyCPPNAnmewayl57aDmmNdFFj2TbEYAi60A");
-            //https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=steakhouse&location=33.73531618,117.97386965&rankby=distance&key=AIzaSyCPPNAnmewayl57aDmmNdFFj2TbEYAi60A
             places = getJSON(query);
 
             return places;
