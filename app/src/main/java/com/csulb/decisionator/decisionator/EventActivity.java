@@ -1,5 +1,6 @@
 package com.csulb.decisionator.decisionator;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,7 +27,10 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanLis
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.FacebookSdk;
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,8 +63,9 @@ public class EventActivity extends AppCompatActivity {
     private ListView invitedList;
     private Button returnToLobby;
     private Button rsvp;
+    private Button share;
     private ImageView eventCategory;
-
+    private ShareDialog shareDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,17 +77,19 @@ public class EventActivity extends AppCompatActivity {
 
         prepareIntent(goToLobby,intentPairs);
 
+        /* START OF RONS APP LINK TEST (NOT USED)
         FacebookSdk.sdkInitialize(getApplicationContext());
         Uri targetUrl = AppLinks.getTargetUrlFromInboundIntent(this, getIntent());
         if (targetUrl != null) {
             Log.i("Activity", "App Link Target URL: " + targetUrl.toString());
         }
+        END OF APP LINK TEST */
     }
 
     private void initializeGlobals()
     {
         goToLobby = new Intent(this, LobbyActivity.class);
-
+        shareDialog = new ShareDialog(this);
         enterEvent = getIntent();
         eTopic = enterEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
         eHost = enterEvent.getStringExtra(EventCreationActivity.EVENT_HOST_NAME);
@@ -110,7 +117,7 @@ public class EventActivity extends AppCompatActivity {
         returnToLobby = (Button) findViewById(R.id.returnToLobby);
         rsvp = (Button) findViewById(R.id.rsvpButton);
         eventCategory = (ImageView) findViewById(R.id.eventDescPic);
-
+        share = (Button) findViewById(R.id.shareButton);
         eventTitle.setText(eTopic);
         eventHost.setText(eHost);
 
@@ -131,6 +138,21 @@ public class EventActivity extends AppCompatActivity {
 
                 new updateEvent().execute(eID);
 
+            }
+        });
+
+        share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // if (ShareDialog.canShow(ShareLinkContent.class)) {
+                ShareLinkContent linkContent = new ShareLinkContent.Builder()
+                        .setContentTitle("Hello Facebook")
+                        .setContentDescription(
+                                "The 'Hello Facebook' sample  showcases simple Facebook integration")
+                        .setContentUrl(Uri.parse("http://www.facebook.com/decisionator"))
+                        .build();
+
+                shareDialog.show(linkContent);
             }
         });
     }
