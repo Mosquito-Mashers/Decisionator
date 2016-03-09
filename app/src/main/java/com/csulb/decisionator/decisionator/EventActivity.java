@@ -88,6 +88,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private Button returnToLobby;
     private Button rsvp;
     private ImageView eventCategory;
+    private Location mid;
 
     private GoogleMap map;
 
@@ -227,7 +228,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     .title(user.getfName() + " " + user.getlName()));
         }
 
-        Location mid = getMidLocation(locs);
+        mid = getMidLocation(locs);
 
         new getFinalLocation(map).execute();
 
@@ -491,8 +492,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         protected void onPostExecute(ArrayList<JSONObject> places)
         {
             if(places.size() > 0) {
-                LatLng finalLoc = new LatLng(0, 0);
-                String venue = "";
+                LatLng finalLoc = new LatLng(mid.getLatitude(), mid.getLongitude());
+                String venue = "Could not find " + eTopic;
                 JSONObject firstResult = places.get(0);
                 try {
                     JSONArray finalResultList = firstResult.getJSONArray("results");
