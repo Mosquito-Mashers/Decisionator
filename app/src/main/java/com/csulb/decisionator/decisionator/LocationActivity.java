@@ -145,20 +145,6 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     }
 
     private void initializeListeners() {
-        //userLoc = CSULB Coordinates
-        userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-        if(userLoc == null)
-        {
-            userLoc.setLatitude(33.760605);
-            userLoc.setLongitude(-118.156446);
-        }
-        //Timeout
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
-
-        //If onLocationChanged not fired in 10s
-        this.onLocationChanged(userLoc);
-
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -170,7 +156,6 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        //userLoc = CSULB Coordinates
         userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         if(userLoc == null)
         {
@@ -184,7 +169,6 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         lastKnown.setLongitude(userLoc.getLongitude());
         new updateUserLoc().execute(lastKnown);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
-
 
         returnHomebtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -246,27 +230,10 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         loginManager = LoginManager.getInstance();
 
-        userLoc = new Location("No providers");
-
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-
-
         setDummyLocations();
     }
 
     @Override
-    //If has not changed in 10 seconds
     public void onLocationChanged(Location location) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
