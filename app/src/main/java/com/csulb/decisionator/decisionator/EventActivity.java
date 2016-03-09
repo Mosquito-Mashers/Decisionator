@@ -230,6 +230,14 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         mid = getMidLocation(locs);
 
+        Marker mark = map.addMarker(new MarkerOptions()
+                .position(new LatLng(mid.getLatitude(),mid.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
+                .title("midpoint"));
+
+        currEvent.setLatitude(mid.getLatitude());
+        currEvent.setLongitude(mid.getLongitude());
+
         new getFinalLocation(map).execute();
 
         CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(mid.getLatitude(), mid.getLongitude()));
@@ -425,6 +433,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             for (k = 0; k < userResult.size(); k++)
             {
                 User item = userResult.get(k);
+                if(item.getUserID().contentEquals(eventResult.getHostID()))
+                {
+                    allUsers.add(item);
+                }
                 String name = item.getfName() + " " + item.getlName();
 
                 for(int i = 0; i < invitedArray.length; i++)
