@@ -12,6 +12,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -61,6 +64,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private FriendAdapter friendAdapter;
 
     private Intent enterEvent;
+    private Intent logoutIntent;
     private Intent goToLobby;
     private Map<String, String> intentPairs = new HashMap<String, String>();
 
@@ -84,8 +88,32 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private Button returnToLobby;
     private Button rsvp;
     private ImageView eventCategory;
+    private Location mid;
 
     private GoogleMap map;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +134,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private void initializeGlobals()
     {
         goToLobby = new Intent(this, LobbyActivity.class);
+        logoutIntent = new Intent(this, FacebookLogin.class);
 
         enterEvent = getIntent();
         eTopic = enterEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
@@ -199,14 +228,17 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     .title(user.getfName() + " " + user.getlName()));
         }
 
-        Location mid = getMidLocation(locs);
+        mid = getMidLocation(locs);
+
+        Marker mark = map.addMarker(new MarkerOptions()
+                .position(new LatLng(mid.getLatitude(),mid.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
+                .title("midpoint"));
+
+        currEvent.setLatitude(mid.getLatitude());
+        currEvent.setLongitude(mid.getLongitude());
 
         new getFinalLocation(map).execute();
-
-        map.addMarker(new MarkerOptions()
-                .position(new LatLng(mid.getLatitude(), mid.getLongitude()))
-                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
-                .title("Midpoint")).showInfoWindow();
 
         CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(mid.getLatitude(), mid.getLongitude()));
         CameraUpdate zoom= CameraUpdateFactory.zoomTo(10);
@@ -401,6 +433,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             for (k = 0; k < userResult.size(); k++)
             {
                 User item = userResult.get(k);
+                if(item.getUserID().contentEquals(eventResult.getHostID()))
+                {
+                    allUsers.add(item);
+                }
                 String name = item.getfName() + " " + item.getlName();
 
                 for(int i = 0; i < invitedArray.length; i++)
@@ -447,13 +483,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             query += "keyword=" + currEvent.getTopic().replace(' ','+');
             query += "&location="+currEvent.getLatitude() + "," + currEvent.getLongitude();
             query += "&rankby=distance";
-            //query += "&radius=5000";
-            //query += "&type=restaurant";//TODO: Replace restaurant with currEvent.getCategory
-            //query += "&name="+currEvent.getTopic();
             query += "&key="+getString(R.string.places_api_key);
-
-            //places = getJSON("https://maps.googleapis.com/maps/api/place/textsearch/json?query=thai&location=33.786189708,-118.122006622&radius=5000&type=restaurant&name=thai&key=AIzaSyCPPNAnmewayl57aDmmNdFFj2TbEYAi60A");
-            //https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=steakhouse&location=33.73531618,117.97386965&rankby=distance&key=AIzaSyCPPNAnmewayl57aDmmNdFFj2TbEYAi60A
             places = getJSON(query);
 
             return places;
@@ -463,8 +493,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         protected void onPostExecute(ArrayList<JSONObject> places)
         {
             if(places.size() > 0) {
-                LatLng finalLoc = new LatLng(0, 0);
-                String venue = "";
+                LatLng finalLoc = new LatLng(mid.getLatitude(), mid.getLongitude());
+                String venue = "Could not find " + eTopic;
                 JSONObject firstResult = places.get(0);
                 try {
                     JSONArray finalResultList = firstResult.getJSONArray("results");
