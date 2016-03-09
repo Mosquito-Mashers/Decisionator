@@ -4,6 +4,6 @@
     <item
         android:id="@+id/logout"
         android:icon="@mipmap/logout_icon_white"
-        android:title="Logout"
-        app:showAsAction="always"/>
+        android:title="Exit"
+        app:showAsAction="always|withText"/>
 </menu>
