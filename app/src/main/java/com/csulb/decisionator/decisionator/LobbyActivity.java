@@ -30,7 +30,13 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -319,13 +325,32 @@ public class LobbyActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<Event> res)
         {
+            ArrayList<Event> beforeRes = res;
+
+            Collections.sort(res, new Comparator<Event>() {
+                @Override
+                public int compare(Event lhs, Event rhs) {
+                    DateFormat format = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
+                    Date left = new Date();
+                    Date right = new Date();
+                    int result = 0;
+
+                    try {
+                        left = format.parse(lhs.getDateCreated());
+                        right = format.parse(rhs.getDateCreated());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    result = right.after(left) ? 1 : -1;
+
+                    return result;
+                }
+            });
             eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, res);
             eventList = (ListView) findViewById(R.id.eventList);
             eventList.setAdapter(eventAdapter);
             feedProg.setVisibility(View.GONE);
         }
-
-
     }
 
     class getHost extends AsyncTask<String, Void, User> {

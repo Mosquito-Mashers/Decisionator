@@ -155,6 +155,8 @@ public class EventCreationActivity extends AppCompatActivity {
                 evnt.setHostID(uID);
                 evnt.setHostName(uFname);
                 evnt.setTopic(topic);
+                evnt.setLatitude(33.760605);
+                evnt.setLongitude(-118.156446);
                 evnt.setDateCreated(date.toString());
 
 
