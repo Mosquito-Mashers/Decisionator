@@ -63,15 +63,13 @@ public class LobbyActivity extends AppCompatActivity {
     private ListView eventList;
     private CognitoCachingCredentialsProvider credentialsProvider;
 
-    //RONS TEST SECTION
-
-    //END RONS TEST SECTION
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.actionbar_resources, menu);
+        MenuItem item = menu.findItem(R.id.lobby);
+        item.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
