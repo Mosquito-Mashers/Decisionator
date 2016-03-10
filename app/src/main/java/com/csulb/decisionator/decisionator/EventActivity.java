@@ -1,6 +1,5 @@
 package com.csulb.decisionator.decisionator;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,18 +25,14 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpr
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.facebook.FacebookSdk;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import bolts.AppLinks;
 
 public class EventActivity extends AppCompatActivity {
 
@@ -66,6 +61,7 @@ public class EventActivity extends AppCompatActivity {
     private Button share;
     private ImageView eventCategory;
     private ShareDialog shareDialog;
+    private User currUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,11 +140,15 @@ public class EventActivity extends AppCompatActivity {
         share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String description = "";
+                String start = currUser.getLatitude()+","+currUser.getLongitude();
+                //String end =
+                String uri = "https://www.google.com/maps/dir/33.7835678,-118.1289807/33.7833894,-118.1297532/@33.7793052,-118.1391087,15z";
+                //gg.com/maps/dir/start/end/@start,15z
                 // if (ShareDialog.canShow(ShareLinkContent.class)) {
                 ShareLinkContent linkContent = new ShareLinkContent.Builder()
-                        .setContentTitle("Hello Facebook")
-                        .setContentDescription(
-                                "The 'Hello Facebook' sample  showcases simple Facebook integration")
+                        .setContentTitle("Lets go to..." + eTopic)
+                        .setContentDescription(description)
                         .setContentUrl(Uri.parse("http://www.facebook.com/decisionator"))
                         .build();
 
@@ -231,7 +231,7 @@ public class EventActivity extends AppCompatActivity {
 
             DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
             Event event = mapper.load(Event.class, params[0]);
-            User currUser = mapper.load(User.class, uID);
+            currUser = mapper.load(User.class, uID);
             String currName = currUser.getfName() + " " + currUser.getlName();
 
             String rsvps = event.getRsvpList();
