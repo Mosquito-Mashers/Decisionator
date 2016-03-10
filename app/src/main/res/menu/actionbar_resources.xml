@@ -4,6 +4,7 @@
     <item
         android:id="@+id/lobby"
         android:title="Lobby"
+        android:icon="@mipmap/lobby_icon"
         app:showAsAction="always|withText"/>
     <item
         android:id="@+id/logout"
