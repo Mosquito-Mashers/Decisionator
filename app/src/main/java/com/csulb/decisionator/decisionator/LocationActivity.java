@@ -17,6 +17,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -70,6 +73,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     private Event evnt;
 
     private Intent eventInitiated;
+    private Intent logoutIntent;
     private Intent returnHome;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
 
@@ -85,6 +89,29 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     private ArrayList<Location> debugLocations = new ArrayList<Location>();
     /////////////////////////////////////////////
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +157,12 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
             return;
         }
         userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if(userLoc == null)
+        {
+            userLoc = new Location("No providers");
+            userLoc.setLatitude(33.760605);
+            userLoc.setLongitude(-118.156446);
+        }
         User lastKnown = new User();
         lastKnown.setUserID(uID);
         lastKnown.setLatitude(userLoc.getLatitude());
@@ -175,6 +208,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         addrProg = (ProgressBar) findViewById(R.id.addrLoading);
 
         returnHome = new Intent(this, LobbyActivity.class);
+        logoutIntent = new Intent(this, FacebookLogin.class);
         eventInitiated = getIntent();
         uID = eventInitiated.getStringExtra(FacebookLogin.USER_ID);
         poolID = eventInitiated.getStringExtra(FacebookLogin.POOL_ID);
@@ -267,7 +301,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         Log.d("Latitude","status");
     }
 
-    private Address getAddress(Location location)
+    public Address getAddress(Location location)
     {
         Address address = null;
         double lat = location.getLatitude();
@@ -290,7 +324,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         return address;
     }
 
-    private Location getMidLocation(ArrayList<Location> locations)
+    public Location getMidLocation(ArrayList<Location> locations)
     {
         Location midLocation = new Location("");
 
@@ -340,28 +374,28 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
         friend1Lat.setText("" + loc1.getLatitude() + ", ");
         friend1Long.setText("" + loc1.getLongitude());
-        friend1Addr.setText(getAddress(loc1).getAddressLine(0));
+        //friend1Addr.setText(getAddress(loc1).getAddressLine(0));
 
         loc2.setLatitude(33.791149);
         loc2.setLongitude(-118.136737);
 
         friend2Lat.setText("" + loc2.getLatitude() + ", ");
         friend2Long.setText("" + loc2.getLongitude());
-        friend2Addr.setText(getAddress(loc2).getAddressLine(0));
+        //friend2Addr.setText(getAddress(loc2).getAddressLine(0));
 
         loc3.setLatitude(33.808249);
         loc3.setLongitude(-118.072546);
 
         friend3Lat.setText("" + loc3.getLatitude() + ", ");
         friend3Long.setText("" + loc3.getLongitude());
-        friend3Addr.setText(getAddress(loc3).getAddressLine(0));
+        //friend3Addr.setText(getAddress(loc3).getAddressLine(0));
 
         loc4.setLatitude(33.760605);
         loc4.setLongitude(-118.133185);
 
         friend4Lat.setText("" + loc4.getLatitude() + ", ");
         friend4Long.setText("" + loc4.getLongitude());
-        friend4Addr.setText(getAddress(loc4).getAddressLine(0));
+        //friend4Addr.setText(getAddress(loc4).getAddressLine(0));
     }
 
     private void setLocations()

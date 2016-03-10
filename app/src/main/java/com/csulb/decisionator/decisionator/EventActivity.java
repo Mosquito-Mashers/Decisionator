@@ -4,12 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -27,18 +33,41 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-public class EventActivity extends AppCompatActivity {
+public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
 
     private FriendAdapter friendAdapter;
 
     private Intent enterEvent;
+    private Intent logoutIntent;
     private Intent goToLobby;
     private Map<String, String> intentPairs = new HashMap<String, String>();
 
@@ -50,6 +79,10 @@ public class EventActivity extends AppCompatActivity {
     private String poolID;
     private String uID;
     private String uName;
+    private String venue;
+    private Event currEvent;
+    private ArrayList<User> allUsers = new ArrayList<User>();
+    private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
     private CognitoCachingCredentialsProvider credentialsProvider;
 
     private TextView eventTitle;
@@ -60,12 +93,42 @@ public class EventActivity extends AppCompatActivity {
     private Button rsvp;
     private Button share;
     private ImageView eventCategory;
+
+    private Location mid;
+    private LatLng finalLoc;
+
+    private GoogleMap map;
+
     private ShareDialog shareDialog;
     private User currUser;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
+        MapsInitializer.initialize(getApplicationContext());
 
         initializeGlobals();
 
@@ -85,6 +148,9 @@ public class EventActivity extends AppCompatActivity {
     private void initializeGlobals()
     {
         goToLobby = new Intent(this, LobbyActivity.class);
+
+        logoutIntent = new Intent(this, FacebookLogin.class);
+
         shareDialog = new ShareDialog(this);
         enterEvent = getIntent();
         eTopic = enterEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
@@ -105,9 +171,9 @@ public class EventActivity extends AppCompatActivity {
                 poolID, // Identity Pool ID
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
+        new getCurrUser().execute(uID);
 
         eventTitle = (TextView) findViewById(R.id.eventTitle);
-        mapsContainer = (TextView) findViewById(R.id.gMapsContainer);
         eventHost = (TextView) findViewById(R.id.eventHost);
         invitedList = (ListView) findViewById(R.id.invitedList);
         returnToLobby = (Button) findViewById(R.id.returnToLobby);
@@ -118,7 +184,9 @@ public class EventActivity extends AppCompatActivity {
         eventHost.setText(eHost);
 
         new getAllFriends().execute(eID);
+        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
     }
+
 
     private void initializeListeners() {
 
@@ -142,14 +210,12 @@ public class EventActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String description = "";
                 String start = currUser.getLatitude()+","+currUser.getLongitude();
-                //String end =
-                String uri = "https://www.google.com/maps/dir/33.7835678,-118.1289807/33.7833894,-118.1297532/@33.7793052,-118.1391087,15z";
-                //gg.com/maps/dir/start/end/@start,15z
-                // if (ShareDialog.canShow(ShareLinkContent.class)) {
+                String end = finalLoc.latitude+","+finalLoc.longitude;
+                String uri = "https://www.google.com/maps/dir//"+end+"/";
                 ShareLinkContent linkContent = new ShareLinkContent.Builder()
-                        .setContentTitle("Lets go to..." + eTopic)
+                        .setContentTitle("Lets go to..." + venue)
                         .setContentDescription(description)
-                        .setContentUrl(Uri.parse("http://www.facebook.com/decisionator"))
+                        .setContentUrl(Uri.parse(uri))
                         .build();
 
                 shareDialog.show(linkContent);
@@ -165,6 +231,104 @@ public class EventActivity extends AppCompatActivity {
             Map.Entry kvPair = (Map.Entry) mapIter.next();
             moveToLobby.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
         }
+    }
+
+    private void generateFriendMap(ArrayList<User> allUsers, GoogleMap mp)
+    {
+        int k;
+        int i;
+        ArrayList<Location> locs = new ArrayList<Location>();
+        ArrayList<Marker> markers = new ArrayList<Marker>();
+        Location temp;
+        for(k = 0; k < allUsers.size(); k++)
+        {
+            temp = new Location("");
+            User user = allUsers.get(k);
+
+
+            if(user.getLatitude() == 0 || user.getLongitude() == 0)
+            {
+                user.setLatitude(33.784091);
+                user.setLongitude( -118.114090);
+            }
+            temp.setLatitude(user.getLatitude());
+            temp.setLongitude(user.getLongitude());
+            locs.add(temp);
+
+            LatLng loc = new LatLng(user.getLatitude(),user.getLongitude());
+            Marker mark = map.addMarker(new MarkerOptions()
+                    .position(loc)
+                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.person_icon))
+                    .title(user.getfName() + " " + user.getlName()));
+        }
+
+        mid = getMidLocation(locs);
+
+        Marker mark = map.addMarker(new MarkerOptions()
+                .position(new LatLng(mid.getLatitude(),mid.getLongitude()))
+                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
+                .title("midpoint"));
+
+        currEvent.setLatitude(mid.getLatitude());
+        currEvent.setLongitude(mid.getLongitude());
+
+        new getFinalLocation(map).execute();
+
+        CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(mid.getLatitude(), mid.getLongitude()));
+        CameraUpdate zoom= CameraUpdateFactory.zoomTo(10);
+
+        map.moveCamera(center);
+        map.animateCamera(zoom);
+
+    }
+    public Address getAddress(Location location)
+    {
+        Address address = null;
+        double lat = location.getLatitude();
+        double longt = location.getLongitude();
+
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+
+        try
+        {
+            List<Address> listAddresses = geocoder.getFromLocation(lat, longt, 1);
+            if(listAddresses.size() > 0)
+            {
+                address = listAddresses.get(0);
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return address;
+    }
+
+    public Location getMidLocation(ArrayList<Location> locations)
+    {
+        Location midLocation = new Location("");
+
+        double sumX = 0;
+        double sumY = 0;
+
+        int k = 0;
+        int locCount = locations.size();
+
+        for(k = 0; k < locCount; k++)
+        {
+            sumX += locations.get(k).getLatitude();
+            sumY += locations.get(k).getLongitude();
+        }
+
+        midLocation.setLatitude( sumX / locCount);
+        midLocation.setLongitude(sumY / locCount);
+
+        return midLocation;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        generateFriendMap(allUsers,googleMap);
     }
 
     private class FriendAdapter extends ArrayAdapter<User>
@@ -231,7 +395,6 @@ public class EventActivity extends AppCompatActivity {
 
             DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
             Event event = mapper.load(Event.class, params[0]);
-            currUser = mapper.load(User.class, uID);
             String currName = currUser.getfName() + " " + currUser.getlName();
 
             String rsvps = event.getRsvpList();
@@ -281,19 +444,40 @@ public class EventActivity extends AppCompatActivity {
 
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
+            userPics.add(result);
+        }
+    }
+
+
+    class getCurrUser extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+
+            currUser = mapper.load(User.class, params[0]);
+
+            if(currUser == null)
+            {
+                currUser.setLatitude(33.760605);
+                currUser.setLongitude(-118.156446);
+            }
+
+            return null;
         }
     }
 
     class getAllFriends extends AsyncTask<String, Void, ArrayList<User>> {
         @Override
         protected ArrayList<User> doInBackground(String... params) {
-            ArrayList<User> temp = new ArrayList<User>();
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
             DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
             PaginatedScanList<User> userResult = mapper.scan(User.class, scanExpression);
             Event eventResult = mapper.load(Event.class, params[0]);
+            currEvent = eventResult;
 
             String invitedArray[] = eventResult.getAttendees().split(", ");
             String rsvpList = eventResult.getRsvpList();
@@ -302,6 +486,10 @@ public class EventActivity extends AppCompatActivity {
             for (k = 0; k < userResult.size(); k++)
             {
                 User item = userResult.get(k);
+                if(item.getUserID().contentEquals(eventResult.getHostID()))
+                {
+                    allUsers.add(item);
+                }
                 String name = item.getfName() + " " + item.getlName();
 
                 for(int i = 0; i < invitedArray.length; i++)
@@ -316,13 +504,13 @@ public class EventActivity extends AppCompatActivity {
                         {
                             item.setlName(item.getlName() + "?");
                         }
-                        temp.add(item);
+                        allUsers.add(item);
 
                         continue;
                     }
                 }
             }
-            return temp;
+            return allUsers;
         }
 
         @Override
@@ -332,6 +520,99 @@ public class EventActivity extends AppCompatActivity {
 
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
+            generateFriendMap(res, map);
         }
+    }
+
+
+    class getFinalLocation extends AsyncTask<Void, Void, ArrayList<JSONObject>> {
+        private GoogleMap map;
+        ArrayList<JSONObject> places;
+
+        getFinalLocation(GoogleMap gMap)
+        {
+            map = gMap;
+        }
+
+        @Override
+        protected ArrayList<JSONObject> doInBackground(Void... params) {
+            String query = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+            query += "keyword=" + currEvent.getTopic().replace(' ','+');
+            query += "&location="+currEvent.getLatitude() + "," + currEvent.getLongitude();
+            query += "&rankby=distance";
+            query += "&key="+getString(R.string.places_api_key);
+            places = getJSON(query);
+
+            return places;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<JSONObject> places)
+        {
+            if(places.size() > 0) {
+                finalLoc = new LatLng(mid.getLatitude(), mid.getLongitude());
+                venue = "Could not find " + eTopic;
+                JSONObject firstResult = places.get(0);
+                try {
+                    JSONArray finalResultList = firstResult.getJSONArray("results");
+                    JSONObject firstRes = finalResultList.getJSONObject(0);
+                    venue = firstRes.getString("name");
+                    JSONObject location = firstRes.getJSONObject("geometry").getJSONObject("location");
+                    String lat = location.getString("lat");
+                    String lng = location.getString("lng");
+                    finalLoc = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                MarkerOptions finalMark = new MarkerOptions()
+                        .position(finalLoc)
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
+                        .title(venue);
+                map.addMarker(finalMark).showInfoWindow();
+
+                CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(finalMark.getPosition().latitude, finalMark.getPosition().longitude));
+                map.moveCamera(center);
+            }
+            CameraUpdate zoom= CameraUpdateFactory.zoomTo(10);
+            map.animateCamera(zoom);
+        }
+    }
+
+    public ArrayList<JSONObject> getJSON(String inUrl) {
+        HttpURLConnection urlConnection = null;
+        URL url = null;
+        JSONObject object = null;
+        ArrayList<JSONObject> objs = new ArrayList<JSONObject>();
+        InputStream inStream = null;
+        try {
+            url = new URL(inUrl.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoOutput(true);
+            urlConnection.setDoInput(true);
+            urlConnection.connect();
+            inStream = urlConnection.getInputStream();
+            BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
+            String temp, response = "";
+            while ((temp = bReader.readLine()) != null) {
+                response += temp;
+            }
+            object = (JSONObject) new JSONTokener(response).nextValue();
+            objs.add(object);
+        } catch (Exception e) {
+
+        } finally {
+            if (inStream != null) {
+                try {
+                    // this will close the bReader as well
+                    inStream.close();
+                } catch (IOException ignored) {
+                }
+            }
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+        return objs;
     }
 }
