@@ -131,13 +131,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         initializeListeners();
 
-        /* START OF RONS APP LINK TEST (NOT USED)
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        Uri targetUrl = AppLinks.getTargetUrlFromInboundIntent(this, getIntent());
-        if (targetUrl != null) {
-            Log.i("Activity", "App Link Target URL: " + targetUrl.toString());
-        }
-        END OF APP LINK TEST */
+
     }
 
     private void initializeGlobals()
