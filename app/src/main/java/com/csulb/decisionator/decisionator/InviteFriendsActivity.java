@@ -51,6 +51,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
 
     private Intent inEvent;
     private Intent logoutIntent;
+    private Intent lobbyIntent;
     private Intent startEvent;
     private Event event;
 
@@ -71,7 +72,9 @@ public class InviteFriendsActivity extends AppCompatActivity {
             case R.id.logout:
                 startActivity(logoutIntent);
                 return true;
-
+            case R.id.lobby:
+                startActivity(lobbyIntent);
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -130,6 +133,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private void initializeGlobals() {
         startEvent = new Intent(this, LocationActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
+        lobbyIntent = new Intent(this, LobbyActivity.class);
         fbFriends = new ArrayList<User>();
         invitedFriends = new ArrayList<User>();
 
@@ -139,6 +143,10 @@ public class InviteFriendsActivity extends AppCompatActivity {
         uFName = inEvent.getStringExtra(FacebookLogin.USER_F_NAME);
         topic = inEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
         uID = inEvent.getStringExtra(FacebookLogin.USER_ID);
+
+        lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
+        lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
+        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uFName);
 
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */

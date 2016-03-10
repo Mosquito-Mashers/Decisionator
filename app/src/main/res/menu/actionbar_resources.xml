@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/lobby"
-        android:title="Reutrn To Lobby"
+        android:title="Lobby"
         app:showAsAction="always|withText"/>
     <item
         android:id="@+id/logout"

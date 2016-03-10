@@ -68,7 +68,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
     private Intent enterEvent;
     private Intent logoutIntent;
-    private Intent goToLobby;
+    private Intent lobbyIntent;
     private Map<String, String> intentPairs = new HashMap<String, String>();
 
     private String eTopic;
@@ -85,14 +85,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
     private CognitoCachingCredentialsProvider credentialsProvider;
 
-    private TextView eventTitle;
-    private TextView mapsContainer;
-    private TextView eventHost;
     private ListView invitedList;
-    private Button returnToLobby;
     private Button rsvp;
     private Button share;
-    private ImageView eventCategory;
 
     private Location mid;
     private LatLng finalLoc;
@@ -115,7 +110,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             case R.id.logout:
                 startActivity(logoutIntent);
                 return true;
-
+            case R.id.lobby:
+                startActivity(lobbyIntent);
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -134,8 +131,6 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         initializeListeners();
 
-        prepareIntent(goToLobby,intentPairs);
-
         /* START OF RONS APP LINK TEST (NOT USED)
         FacebookSdk.sdkInitialize(getApplicationContext());
         Uri targetUrl = AppLinks.getTargetUrlFromInboundIntent(this, getIntent());
@@ -147,9 +142,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
     private void initializeGlobals()
     {
-        goToLobby = new Intent(this, LobbyActivity.class);
-
         logoutIntent = new Intent(this, FacebookLogin.class);
+        lobbyIntent = new Intent(this, LobbyActivity.class);
 
         shareDialog = new ShareDialog(this);
         enterEvent = getIntent();
@@ -162,6 +156,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         uID = enterEvent.getStringExtra(FacebookLogin.USER_ID);
         uName = enterEvent.getStringExtra(FacebookLogin.USER_F_NAME);
 
+        this.setTitle(eTopic);
+
+        lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
+        lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
+        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uName);
+
         intentPairs.put(FacebookLogin.POOL_ID, poolID);
         intentPairs.put(FacebookLogin.USER_ID, uID);
         intentPairs.put(FacebookLogin.USER_F_NAME, uName);
@@ -173,15 +173,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         );
         new getCurrUser().execute(uID);
 
-        eventTitle = (TextView) findViewById(R.id.eventTitle);
-        eventHost = (TextView) findViewById(R.id.eventHost);
         invitedList = (ListView) findViewById(R.id.invitedList);
-        returnToLobby = (Button) findViewById(R.id.returnToLobby);
         rsvp = (Button) findViewById(R.id.rsvpButton);
-        eventCategory = (ImageView) findViewById(R.id.eventDescPic);
         share = (Button) findViewById(R.id.shareButton);
-        eventTitle.setText(eTopic);
-        eventHost.setText(eHost);
 
         new getAllFriends().execute(eID);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
@@ -189,13 +183,6 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
 
     private void initializeListeners() {
-
-        returnToLobby.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(goToLobby);
-            }
-        });
         rsvp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
