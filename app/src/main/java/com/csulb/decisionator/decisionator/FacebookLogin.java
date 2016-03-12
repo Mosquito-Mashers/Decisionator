@@ -316,6 +316,20 @@ public class FacebookLogin extends AppCompatActivity {
                     }
                 });
 
+        GraphRequest request = GraphRequest.newMeRequest(
+                token,
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        // Insert your code here
+                    }
+                });
+
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "about,bio,posts,photos.limit(20),likes,sports,music,tagged_places");
+        request.setParameters(parameters);
+        request.executeAsync();
+
 
 
         movieRequest.executeAsync();
