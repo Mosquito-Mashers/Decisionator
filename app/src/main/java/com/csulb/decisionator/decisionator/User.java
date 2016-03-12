@@ -12,9 +12,6 @@ public class User {
     private String userID;
     private String fName;
     private String lName;
-
-
-
     private String profilePic;
     private double latitude;
     private double longitude;
