@@ -51,6 +51,13 @@
                 android:textSize="20dp"
                 android:textAlignment="center"/>
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="test delay"
+                android:id="@+id/testDelay"
+                android:layout_gravity="center_horizontal" />
+
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

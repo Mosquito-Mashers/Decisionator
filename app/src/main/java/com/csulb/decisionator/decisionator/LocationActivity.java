@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -141,12 +142,14 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         //if last known location unavailable, set default to CSULB coordinates
         if(userLoc == null)
         {
+            Log.d("LOCATION", "getLastKnowLocation returned NULL");
             userLoc.setLatitude(33.760605);
             userLoc.setLongitude(-118.156446);
         }
 
         //Timeout
         ExecutorService executor = Executors.newSingleThreadExecutor();
+
         try {
             executor.submit(new locationUpdate()).get(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
@@ -156,7 +159,6 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         } catch (TimeoutException e) {
             //Not sure if this will flag on my 10 second timeout, but in case it does...
             this.onLocationChanged(userLoc);
-            System.out.println("Timeout Exception called!");
         }
         executor.shutdown();
 
@@ -471,6 +473,7 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         @Override
         public void run() {
             timeout = true;
+            Log.d("LOCATION", "locationUpdate() is being executed!");
             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions

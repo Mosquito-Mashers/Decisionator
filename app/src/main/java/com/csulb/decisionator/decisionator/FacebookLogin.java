@@ -1,6 +1,7 @@
 package com.csulb.decisionator.decisionator;
 
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -57,7 +59,7 @@ public class FacebookLogin extends AppCompatActivity {
 
     //Gui items
     private TextView info;
-    private Button goToLobby;
+    private Button goToLobby, test;
     private Intent loginSuccess;
 
     @Override
@@ -186,6 +188,14 @@ public class FacebookLogin extends AppCompatActivity {
 
     private void initializeListeners()
     {
+        //Test button to start AsyncTask LocationUpdate
+        test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LocationUpdate test = new LocationUpdate();
+                test.execute();
+            }
+        });
     }
 
     private void initializeGlobals()
@@ -215,6 +225,7 @@ public class FacebookLogin extends AppCompatActivity {
         //Assign gui objects
         info = (TextView)findViewById(R.id.info);
         loginButton = (LoginButton)findViewById(R.id.login_button);
+        test = (Button) findViewById(R.id.testDelay);
         //mProfileTracker.startTracking();
     }
 
@@ -301,7 +312,31 @@ public class FacebookLogin extends AppCompatActivity {
         protected void onPostExecute(Profile prof)
         {
 
-
         }
     }
+
+    //test class for LocationUpdate
+    class LocationUpdate extends AsyncTask<Void, Void, Profile> {
+
+        @Override
+        protected Profile doInBackground(Void... params) {
+            try {
+                //no-op for 10 seconds
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                Log.d("LocationUpdate", "InterruptException triggered!");
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Profile prof)
+        {
+            Log.d("LocationUpdate","Successfully ran for 10 seconds");
+        }
+    }
+
 }
+
