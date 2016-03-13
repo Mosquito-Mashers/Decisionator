@@ -1,13 +1,21 @@
 package com.csulb.decisionator.decisionator;
 
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -30,7 +38,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class FacebookLogin extends AppCompatActivity {
+public class FacebookLogin extends AppCompatActivity implements LocationListener {
 
     //Keys for passing intents
     protected final static String USER_F_NAME = "com.csulb.decisionator.USER_F_NAME";
@@ -54,6 +62,12 @@ public class FacebookLogin extends AppCompatActivity {
 
     //Amazon api items
     private CognitoCachingCredentialsProvider credentialsProvider;
+
+    //location suff...
+    protected LocationManager locationManager;
+    private Location userLoc;
+    private Event evnt;
+    private String eventID;
 
     //Gui items
     private TextView info;
@@ -90,8 +104,7 @@ public class FacebookLogin extends AppCompatActivity {
 
     private void checkIfLoggedIn() {
         AccessToken tok = AccessToken.getCurrentAccessToken();
-        if(tok != null)
-        {
+        if (tok != null) {
             //Get all relevant facebook data
             Profile me = Profile.getCurrentProfile();
 
@@ -116,8 +129,7 @@ public class FacebookLogin extends AppCompatActivity {
         }
     }
 
-    private void createFBCallback()
-    {
+    private void createFBCallback() {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -173,23 +185,21 @@ public class FacebookLogin extends AppCompatActivity {
         });
     }
 
-    private void populateIntent(Intent loginSuccess, Map<String, String> intentValues)
-    {
+    private void populateIntent(Intent loginSuccess, Map<String, String> intentValues) {
         Iterator mapIter = intentValues.entrySet().iterator();
 
-        while (mapIter.hasNext())
-        {
+        while (mapIter.hasNext()) {
             Map.Entry kvPair = (Map.Entry) mapIter.next();
             loginSuccess.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
         }
     }
 
-    private void initializeListeners()
-    {
+    private void initializeListeners() {
+
+
     }
 
-    private void initializeGlobals()
-    {
+    private void initializeGlobals() {
         //Initialize Amazon api
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
@@ -213,9 +223,28 @@ public class FacebookLogin extends AppCompatActivity {
         loginSuccess = new Intent(this, LobbyActivity.class);
 
         //Assign gui objects
-        info = (TextView)findViewById(R.id.info);
-        loginButton = (LoginButton)findViewById(R.id.login_button);
+        info = (TextView) findViewById(R.id.info);
+        loginButton = (LoginButton) findViewById(R.id.login_button);
         //mProfileTracker.startTracking();
+
+        //Getting user location
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //permission check for requestLocationUpdates()
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        //Checking for current location from GPS_Provider (will timeout after 10sec)
+        LocationUpdateTimeoutHandler timeout = new LocationUpdateTimeoutHandler();
+        timeout.execute();
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
+
     }
 
     private void validateAndProceed(Profile currUser) {
@@ -256,28 +285,28 @@ public class FacebookLogin extends AppCompatActivity {
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
             User temp = mapper.load(User.class, arg0[0].getUserID());
-            if(temp != null) {
+            if (temp != null) {
                 temp.setProfilePic(arg0[0].getProfilePic());
                 temp.setlName(arg0[0].getlName());
                 temp.setfName(arg0[0].getfName());
-            }
-            else
-            {
+            } else {
                 temp = arg0[0];
             }
             mapper.save(temp);
             return null;
         }
     }
+
     //Asynchronous task to add a user to the db, updates user it they already exist
     class getUserProf extends AsyncTask<Void, Void, Profile> {
         private ProfileTracker mProfileTracker;
+
         @Override
         protected Profile doInBackground(Void... arg0) {
             //Get all relevant facebook data
             Profile me = Profile.getCurrentProfile();
 
-            if(me == null) {
+            if (me == null) {
                 mProfileTracker = new ProfileTracker() {
                     @Override
                     protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
@@ -288,9 +317,7 @@ public class FacebookLogin extends AppCompatActivity {
                 };
                 mProfileTracker.startTracking();
                 me = Profile.getCurrentProfile();
-            }
-            else
-            {
+            } else {
                 me = Profile.getCurrentProfile();
             }
 
@@ -298,10 +325,148 @@ public class FacebookLogin extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Profile prof)
-        {
+        protected void onPostExecute(Profile prof) {
 
 
+        }
+    }
+
+    /**
+     * An asynchronous task to handle the timeout of current location inquiry and initialization of
+     * userLoc.  It will wait 10 seconds for userLoc to be set, if it is not set (it is null)
+     * then it will attempt to retrieve last known location, if that fails (it is still null)
+     * userLoc will default to CSULB coordinates.
+     */
+    class LocationUpdateTimeoutHandler extends AsyncTask<Void, Void, Profile> {
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Profile doInBackground(Void... params) {
+            try {
+                //no-op for 10 seconds
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Profile prof) {
+            //if userLoc still null after 10 seconds time out requestLocationUpdate()
+            if(userLoc == null) {
+                //Checking since current location via GPS timed out
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    Log.d("Location", "Permission check returned");
+                    return;
+                }
+                userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+                //If still null then no last known location is found, so set to CSULB
+                if(userLoc == null)
+                {
+                    userLoc = new Location("No providers");
+                    userLoc.setLatitude(33.760605);
+                    userLoc.setLongitude(-118.156446);
+                }
+
+            }
+
+            //debug: checking location values
+            Log.d("Location", "Latitude: "+userLoc.getLatitude() +"Longitude: "+ userLoc.getLongitude());
+
+            //kill the async requestLocationUpdates() task here?
+
+        }
+    }
+
+    //implemented classes from LocationListener
+    @Override
+    public void onLocationChanged(Location location) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        locationManager.removeUpdates(this);
+        userLoc = location;
+
+        User currUser = new User();
+
+        currUser.setUserID(USER_ID);
+        currUser.setLatitude(location.getLatitude());
+        currUser.setLongitude(location.getLongitude());
+
+        evnt = new Event();
+        evnt.setEventID(eventID);
+        evnt.setLatitude(location.getLatitude());
+        evnt.setLongitude(location.getLongitude());
+
+        new updateUserLoc().execute(currUser);
+        new updateEventLoc().execute(evnt);
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        Log.d("Latitude","status");
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        Log.d("Latitude", "enable");
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        Log.d("Latitude", "disable");
+    }
+
+    class updateUserLoc extends AsyncTask<User, Void, Void> {
+
+        protected Void doInBackground(User... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+            User temp = mapper.load(User.class, arg0[0].getUserID());
+
+            temp.setLatitude(arg0[0].getLatitude());
+            temp.setLongitude(arg0[0].getLongitude());
+
+            mapper.save(temp);
+
+            return null;
+        }
+    }
+
+    class updateEventLoc extends AsyncTask<Event, Void, Void> {
+
+        protected Void doInBackground(Event... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+            Event temp = mapper.load(Event.class, arg0[0].getEventID());
+
+            temp.setLatitude(arg0[0].getLatitude());
+            temp.setLongitude(arg0[0].getLongitude());
+
+            mapper.save(temp);
+
+            return null;
         }
     }
 }
