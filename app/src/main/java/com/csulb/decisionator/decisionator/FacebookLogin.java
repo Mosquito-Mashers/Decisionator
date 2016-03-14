@@ -352,8 +352,8 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         @Override
         protected String doInBackground(String... params) {
             try {
-                //no-op for 3 seconds
-                Thread.sleep(4000);
+                //no-op for 2 seconds
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
