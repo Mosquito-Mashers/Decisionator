@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -147,7 +148,11 @@ public class EventCreationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 topic = eventTopic.getText().toString();
-
+                if(TextUtils.isEmpty(topic))
+                {
+                    eventTopic.setError("Please enter your selection");
+                    return;
+                }
                 Date date = new Date();
 
                 intentPairs.put(EVENT_TOPIC, topic);

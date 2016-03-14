@@ -1,11 +1,18 @@
 package com.csulb.decisionator.decisionator;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -164,6 +171,7 @@ public class LobbyActivity extends AppCompatActivity {
         welcomeMessage.setText(welcomeString);
         new getEvents().execute();
     }
+
 
     private class EventAdapter extends ArrayAdapter<Event>
     {
