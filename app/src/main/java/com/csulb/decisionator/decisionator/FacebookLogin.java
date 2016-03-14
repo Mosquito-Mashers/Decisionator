@@ -15,7 +15,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -58,6 +60,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     private Profile me;
     private LoginManager logManager;
     private LoginButton loginButton;
+    private ProgressBar locationProg;
 
     //Amazon api items
     private CognitoCachingCredentialsProvider credentialsProvider;
@@ -226,6 +229,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         //Assign gui objects
         info = (TextView) findViewById(R.id.info);
         loginButton = (LoginButton) findViewById(R.id.login_button);
+        locationProg = (ProgressBar) findViewById(R.id.locationProgress);
         //mProfileTracker.startTracking();
     }
 
@@ -266,6 +270,8 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         }
         //Checking for current location from GPS_Provider (will timeout after 10sec)
         timeout = new LocationUpdateTimeoutHandler();
+        info.setText("Updating your location...");
+        locationProg.setVisibility(View.VISIBLE);
         timeout.execute(currentUser.getUserID());
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
 //        startActivity(loginSuccess);
@@ -347,7 +353,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         protected String doInBackground(String... params) {
             try {
                 //no-op for 3 seconds
-                Thread.sleep(3000);
+                Thread.sleep(4000);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
