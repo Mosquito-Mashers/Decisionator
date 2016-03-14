@@ -15,7 +15,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -65,9 +64,11 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
     //location suff...
     protected LocationManager locationManager;
+    LocationUpdateTimeoutHandler timeout;
     private Location userLoc;
     private Event evnt;
     private String eventID;
+    private String userID;
 
     //Gui items
     private TextView info;
@@ -226,31 +227,13 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         info = (TextView) findViewById(R.id.info);
         loginButton = (LoginButton) findViewById(R.id.login_button);
         //mProfileTracker.startTracking();
-
-        //Getting user location
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        //permission check for requestLocationUpdates()
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        //Checking for current location from GPS_Provider (will timeout after 10sec)
-        LocationUpdateTimeoutHandler timeout = new LocationUpdateTimeoutHandler();
-        timeout.execute();
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
-
     }
 
     private void validateAndProceed(Profile currUser) {
         //Create a new user db object
         User currentUser = new User();
         currentUser.setUserID(currUser.getId());
+        userID = currentUser.getUserID();
         currentUser.setfName(currUser.getFirstName());
         currentUser.setlName(currUser.getLastName());
         //String profPic = me.getProfilePictureUri(250, 250).toString();
@@ -268,7 +251,24 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         //Show the button to allow the user to move on
         isLoggedIn = true;
         prefs.edit().putBoolean("isLoggedIn", isLoggedIn).commit(); // isLoggedIn is a boolean value of your login status
-        startActivity(loginSuccess);
+        //Getting user location
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //permission check for requestLocationUpdates()
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        //Checking for current location from GPS_Provider (will timeout after 10sec)
+        timeout = new LocationUpdateTimeoutHandler();
+        timeout.execute(currentUser.getUserID());
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
+//        startActivity(loginSuccess);
 
     }
 
@@ -337,26 +337,30 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
      * then it will attempt to retrieve last known location, if that fails (it is still null)
      * userLoc will default to CSULB coordinates.
      */
-    class LocationUpdateTimeoutHandler extends AsyncTask<Void, Void, Profile> {
+    class LocationUpdateTimeoutHandler extends AsyncTask<String, Void, String> {
         @Override
         protected void onPreExecute() {
 
         }
 
         @Override
-        protected Profile doInBackground(Void... params) {
+        protected String doInBackground(String... params) {
             try {
-                //no-op for 10 seconds
-                Thread.sleep(10000);
+                //no-op for 3 seconds
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            return null;
+            if(isCancelled())
+            {
+                return params[0];
+            }
+            return params[0];
         }
 
         @Override
-        protected void onPostExecute(Profile prof) {
+        protected void onPostExecute(String profID) {
             //if userLoc still null after 10 seconds time out requestLocationUpdate()
             if(userLoc == null) {
                 //Checking since current location via GPS timed out
@@ -384,7 +388,14 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             }
 
             //debug: checking location values
-            Log.d("Location", "Latitude: "+userLoc.getLatitude() +"Longitude: "+ userLoc.getLongitude());
+            Log.d("Location", "Latitude: " + userLoc.getLatitude() + "Longitude: " + userLoc.getLongitude());
+            User currUser = new User();
+
+            currUser.setUserID(profID);
+            currUser.setLatitude(userLoc.getLatitude());
+            currUser.setLongitude(userLoc.getLongitude());
+
+            new updateUserLoc().execute(currUser);
 
             //kill the async requestLocationUpdates() task here?
 
@@ -406,21 +417,16 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         }
 
         locationManager.removeUpdates(this);
+        timeout.cancel(true);
         userLoc = location;
 
         User currUser = new User();
 
-        currUser.setUserID(USER_ID);
+        currUser.setUserID(userID);
         currUser.setLatitude(location.getLatitude());
         currUser.setLongitude(location.getLongitude());
 
-        evnt = new Event();
-        evnt.setEventID(eventID);
-        evnt.setLatitude(location.getLatitude());
-        evnt.setLongitude(location.getLongitude());
-
         new updateUserLoc().execute(currUser);
-        new updateEventLoc().execute(evnt);
     }
 
     @Override
@@ -449,22 +455,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             temp.setLongitude(arg0[0].getLongitude());
 
             mapper.save(temp);
-
-            return null;
-        }
-    }
-
-    class updateEventLoc extends AsyncTask<Event, Void, Void> {
-
-        protected Void doInBackground(Event... arg0) {
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-            Event temp = mapper.load(Event.class, arg0[0].getEventID());
-
-            temp.setLatitude(arg0[0].getLatitude());
-            temp.setLongitude(arg0[0].getLongitude());
-
-            mapper.save(temp);
+            startActivity(loginSuccess);
 
             return null;
         }
