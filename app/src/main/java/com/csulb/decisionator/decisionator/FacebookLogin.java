@@ -350,7 +350,38 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                         new updateProfile().execute(userProf);
                     }
                 });
+        GraphRequest aboutRequest = GraphRequest.newGraphPathRequest(
+                token,
+                "/me/about",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        String about = "";
 
+                        JSONObject fbObj = response.getJSONObject();
+                        JSONArray aboutText = null;
+                        if(fbObj != null)
+                        {
+                            try {
+                                aboutText = fbObj.getJSONArray("data");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            if(aboutText != null && aboutText.length() != 0) {
+
+                                for (int k = 0; k < aboutText.length(); k++) {
+                                    try {
+                                        about += aboutText.getJSONObject(k).getString("message");
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                userProf.setTextTags(about);
+                            }
+                        }
+                    }
+                });
+/*
         GraphRequest request = GraphRequest.newMeRequest(
                 token,
                 new GraphRequest.GraphJSONObjectCallback() {
@@ -364,9 +395,10 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         parameters.putString("fields", "about,bio,posts,photos.limit(20),likes,sports,music,tagged_places");
         request.setParameters(parameters);
         request.executeAsync();
+*/
 
 
-
+        aboutRequest.executeAsync();
         movieRequest.executeAsync();
         likeRequest.executeAsync();
     }
