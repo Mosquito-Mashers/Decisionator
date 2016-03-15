@@ -58,6 +58,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     protected final static String AU_ROLE_ARN = "com.csulb.decisionator.AU_ROLE_ARN";
 
     private boolean isLoggedIn;
+    private boolean foundLoc = false;
     private SharedPreferences prefs;
     private static final Map<String, String> intentValues = new HashMap<String, String>();
     private User currentUser;
@@ -115,7 +116,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         //checkIfLoggedIn();
     }
 
-    private void checkIfLoggedIn() {
+    /*private void checkIfLoggedIn() {
         AccessToken tok = AccessToken.getCurrentAccessToken();
         if (tok != null) {
             //Get all relevant facebook data
@@ -141,6 +142,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             startActivity(loginSuccess);
         }
     }
+    */
 
     private void createFBCallback() {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -514,6 +516,10 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
         @Override
         protected void onPostExecute(String profID) {
+            if(isCancelled())
+            {
+                return;
+            }
             //if userLoc still null after 10 seconds time out requestLocationUpdate()
             if(userLoc == null) {
                 //Checking since current location via GPS timed out
@@ -600,15 +606,22 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     class updateUserLoc extends AsyncTask<User, Void, Void> {
 
         protected Void doInBackground(User... arg0) {
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-            User temp = mapper.load(User.class, arg0[0].getUserID());
 
-            temp.setLatitude(arg0[0].getLatitude());
-            temp.setLongitude(arg0[0].getLongitude());
+            if(!foundLoc) {
+                foundLoc = true;
+                AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+                DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+                User temp = mapper.load(User.class, arg0[0].getUserID());
 
-            mapper.save(temp);
-            startActivity(loginSuccess);
+                temp.setLatitude(arg0[0].getLatitude());
+                temp.setLongitude(arg0[0].getLongitude());
+
+                mapper.save(temp);
+                startActivity(loginSuccess);
+                if (isCancelled()) {
+                    return null;
+                }
+            }
 
             return null;
         }
