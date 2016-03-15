@@ -241,7 +241,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         info = (TextView)findViewById(R.id.info);
         loginButton = (LoginButton)findViewById(R.id.login_button);
 		locationProg = (ProgressBar) findViewById(R.id.locationProgress);
-        loginButton.setReadPermissions(Arrays.asList("user_likes"));
+        loginButton.setReadPermissions(Arrays.asList("user_likes","user_tagged_places"));
         //mProfileTracker.startTracking();
     }
 
@@ -322,7 +322,78 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                         }
                     }
                 });
+        GraphRequest postsRequest = GraphRequest.newGraphPathRequest(
+                token,
+                "/me/posts",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        String posts = "";
 
+                        JSONObject fbObj = response.getJSONObject();
+                        JSONArray postText = null;
+                        if(fbObj != null)
+                        {
+                            try {
+                                postText = fbObj.getJSONArray("data");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            if(postText != null && postText.length() != 0) {
+
+                                for (int k = 0; k < postText.length(); k++) {
+                                    try {
+                                        posts += postText.getJSONObject(k).getString("message") + " ";
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                String[] words = posts.replaceAll("[^a-zA-Z ]", "").toLowerCase().split("\\s+");
+                                String finalTags = "";
+                                for(int i = 0; i < words.length; i++)
+                                {
+                                    finalTags += words[i] + " ";
+                                }
+
+                                userProf.setTextTags(finalTags);
+                            }
+                        }
+                    }
+                });
+
+        GraphRequest tagged_placesRequest = GraphRequest.newGraphPathRequest(
+                token,
+                "/me/tagged_places",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        String places = "";
+
+                        JSONObject fbObj = response.getJSONObject();
+                        JSONArray placesText = null;
+                        if(fbObj != null)
+                        {
+                            try {
+                                placesText = fbObj.getJSONArray("data");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            if(placesText != null && placesText.length() != 0) {
+
+                                for (int k = 0; k < placesText.length(); k++) {
+                                    try {
+                                        places += placesText.getJSONObject(k).getJSONObject("place").getString("name") + ",";
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+
+                                userProf.setPlacesTags(places);
+                            }
+                        }
+                    }
+                });
         GraphRequest likeRequest = GraphRequest.newGraphPathRequest(
                 token,
                 "/me/likes",
@@ -352,37 +423,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                         new updateProfile().execute(userProf);
                     }
                 });
-        GraphRequest aboutRequest = GraphRequest.newGraphPathRequest(
-                token,
-                "/me/about",
-                new GraphRequest.Callback() {
-                    @Override
-                    public void onCompleted(GraphResponse response) {
-                        String about = "";
-
-                        JSONObject fbObj = response.getJSONObject();
-                        JSONArray aboutText = null;
-                        if(fbObj != null)
-                        {
-                            try {
-                                aboutText = fbObj.getJSONArray("data");
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            if(aboutText != null && aboutText.length() != 0) {
-
-                                for (int k = 0; k < aboutText.length(); k++) {
-                                    try {
-                                        about += aboutText.getJSONObject(k).getString("message");
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                userProf.setTextTags(about);
-                            }
-                        }
-                    }
-                });
 /*
         GraphRequest request = GraphRequest.newMeRequest(
                 token,
@@ -400,7 +440,8 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 */
 
 
-        aboutRequest.executeAsync();
+        tagged_placesRequest.executeAsync();
+        postsRequest.executeAsync();
         movieRequest.executeAsync();
         likeRequest.executeAsync();
     }
@@ -442,6 +483,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                 temp.setMovieLikeTags(arg0[0].getMovieLikeTags());
                 temp.setImageTags(arg0[0].getImageTags());
                 temp.setLikeTags(arg0[0].getLikeTags());
+                temp.setPlacesTags(arg0[0].getPlacesTags());
                 temp.setTextTags(arg0[0].getTextTags());
             }
             else

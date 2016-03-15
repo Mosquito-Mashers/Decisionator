@@ -12,6 +12,7 @@ public class uProfile {
     private String userID;
     private String imageTags;
     private String textTags;
+    private String placesTags;
     private String likeTags;
     private String movieLikeTags;
 
@@ -49,6 +50,15 @@ public class uProfile {
 
     public void setLikeTags(String likeTags) {
         this.likeTags = likeTags;
+    }
+
+    @DynamoDBAttribute(attributeName = "placesTags")
+    public String getPlacesTags() {
+        return placesTags;
+    }
+
+    public void setPlacesTags(String placesTags) {
+        this.placesTags = placesTags;
     }
 
     @DynamoDBAttribute(attributeName = "movieLikeTags")
