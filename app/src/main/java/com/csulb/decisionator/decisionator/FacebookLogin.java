@@ -42,6 +42,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -247,6 +248,8 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
     private void validateAndProceed(Profile currUser) {
         //Create a new user db object
+        Date date = new Date();
+
         currentUser = new User();
         currentUser.setUserID(currUser.getId());
         userID = currentUser.getUserID();
@@ -254,6 +257,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         currentUser.setlName(currUser.getLastName());
         //String profPic = me.getProfilePictureUri(250, 250).toString();
         currentUser.setProfilePic(currUser.getProfilePictureUri(250, 250).toString());
+        currentUser.setLastLogin(date.toString());
 
         //Start the asynchronous push to the db
         new addUserToDB().execute(currentUser);
@@ -463,6 +467,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                 temp.setProfilePic(arg0[0].getProfilePic());
                 temp.setlName(arg0[0].getlName());
                 temp.setfName(arg0[0].getfName());
+                temp.setLastLogin(arg0[0].getLastLogin());
             } else {
                 temp = arg0[0];
             }
