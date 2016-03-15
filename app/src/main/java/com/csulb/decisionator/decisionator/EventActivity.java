@@ -237,10 +237,21 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             locs.add(temp);
 
             LatLng loc = new LatLng(user.getLatitude(),user.getLongitude());
-            Marker mark = map.addMarker(new MarkerOptions()
-                    .position(loc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.person_icon))
-                    .title(user.getfName() + " " + user.getlName()));
+            if(user.getUserID().contentEquals(uID))
+            {
+                Marker mark = map.addMarker(new MarkerOptions()
+                        .position(loc)
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.host_icon))
+                        .title(user.getfName() + " " + user.getlName()));
+            }
+            else
+            {
+                Marker mark = map.addMarker(new MarkerOptions()
+                        .position(loc)
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.person_icon))
+                        .title(user.getfName() + " " + user.getlName()));
+            }
+
         }
 
         mid = getMidLocation(locs);
@@ -552,7 +563,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 }
                 MarkerOptions finalMark = new MarkerOptions()
                         .position(finalLoc)
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_resolved_loc_icon))
                         .title(venue);
                 map.addMarker(finalMark).showInfoWindow();
 
