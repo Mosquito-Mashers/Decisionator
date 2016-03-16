@@ -29,12 +29,21 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -51,8 +60,11 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     protected final static String AU_ROLE_ARN = "com.csulb.decisionator.AU_ROLE_ARN";
 
     private boolean isLoggedIn;
+    private boolean foundLoc = false;
     private SharedPreferences prefs;
     private static final Map<String, String> intentValues = new HashMap<String, String>();
+    private User currentUser;
+    private uProfile userProf;
 
     //Facebook api items
     private CallbackManager callbackManager;
@@ -72,6 +84,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     private Event evnt;
     private String eventID;
     private String userID;
+    SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     //Gui items
     private TextView info;
@@ -106,7 +119,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         //checkIfLoggedIn();
     }
 
-    private void checkIfLoggedIn() {
+    /*private void checkIfLoggedIn() {
         AccessToken tok = AccessToken.getCurrentAccessToken();
         if (tok != null) {
             //Get all relevant facebook data
@@ -132,6 +145,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             startActivity(loginSuccess);
         }
     }
+    */
 
     private void createFBCallback() {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -227,21 +241,25 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         loginSuccess = new Intent(this, LobbyActivity.class);
 
         //Assign gui objects
-        info = (TextView) findViewById(R.id.info);
-        loginButton = (LoginButton) findViewById(R.id.login_button);
-        locationProg = (ProgressBar) findViewById(R.id.locationProgress);
+        info = (TextView)findViewById(R.id.info);
+        loginButton = (LoginButton)findViewById(R.id.login_button);
+		locationProg = (ProgressBar) findViewById(R.id.locationProgress);
+        loginButton.setReadPermissions(Arrays.asList("user_likes","user_tagged_places"));
         //mProfileTracker.startTracking();
     }
 
     private void validateAndProceed(Profile currUser) {
         //Create a new user db object
-        User currentUser = new User();
+        Date currDate = new Date();
+
+        currentUser = new User();
         currentUser.setUserID(currUser.getId());
         userID = currentUser.getUserID();
         currentUser.setfName(currUser.getFirstName());
         currentUser.setlName(currUser.getLastName());
         //String profPic = me.getProfilePictureUri(250, 250).toString();
         currentUser.setProfilePic(currUser.getProfilePictureUri(250, 250).toString());
+        currentUser.setLastLogin(date.format(currDate));
 
         //Start the asynchronous push to the db
         new addUserToDB().execute(currentUser);
@@ -274,8 +292,164 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         locationProg.setVisibility(View.VISIBLE);
         timeout.execute(currentUser.getUserID());
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
+		analyzeProfile(AccessToken.getCurrentAccessToken());
 //        startActivity(loginSuccess);
 
+    }
+
+    private void analyzeProfile(AccessToken token) {
+        userProf = new uProfile();
+        userProf.setUserID(currentUser.getUserID());
+        GraphRequest movieRequest = GraphRequest.newGraphPathRequest(
+                token,
+                "/me/movies",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        String likedMovs = "";
+
+                        JSONObject fbObj = response.getJSONObject();
+                        JSONArray likedMovies = null;
+                        try {
+                            likedMovies = fbObj.getJSONArray("data");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if(likedMovies != null && likedMovies.length() != 0) {
+
+                            for (int k = 0; k < likedMovies.length(); k++) {
+                                try {
+                                    likedMovs += likedMovies.getJSONObject(k).getString("name") + ",";
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            userProf.setMovieLikeTags(likedMovs);
+                        }
+                    }
+                });
+        GraphRequest postsRequest = GraphRequest.newGraphPathRequest(
+                token,
+                "/me/posts",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        String posts = "";
+
+                        JSONObject fbObj = response.getJSONObject();
+                        JSONArray postText = null;
+                        if(fbObj != null)
+                        {
+                            try {
+                                postText = fbObj.getJSONArray("data");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            if(postText != null && postText.length() != 0) {
+
+                                for (int k = 0; k < postText.length(); k++) {
+                                    try {
+                                        posts += postText.getJSONObject(k).getString("message") + " ";
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                String[] words = posts.replaceAll("[^a-zA-Z ]", "").toLowerCase().split("\\s+");
+                                String finalTags = "";
+                                for(int i = 0; i < words.length; i++)
+                                {
+                                    finalTags += words[i] + " ";
+                                }
+
+                                userProf.setTextTags(finalTags);
+                            }
+                        }
+                    }
+                });
+
+        GraphRequest tagged_placesRequest = GraphRequest.newGraphPathRequest(
+                token,
+                "/me/tagged_places",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        String places = "";
+
+                        JSONObject fbObj = response.getJSONObject();
+                        JSONArray placesText = null;
+                        if(fbObj != null)
+                        {
+                            try {
+                                placesText = fbObj.getJSONArray("data");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            if(placesText != null && placesText.length() != 0) {
+
+                                for (int k = 0; k < placesText.length(); k++) {
+                                    try {
+                                        places += placesText.getJSONObject(k).getJSONObject("place").getString("name") + ",";
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+
+                                userProf.setPlacesTags(places);
+                            }
+                        }
+                    }
+                });
+        GraphRequest likeRequest = GraphRequest.newGraphPathRequest(
+                token,
+                "/me/likes",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        String likes = "";
+                        JSONObject fbObj = response.getJSONObject();
+
+                        JSONArray likesArr = null;
+                        try {
+                            likesArr = fbObj.getJSONArray("data");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        if(likesArr != null && likesArr.length() != 0) {
+                            for (int k = 0; k < likesArr.length(); k++) {
+                                try {
+                                    likes += likesArr.getJSONObject(k).getString("name") + ",";
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            userProf.setLikeTags(likes);
+                        }
+                        new updateProfile().execute(userProf);
+                    }
+                });
+/*
+        GraphRequest request = GraphRequest.newMeRequest(
+                token,
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        // Insert your code here
+                    }
+                });
+
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "about,bio,posts,photos.limit(20),likes,sports,music,tagged_places");
+        request.setParameters(parameters);
+        request.executeAsync();
+*/
+
+
+        tagged_placesRequest.executeAsync();
+        postsRequest.executeAsync();
+        movieRequest.executeAsync();
+        likeRequest.executeAsync();
     }
 
     @Override
@@ -295,6 +469,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                 temp.setProfilePic(arg0[0].getProfilePic());
                 temp.setlName(arg0[0].getlName());
                 temp.setfName(arg0[0].getfName());
+                temp.setLastLogin(arg0[0].getLastLogin());
             } else {
                 temp = arg0[0];
             }
@@ -303,6 +478,29 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         }
     }
 
+    //Asynchronous task to add a user to the db, updates user it they already exist
+    class updateProfile extends AsyncTask<uProfile, Void, Void> {
+
+        protected Void doInBackground(uProfile... arg0) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            uProfile temp = mapper.load(uProfile.class, arg0[0].getUserID());
+            if (temp != null) {
+                temp.setMovieLikeTags(arg0[0].getMovieLikeTags());
+                temp.setImageTags(arg0[0].getImageTags());
+                temp.setLikeTags(arg0[0].getLikeTags());
+                temp.setPlacesTags(arg0[0].getPlacesTags());
+                temp.setTextTags(arg0[0].getTextTags());
+            }
+            else
+            {
+                temp = arg0[0];
+            }
+            mapper.save(temp);
+            return null;
+        }
+    }
     //Asynchronous task to add a user to the db, updates user it they already exist
     class getUserProf extends AsyncTask<Void, Void, Profile> {
         private ProfileTracker mProfileTracker;
@@ -367,6 +565,10 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
         @Override
         protected void onPostExecute(String profID) {
+            if(isCancelled())
+            {
+                return;
+            }
             //if userLoc still null after 10 seconds time out requestLocationUpdate()
             if(userLoc == null) {
                 //Checking since current location via GPS timed out
@@ -453,15 +655,22 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     class updateUserLoc extends AsyncTask<User, Void, Void> {
 
         protected Void doInBackground(User... arg0) {
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-            User temp = mapper.load(User.class, arg0[0].getUserID());
 
-            temp.setLatitude(arg0[0].getLatitude());
-            temp.setLongitude(arg0[0].getLongitude());
+            if(!foundLoc) {
+                foundLoc = true;
+                AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+                DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+                User temp = mapper.load(User.class, arg0[0].getUserID());
 
-            mapper.save(temp);
-            startActivity(loginSuccess);
+                temp.setLatitude(arg0[0].getLatitude());
+                temp.setLongitude(arg0[0].getLongitude());
+
+                mapper.save(temp);
+                startActivity(loginSuccess);
+                if (isCancelled()) {
+                    return null;
+                }
+            }
 
             return null;
         }

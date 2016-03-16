@@ -116,6 +116,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
                 event.setEventID(inEvent.getStringExtra(EventCreationActivity.EVENT_ID));
                 event.setAttendees(attendees);
+                event.setCategory(inEvent.getStringExtra(EventCreationActivity.EVENT_CATEGORY));
                 new updateEvent().execute(event);
 
                 //startEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
@@ -125,13 +126,19 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 //startEvent.putExtra(ATTENDEES, attendees);
                 startEvent.putExtra(FacebookLogin.USER_F_NAME, uFName);
 
+                startEvent.putExtra(EventCreationActivity.EVENT_ID,event.getEventID());
+                startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, event.getTopic());
+                startEvent.putExtra(EventCreationActivity.EVENT_INVITES, event.getAttendees());
+                startEvent.putExtra(EventCreationActivity.EVENT_HOST_NAME, uFName);
+                startEvent.putExtra(EventCreationActivity.EVENT_CATEGORY, event.getCategory());
+
                 startActivity(startEvent);
             }
         });
     }
 
     private void initializeGlobals() {
-        startEvent = new Intent(this, LobbyActivity.class);
+        startEvent = new Intent(this, EventActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
         fbFriends = new ArrayList<User>();

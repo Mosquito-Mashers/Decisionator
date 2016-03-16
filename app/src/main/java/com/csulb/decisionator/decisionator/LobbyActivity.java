@@ -1,18 +1,11 @@
 package com.csulb.decisionator.decisionator;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,6 +47,7 @@ public class LobbyActivity extends AppCompatActivity {
     private String uName;
     private String uID;
     private String welcomeString;
+    private String lastLogin;
     private String poolID;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
 
@@ -69,6 +63,8 @@ public class LobbyActivity extends AppCompatActivity {
     private ArrayList<Event> events;
     private ListView eventList;
     private CognitoCachingCredentialsProvider credentialsProvider;
+    private DateFormat format = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
+    SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -169,6 +165,7 @@ public class LobbyActivity extends AppCompatActivity {
         //GUI Update based on intent
         welcomeString = welcomeMessage.getText() + " " + uName + "!";
         welcomeMessage.setText(welcomeString);
+        new getCurrUser().execute(uID);
         new getEvents().execute();
     }
 
@@ -193,6 +190,8 @@ public class LobbyActivity extends AppCompatActivity {
         private class ViewHolder
         {
             ImageView eventPic;
+            ImageView newEvent;
+            TextView newEvText;
             TextView hostName;
             TextView eventTopic;
             TextView attendeeList;
@@ -212,6 +211,8 @@ public class LobbyActivity extends AppCompatActivity {
                 holder = new ViewHolder();
 
                 holder.eventPic = (ImageView) convertView.findViewById(R.id.eventPicture);
+                holder.newEvent = (ImageView) convertView.findViewById(R.id.newEvent);
+                holder.newEvText = (TextView) convertView.findViewById(R.id.newEventText);
                 holder.hostName = (TextView) convertView.findViewById(R.id.hostName);
                 holder.eventTopic = (TextView) convertView.findViewById(R.id.eventTopic);
                 holder.attendeeList = (TextView) convertView.findViewById(R.id.attendeeList);
@@ -227,6 +228,20 @@ public class LobbyActivity extends AppCompatActivity {
             }
 
             final Event event = events.get(position);
+            Date lastLogDate = new Date();
+            Date eventCreateDate = new Date();
+            try {
+                lastLogDate = date.parse(lastLogin);
+                eventCreateDate = date.parse(event.getDateCreated());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            if(lastLogDate.before(eventCreateDate))
+            {
+                holder.newEvent.setImageResource(R.mipmap.new_event_icon);
+                holder.newEvText.setText("NEW!");
+            }
 
             holder.eventButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -276,6 +291,8 @@ public class LobbyActivity extends AppCompatActivity {
                     holder.eventPic.setImageResource(R.mipmap.gps_icon);
                 }
             }
+
+
 
             holder.eventTopic.setTag(event);
 
@@ -340,14 +357,14 @@ public class LobbyActivity extends AppCompatActivity {
             Collections.sort(res, new Comparator<Event>() {
                 @Override
                 public int compare(Event lhs, Event rhs) {
-                    DateFormat format = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
+
                     Date left = new Date();
                     Date right = new Date();
                     int result = 0;
 
                     try {
-                        left = format.parse(lhs.getDateCreated());
-                        right = format.parse(rhs.getDateCreated());
+                        left = date.parse(lhs.getDateCreated());
+                        right = date.parse(rhs.getDateCreated());
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -396,6 +413,22 @@ public class LobbyActivity extends AppCompatActivity {
         protected void onPostExecute(User hst)
         {
             hostName.setText(hst.getfName() + " " + hst.getlName());
+        }
+    }
+
+    class getCurrUser extends AsyncTask<String, Void, Void> {
+
+
+        @Override
+        protected Void doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            User result = mapper.load(User.class, params[0]);
+
+            lastLogin = result.getLastLogin();
+
+            return null;
         }
     }
 }
