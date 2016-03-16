@@ -332,6 +332,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         midLocation.setLatitude( sumX / locCount);
         midLocation.setLongitude(sumY / locCount);
 
+        if(midLocation.getLatitude() == 0 || midLocation.getLongitude() == 0)
+        {
+            midLocation.setLatitude(33.760605);
+            midLocation.setLongitude(-118.156446);
+        }
+
         return midLocation;
     }
 
