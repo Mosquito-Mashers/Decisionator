@@ -21,6 +21,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,6 +43,7 @@ public class EventCreationActivity extends AppCompatActivity {
     private String topic;
     private UUID eventID;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
+    SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     private EditText eventTopic;
     private Button inviteFriends;
@@ -153,15 +155,13 @@ public class EventCreationActivity extends AppCompatActivity {
                     eventTopic.setError("Please enter your selection");
                     return;
                 }
-                Date date = new Date();
+                Date currDate = new Date();
 
                 intentPairs.put(EVENT_TOPIC, topic);
                 intentPairs.put(FacebookLogin.POOL_ID, poolID);
                 intentPairs.put(FacebookLogin.USER_ID, uID);
                 intentPairs.put(FacebookLogin.USER_F_NAME, uFname);
                 intentPairs.put(EVENT_ID, eventID.toString());
-
-                prepareIntent(moveToInvite, intentPairs);
 
                 Event evnt = new Event();
                 evnt.setEventID(eventID.toString());
@@ -170,7 +170,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 evnt.setTopic(topic);
                 evnt.setLatitude(33.760605);
                 evnt.setLongitude(-118.156446);
-                evnt.setDateCreated(date.toString());
+                evnt.setDateCreated(date.format(currDate));
 
 
 
@@ -183,6 +183,8 @@ public class EventCreationActivity extends AppCompatActivity {
                     selectedCategory = (RadioButton) findViewById(R.id.radioLocation);
                 }
                 evnt.setCategory(selectedCategory.getText().toString());
+                intentPairs.put(EVENT_CATEGORY, evnt.getCategory());
+                prepareIntent(moveToInvite, intentPairs);
 
                 new addEventToDB().execute(evnt);
 

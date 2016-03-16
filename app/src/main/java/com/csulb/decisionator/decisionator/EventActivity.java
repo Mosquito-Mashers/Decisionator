@@ -80,8 +80,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String uID;
     private String uName;
     private String venue;
+    private String placesCloud;
     private Event currEvent;
     private ArrayList<User> allUsers = new ArrayList<User>();
+    private ArrayList<uProfile> allProfiles = new ArrayList<uProfile>();
     private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
     private CognitoCachingCredentialsProvider credentialsProvider;
 
@@ -152,9 +154,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         this.setTitle(eTopic);
 
-        lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
-        lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
-        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uName);
+        lobbyIntent.putExtra(FacebookLogin.USER_ID, uID);
+        lobbyIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
         intentPairs.put(FacebookLogin.POOL_ID, poolID);
         intentPairs.put(FacebookLogin.USER_ID, uID);
@@ -172,6 +174,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         share = (Button) findViewById(R.id.shareButton);
 
         new getAllFriends().execute(eID);
+
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
     }
 
@@ -202,6 +205,20 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 shareDialog.show(linkContent);
             }
         });
+    }
+
+    private boolean checkExists(String item, ArrayList<User> list)
+    {
+        boolean found = false;
+        int k;
+        for(k = 0; k < list.size(); k++)
+        {
+            if(list.get(k).getUserID().contentEquals(item))
+            {
+                found = true;
+            }
+        }
+        return found;
     }
 
     private void prepareIntent(Intent moveToLobby, Map<String, String> intentPairs) {
@@ -237,10 +254,21 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             locs.add(temp);
 
             LatLng loc = new LatLng(user.getLatitude(),user.getLongitude());
-            Marker mark = map.addMarker(new MarkerOptions()
-                    .position(loc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.person_icon))
-                    .title(user.getfName() + " " + user.getlName()));
+            if(user.getUserID().contentEquals(uID))
+            {
+                Marker mark = map.addMarker(new MarkerOptions()
+                        .position(loc)
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.host_icon))
+                        .title(user.getfName() + " " + user.getlName()));
+            }
+            else
+            {
+                Marker mark = map.addMarker(new MarkerOptions()
+                        .position(loc)
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.person_icon))
+                        .title(user.getfName() + " " + user.getlName()));
+            }
+
         }
 
         mid = getMidLocation(locs);
@@ -303,6 +331,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         midLocation.setLatitude( sumX / locCount);
         midLocation.setLongitude(sumY / locCount);
+
+        if(midLocation.getLatitude() == 0 || midLocation.getLongitude() == 0)
+        {
+            midLocation.setLatitude(33.760605);
+            midLocation.setLongitude(-118.156446);
+        }
 
         return midLocation;
     }
@@ -497,11 +531,52 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         @Override
         protected void onPostExecute(ArrayList<User> res)
         {
+            new getAllProfiles().execute(res);
             friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_user_display,res);
 
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
             generateFriendMap(res, map);
+        }
+    }
+
+    class getAllProfiles extends AsyncTask<ArrayList<User>, Void, ArrayList<uProfile>> {
+        @Override
+        protected ArrayList<uProfile> doInBackground(ArrayList<User>... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<uProfile> profileResult = mapper.scan(uProfile.class, scanExpression);
+
+
+
+
+            if(profileResult != null) {
+
+                boolean existsInList;
+                int k;
+                for (k = 0; k < profileResult.size(); k++) {
+                    uProfile item = profileResult.get(k);
+                    existsInList = checkExists(item.getUserID(),params[0]);
+                    if(item != null && existsInList) {
+                        allProfiles.add(item);
+                    }
+                }
+            }
+
+            return allProfiles;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<uProfile> res)
+        {
+            if(res != null) {
+                int i;
+                for (i = 0; i < res.size(); i++) {
+                    placesCloud += res.get(i).getPlacesTags() + ",";
+                }
+            }
         }
     }
 
@@ -545,9 +620,14 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                if(finalLoc.latitude == 0 || finalLoc.longitude == 0)
+                {
+                    finalLoc = new LatLng(33.78705292, -118.1564652);
+                    venue = "Result not found";
+                }
                 MarkerOptions finalMark = new MarkerOptions()
                         .position(finalLoc)
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_resolved_loc_icon))
                         .title(venue);
                 map.addMarker(finalMark).showInfoWindow();
 
