@@ -64,6 +64,7 @@ public class LobbyActivity extends AppCompatActivity {
     private ListView eventList;
     private CognitoCachingCredentialsProvider credentialsProvider;
     private DateFormat format = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
+    SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -227,6 +228,20 @@ public class LobbyActivity extends AppCompatActivity {
             }
 
             final Event event = events.get(position);
+            Date lastLogDate = new Date();
+            Date eventCreateDate = new Date();
+            try {
+                lastLogDate = date.parse(lastLogin);
+                eventCreateDate = date.parse(event.getDateCreated());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            if(lastLogDate.before(eventCreateDate))
+            {
+                holder.newEvent.setImageResource(R.mipmap.new_event_icon);
+                holder.newEvText.setText("NEW!");
+            }
 
             holder.eventButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -277,21 +292,7 @@ public class LobbyActivity extends AppCompatActivity {
                 }
             }
 
-            Date lastLogDate = new Date();
-            Date eventCreateDate = new Date();
-            try {
-                lastLogDate = format.parse(lastLogin);
-                eventCreateDate = format.parse(event.getDateCreated());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
 
-            if(lastLogDate.before(eventCreateDate))
-            {
-                holder.newEvent.setImageResource(R.mipmap.new_event_icon);
-                holder.newEvText.setText("NEW!");
-
-            }
 
             holder.eventTopic.setTag(event);
 
@@ -362,8 +363,8 @@ public class LobbyActivity extends AppCompatActivity {
                     int result = 0;
 
                     try {
-                        left = format.parse(lhs.getDateCreated());
-                        right = format.parse(rhs.getDateCreated());
+                        left = date.parse(lhs.getDateCreated());
+                        right = date.parse(rhs.getDateCreated());
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }

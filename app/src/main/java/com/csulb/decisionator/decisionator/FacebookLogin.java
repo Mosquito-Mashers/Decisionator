@@ -41,6 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -83,6 +84,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     private Event evnt;
     private String eventID;
     private String userID;
+    SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     //Gui items
     private TextView info;
@@ -248,7 +250,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
     private void validateAndProceed(Profile currUser) {
         //Create a new user db object
-        Date date = new Date();
+        Date currDate = new Date();
 
         currentUser = new User();
         currentUser.setUserID(currUser.getId());
@@ -257,7 +259,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         currentUser.setlName(currUser.getLastName());
         //String profPic = me.getProfilePictureUri(250, 250).toString();
         currentUser.setProfilePic(currUser.getProfilePictureUri(250, 250).toString());
-        currentUser.setLastLogin(date.toString());
+        currentUser.setLastLogin(date.format(currDate));
 
         //Start the asynchronous push to the db
         new addUserToDB().execute(currentUser);
