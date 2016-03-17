@@ -476,6 +476,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
             if(currUser == null)
             {
+                currUser = new User();
                 currUser.setLatitude(33.760605);
                 currUser.setLongitude(-118.156446);
             }
@@ -603,7 +604,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             if(res != null) {
                 int i;
                 for (i = 0; i < res.size(); i++) {
-                    placesCloud.add(res.get(i).getPlacesTags());
+                    if(res.get(i).getPlacesTags() != null) {
+                        placesCloud.add(res.get(i).getPlacesTags());
+                    }
                 }
             }
         }
