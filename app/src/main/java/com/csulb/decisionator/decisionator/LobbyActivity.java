@@ -237,12 +237,21 @@ public class LobbyActivity extends AppCompatActivity {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+            holder.newEvent.setVisibility(View.GONE);
+            holder.newEvText.setVisibility(View.GONE);
 
-            if(newEvents.contains(event.getEventID()))
+            for(int m = 0; m < newEvents.size(); m++)
             {
-                holder.newEvent.setImageResource(R.mipmap.new_event_icon);
-                holder.newEvText.setText("NEW!");
+                if(newEvents.get(m).contentEquals(event.getEventID()))
+                {
+                    holder.newEvent.setVisibility(View.VISIBLE);
+                    holder.newEvText.setVisibility(View.VISIBLE);
+                    holder.newEvent.setImageResource(R.mipmap.new_event_icon);
+                    holder.newEvText.setText("NEW!");
+                }
             }
+
+
 
             holder.eventButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -370,10 +379,6 @@ public class LobbyActivity extends AppCompatActivity {
                         if(uLastLogin.before(left))
                         {
                             newEvents.add(lhs.getEventID());
-                        }
-                        else if(uLastLogin.before(right))
-                        {
-                            newEvents.add(rhs.getEventID());
                         }
 
                         left = date.parse(lhs.getDateCreated());
