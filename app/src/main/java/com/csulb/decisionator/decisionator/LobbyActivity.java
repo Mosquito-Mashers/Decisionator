@@ -65,6 +65,7 @@ public class LobbyActivity extends AppCompatActivity {
     private CognitoCachingCredentialsProvider credentialsProvider;
     private DateFormat format = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
+    private ArrayList<String> newEvents = new ArrayList<String>();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -237,7 +238,7 @@ public class LobbyActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            if(lastLogDate.before(eventCreateDate))
+            if(newEvents.contains(event.getEventID()))
             {
                 holder.newEvent.setImageResource(R.mipmap.new_event_icon);
                 holder.newEvText.setText("NEW!");
@@ -360,9 +361,21 @@ public class LobbyActivity extends AppCompatActivity {
 
                     Date left = new Date();
                     Date right = new Date();
+                    Date uLastLogin = new Date();
                     int result = 0;
 
                     try {
+                        uLastLogin = date.parse(lastLogin);
+
+                        if(uLastLogin.before(left))
+                        {
+                            newEvents.add(lhs.getEventID());
+                        }
+                        else if(uLastLogin.before(right))
+                        {
+                            newEvents.add(rhs.getEventID());
+                        }
+
                         left = date.parse(lhs.getDateCreated());
                         right = date.parse(rhs.getDateCreated());
                     } catch (ParseException e) {
