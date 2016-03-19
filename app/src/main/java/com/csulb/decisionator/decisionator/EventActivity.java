@@ -206,6 +206,17 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 shareDialog.show(linkContent);
             }
         });
+
+        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                String start = currUser.getLatitude()+","+currUser.getLongitude();
+                String end = finalLoc.latitude+","+finalLoc.longitude;
+                String uri = "https://www.google.com/maps/dir/"+start+"/"+end+"/";
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                startActivity(browserIntent);
+            }
+        });
     }
 
     private boolean checkExists(String item, ArrayList<User> list)
@@ -680,6 +691,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 MarkerOptions finalMark = new MarkerOptions()
                         .position(finalLoc)
                         .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_resolved_loc_icon))
+                        .snippet("Tap for directions!")
                         .title(venue);
                 map.addMarker(finalMark).showInfoWindow();
 
