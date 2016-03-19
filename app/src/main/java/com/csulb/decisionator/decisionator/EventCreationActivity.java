@@ -95,12 +95,6 @@ public class EventCreationActivity extends AppCompatActivity {
     }
 
     private void initializeGlobals() {
-        credentialsProvider = new CognitoCachingCredentialsProvider(
-                getApplicationContext(),    /* get the context for the application */
-                poolID, // Identity Pool ID
-                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
-        );
-
         moveToInvite = new Intent(this, InviteFriendsActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
@@ -109,6 +103,12 @@ public class EventCreationActivity extends AppCompatActivity {
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
         poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
         uFname = fromLobby.getStringExtra(FacebookLogin.USER_F_NAME);
+
+        credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),    /* get the context for the application */
+                poolID, // Identity Pool ID
+                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
+        );
 
         lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);

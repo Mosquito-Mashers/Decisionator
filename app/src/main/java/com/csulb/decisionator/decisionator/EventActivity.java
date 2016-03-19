@@ -133,12 +133,6 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
     private void initializeGlobals()
     {
-        credentialsProvider = new CognitoCachingCredentialsProvider(
-                getApplicationContext(),    /* get the context for the application */
-                poolID, // Identity Pool ID
-                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
-        );
-
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
 
@@ -151,6 +145,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         poolID = enterEvent.getStringExtra(FacebookLogin.POOL_ID);
         uID = enterEvent.getStringExtra(FacebookLogin.USER_ID);
         uName = enterEvent.getStringExtra(FacebookLogin.USER_F_NAME);
+
+        credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),    /* get the context for the application */
+                poolID, // Identity Pool ID
+                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
+        );
 
         this.setTitle(eTopic);
 

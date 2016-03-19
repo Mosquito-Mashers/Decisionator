@@ -98,12 +98,6 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     private void initializeGlobals() {
-        credentialsProvider = new CognitoCachingCredentialsProvider(
-                getApplicationContext(),    /* get the context for the application */
-                poolID, // Identity Pool ID
-                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
-        );
-
         //Intent Initialization
         loginSuccess = getIntent();
         createEventIntent = new Intent(this, EventCreationActivity.class);
@@ -120,6 +114,12 @@ public class LobbyActivity extends AppCompatActivity {
         uName = loginSuccess.getStringExtra(FacebookLogin.USER_F_NAME);
         uID = loginSuccess.getStringExtra(FacebookLogin.USER_ID);
         poolID = loginSuccess.getStringExtra(FacebookLogin.POOL_ID);
+
+        credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),    /* get the context for the application */
+                poolID, // Identity Pool ID
+                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
+        );
 
         //Prepare outgoing intent
         intentPairs.put(FacebookLogin.POOL_ID, poolID);
@@ -256,7 +256,7 @@ public class LobbyActivity extends AppCompatActivity {
 
             holder.eventTopic.setText("The topic is: " + event.getTopic());
 
-            String attenList[] = event.getAttendees().split(", ");
+            String attenList[] = event.getAttendees().split(",");
             String attenName = "";
 
             for(int m = 0; m < users.size(); m++)

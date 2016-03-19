@@ -91,12 +91,6 @@ public class InviteFriendsActivity extends AppCompatActivity {
     }
 
     private void initializeGlobals() {
-        credentialsProvider = new CognitoCachingCredentialsProvider(
-                getApplicationContext(),    /* get the context for the application */
-                poolID, // Identity Pool ID
-                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
-        );
-
         startEvent = new Intent(this, EventActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
@@ -109,6 +103,12 @@ public class InviteFriendsActivity extends AppCompatActivity {
         uFName = inEvent.getStringExtra(FacebookLogin.USER_F_NAME);
         topic = inEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
         uID = inEvent.getStringExtra(FacebookLogin.USER_ID);
+
+        credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),    /* get the context for the application */
+                poolID, // Identity Pool ID
+                Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
+        );
 
         lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
@@ -131,7 +131,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
                     attendeeList.append(user.getUserID()+",");
                 }
                 if (attendeeList.length() > 0) {
-                    attendees = attendeeList.substring(0, attendeeList.length() - 2);
+                    attendees = attendeeList.substring(0, attendeeList.length() - 1);
                 } else {
                     attendees = "None";
                 }
