@@ -58,6 +58,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     protected final static String POOL_ID = "com.csulb.decisionator.POOL_ID";
     protected final static String UN_ROLE_ARN = "com.csulb.decisionator.UN_ROLE_ARN";
     protected final static String AU_ROLE_ARN = "com.csulb.decisionator.AU_ROLE_ARN";
+    private static final int REQUEST_LOCATION = 2;
 
     private boolean isLoggedIn;
     private boolean foundLoc = false;
@@ -119,34 +120,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         //checkIfLoggedIn();
     }
 
-    /*private void checkIfLoggedIn() {
-        AccessToken tok = AccessToken.getCurrentAccessToken();
-        if (tok != null) {
-            //Get all relevant facebook data
-            Profile me = Profile.getCurrentProfile();
-
-            //Create a new user db object
-            User currentUser = new User();
-            currentUser.setUserID(me.getId());
-            currentUser.setfName(me.getFirstName());
-            currentUser.setlName(me.getLastName());
-            currentUser.setProfilePic(me.getProfilePictureUri(250, 250).toString());
-
-            //Start the asynchronous push to the db
-            new addUserToDB().execute(currentUser);
-
-            //Prepare all the intent data to be passed to the next activity
-            intentValues.put(USER_F_NAME, me.getFirstName());
-            intentValues.put(USER_ID, me.getId());
-            intentValues.put(USER_AUTH, tok.toString());
-            intentValues.put(POOL_ID, credentialsProvider.getIdentityPoolId());
-
-            populateIntent(loginSuccess, intentValues);
-            startActivity(loginSuccess);
-        }
-    }
-    */
-
     private void createFBCallback() {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -156,39 +129,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                 logins.put("graph.facebook.com", AccessToken.getCurrentAccessToken().getToken());
 
                 credentialsProvider.setLogins(logins);
-
-                //new getUserProf().execute();
-
-                //me = Profile.getCurrentProfile();
-
-                /*
-                //Get all relevant facebook data
-                Profile me = Profile.getCurrentProfile();
-
-                //Create a new user db object
-                User currentUser = new User();
-                currentUser.setUserID(me.getId());
-                currentUser.setfName(me.getFirstName());
-                currentUser.setlName(me.getLastName());
-                //String profPic = me.getProfilePictureUri(250, 250).toString();
-                currentUser.setProfilePic(me.getProfilePictureUri(250, 250).toString());
-
-                //Start the asynchronous push to the db
-                new addUserToDB().execute(currentUser);
-
-                //Prepare all the intent data to be passed to the next activity
-                intentValues.put(USER_F_NAME, me.getFirstName());
-                intentValues.put(USER_ID, me.getId());
-                intentValues.put(USER_AUTH, loginResult.getAccessToken().toString());
-                intentValues.put(POOL_ID, credentialsProvider.getIdentityPoolId());
-
-                populateIntent(loginSuccess, intentValues);
-
-                //Show the button to allow the user to move on
-                isLoggedIn = true;
-                prefs.edit().putBoolean("isLoggedIn", isLoggedIn).commit(); // isLoggedIn is a boolean value of your login status
-                startActivity(loginSuccess);
-                */
             }
 
             @Override
@@ -245,7 +185,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         loginButton = (LoginButton)findViewById(R.id.login_button);
 		locationProg = (ProgressBar) findViewById(R.id.locationProgress);
         loginButton.setReadPermissions(Arrays.asList("user_likes","user_tagged_places"));
-        //mProfileTracker.startTracking();
     }
 
     private void validateAndProceed(Profile currUser) {
@@ -257,7 +196,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         userID = currentUser.getUserID();
         currentUser.setfName(currUser.getFirstName());
         currentUser.setlName(currUser.getLastName());
-        //String profPic = me.getProfilePictureUri(250, 250).toString();
         currentUser.setProfilePic(currUser.getProfilePictureUri(250, 250).toString());
         currentUser.setLastLogin(date.format(currDate));
 
@@ -277,14 +215,9 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         //permission check for requestLocationUpdates()
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+            ActivityCompat.requestPermissions(FacebookLogin.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
         }
         //Checking for current location from GPS_Provider (will timeout after 10sec)
         timeout = new LocationUpdateTimeoutHandler();
@@ -295,8 +228,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
         }
 		analyzeProfile(AccessToken.getCurrentAccessToken());
-//        startActivity(loginSuccess);
-
     }
 
     private void analyzeProfile(AccessToken token) {
@@ -431,23 +362,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                         new updateProfile().execute(userProf);
                     }
                 });
-/*
-        GraphRequest request = GraphRequest.newMeRequest(
-                token,
-                new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-                        // Insert your code here
-                    }
-                });
-
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "about,bio,posts,photos.limit(20),likes,sports,music,tagged_places");
-        request.setParameters(parameters);
-        request.executeAsync();
-*/
-
-
         tagged_placesRequest.executeAsync();
         postsRequest.executeAsync();
         movieRequest.executeAsync();
@@ -555,7 +469,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                 //no-op for 2 seconds
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             if(isCancelled())
@@ -571,19 +484,15 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             {
                 return;
             }
-            //if userLoc still null after 10 seconds time out requestLocationUpdate()
+            //If userLoc still null after 10 seconds time out requestLocationUpdate()
             if(userLoc == null) {
                 //Checking since current location via GPS timed out
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    Log.d("Location", "Permission check returned");
-                    return;
+                    // Check Permissions Now
+
+                    ActivityCompat.requestPermissions(FacebookLogin.this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            REQUEST_LOCATION);
                 }
                 userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
@@ -607,8 +516,19 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
             new updateUserLoc().execute(currUser);
 
-            //kill the async requestLocationUpdates() task here?
+        }
+    }
 
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode == REQUEST_LOCATION) {
+            if(grantResults.length == 1
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // We can now safely use the API we requested access to
+            } else {
+                // Permission was denied or request was cancelled
+            }
         }
     }
 
@@ -616,14 +536,9 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     @Override
     public void onLocationChanged(Location location) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+            ActivityCompat.requestPermissions(FacebookLogin.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
         }
 
         locationManager.removeUpdates(this);
@@ -673,7 +588,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                     return null;
                 }
             }
-
             return null;
         }
     }
