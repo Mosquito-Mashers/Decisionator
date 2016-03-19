@@ -17,6 +17,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -60,7 +63,6 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     private TextView relativeAddress;
     private TextView midLoc;
     private TextView midAdr;
-    private Button returnHomebtn;
     private Button decisionate;
     private ProgressBar coordProg;
     private ProgressBar addrProg;
@@ -70,7 +72,8 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
     private Event evnt;
 
     private Intent eventInitiated;
-    private Intent returnHome;
+    private Intent logoutIntent;
+    private Intent lobbyIntent;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
 
     private Location userLoc;
@@ -87,6 +90,31 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
 
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+            case R.id.lobby:
+                startActivity(lobbyIntent);
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
@@ -96,8 +124,6 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         initializeListeners();
 
         setInitialLoc();
-
-        prepareIntent(returnHome, intentPairs);
     }
 
     private void setInitialLoc() {
@@ -143,13 +169,6 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         new updateUserLoc().execute(lastKnown);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
 
-        returnHomebtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(returnHome);
-            }
-        });
-
         decisionate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -175,17 +194,21 @@ public class LocationActivity extends AppCompatActivity implements LocationListe
         relativeAddress = (TextView) findViewById(R.id.relativeAddress);
         midLoc = (TextView) findViewById(R.id.midLocation);
         midAdr = (TextView) findViewById(R.id.midAddr);
-        returnHomebtn = (Button) findViewById(R.id.returnHome);
         decisionate = (Button) findViewById(R.id.makeDecision);
         coordProg = (ProgressBar) findViewById(R.id.coordLoading);
         addrProg = (ProgressBar) findViewById(R.id.addrLoading);
 
-        returnHome = new Intent(this, LobbyActivity.class);
+        logoutIntent = new Intent(this, FacebookLogin.class);
+        lobbyIntent = new Intent(this, LobbyActivity.class);
         eventInitiated = getIntent();
         uID = eventInitiated.getStringExtra(FacebookLogin.USER_ID);
         poolID = eventInitiated.getStringExtra(FacebookLogin.POOL_ID);
         eventID = eventInitiated.getStringExtra(EventCreationActivity.EVENT_ID);
         uFName = eventInitiated.getStringExtra(FacebookLogin.USER_F_NAME);
+
+        lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
+        lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
+        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uFName);
 
         intentPairs.put(FacebookLogin.USER_ID, uID);
         intentPairs.put(FacebookLogin.POOL_ID, poolID);

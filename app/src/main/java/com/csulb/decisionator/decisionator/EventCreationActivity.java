@@ -5,6 +5,10 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -17,6 +21,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,6 +43,7 @@ public class EventCreationActivity extends AppCompatActivity {
     private String topic;
     private UUID eventID;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
+    SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     private EditText eventTopic;
     private Button inviteFriends;
@@ -45,8 +51,35 @@ public class EventCreationActivity extends AppCompatActivity {
     private RadioButton selectedCategory;
 
     private Intent fromLobby;
+    private Intent logoutIntent;
+    private Intent lobbyIntent;
     private Intent moveToInvite;
     private Context context;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+            case R.id.lobby:
+                startActivity(lobbyIntent);
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,11 +109,17 @@ public class EventCreationActivity extends AppCompatActivity {
 
     private void initializeGlobals() {
         moveToInvite = new Intent(this, InviteFriendsActivity.class);
+        logoutIntent = new Intent(this, FacebookLogin.class);
+        lobbyIntent = new Intent(this, LobbyActivity.class);
         fromLobby = getIntent();
 
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
         poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
         uFname = fromLobby.getStringExtra(FacebookLogin.USER_F_NAME);
+
+        lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
+        lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
+        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uFname);
 
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
@@ -111,8 +150,12 @@ public class EventCreationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 topic = eventTopic.getText().toString();
-
-                Date date = new Date();
+                if(TextUtils.isEmpty(topic) || topic.trim().equals(""))
+                {
+                    eventTopic.setError("Please enter your selection");
+                    return;
+                }
+                Date currDate = new Date();
 
                 intentPairs.put(EVENT_TOPIC, topic);
                 intentPairs.put(FacebookLogin.POOL_ID, poolID);
@@ -120,14 +163,14 @@ public class EventCreationActivity extends AppCompatActivity {
                 intentPairs.put(FacebookLogin.USER_F_NAME, uFname);
                 intentPairs.put(EVENT_ID, eventID.toString());
 
-                prepareIntent(moveToInvite, intentPairs);
-
                 Event evnt = new Event();
                 evnt.setEventID(eventID.toString());
                 evnt.setHostID(uID);
                 evnt.setHostName(uFname);
                 evnt.setTopic(topic);
-                evnt.setDateCreated(date.toString());
+                evnt.setLatitude(33.760605);
+                evnt.setLongitude(-118.156446);
+                evnt.setDateCreated(date.format(currDate));
 
 
 
@@ -140,6 +183,8 @@ public class EventCreationActivity extends AppCompatActivity {
                     selectedCategory = (RadioButton) findViewById(R.id.radioLocation);
                 }
                 evnt.setCategory(selectedCategory.getText().toString());
+                intentPairs.put(EVENT_CATEGORY, evnt.getCategory());
+                prepareIntent(moveToInvite, intentPairs);
 
                 new addEventToDB().execute(evnt);
 
