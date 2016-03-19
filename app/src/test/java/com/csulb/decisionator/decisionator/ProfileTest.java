@@ -2,25 +2,13 @@ package com.csulb.decisionator.decisionator;
 
 import junit.framework.TestCase;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.marshallers.CalendarSetToStringSetMarshaller;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.*;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.*;
-import com.amazonaws.services.dynamodbv2.model.*;
-
-import android.content.Context;
-
-import org.junit.Test;
-import org.junit.runners.model.TestClass;
-
 /**
  * Created by Jose on 3/7/2016.
  */
 public class ProfileTest extends TestCase {
 
 
-    public Profile data = new Profile();
+    public uProfile data = new uProfile();
 
     public User data1 = new User();
     public User data2 = new User();
