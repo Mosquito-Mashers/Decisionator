@@ -257,7 +257,6 @@ public class LobbyActivity extends AppCompatActivity {
                     gotoEvent.putExtra(FacebookLogin.POOL_ID, poolID);
                     gotoEvent.putExtra(FacebookLogin.USER_ID, uID);
                     gotoEvent.putExtra(FacebookLogin.USER_F_NAME, uName);
-
                     startActivity(gotoEvent);
                 }
             });
