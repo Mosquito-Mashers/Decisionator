@@ -274,7 +274,7 @@ public class LobbyActivity extends AppCompatActivity {
                 {
                     if(users.get(m).getUserID().contentEquals(attenList[j]))
                     {
-                        attenName += users.get(j).getfName() + " " +users.get(j).getlName() + ", ";
+                        attenName += users.get(m).getfName() + " " +users.get(m).getlName() + ", ";
                     }
                 }
             }
