@@ -228,20 +228,32 @@ public class LobbyActivity extends AppCompatActivity {
             }
 
             final Event event = events.get(position);
-            Date lastLogDate = new Date();
-            Date eventCreateDate = new Date();
-            try {
-                lastLogDate = date.parse(lastLogin);
-                eventCreateDate = date.parse(event.getDateCreated());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            holder.newEvent.setVisibility(View.GONE);
+            holder.newEvText.setVisibility(View.GONE);
 
-            if(lastLogDate.before(eventCreateDate))
+            if(event.getViewedList() == null)
             {
+                holder.newEvent.setVisibility(View.VISIBLE);
+                holder.newEvText.setVisibility(View.VISIBLE);
                 holder.newEvent.setImageResource(R.mipmap.new_event_icon);
                 holder.newEvText.setText("NEW!");
             }
+            else
+            {
+
+                String viewed[] = event.getViewedList().split(",");
+                for(int k = 0; k < viewed.length; k++) {
+
+                    if (!viewed[k].contentEquals(uID)) {
+                        holder.newEvent.setVisibility(View.VISIBLE);
+                        holder.newEvText.setVisibility(View.VISIBLE);
+                        holder.newEvent.setImageResource(R.mipmap.new_event_icon);
+                        holder.newEvText.setText("NEW!");
+                        break;
+                    }
+                }
+            }
+
 
             holder.eventButton.setOnClickListener(new View.OnClickListener() {
                 @Override
