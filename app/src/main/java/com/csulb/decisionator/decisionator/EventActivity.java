@@ -534,13 +534,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 {
                     allUsers.add(item);
                 }
-                String name = item.getfName() + " " + item.getlName();
+                String name = item.getUserID();
 
                 for(int i = 0; i < invitedArray.length; i++)
                 {
                     if (invitedArray[i].replaceAll("\\s+$", "").contentEquals(name))
                     {
-                        if(rsvpList != null && rsvpList.contains(item.getfName() + " " + item.getlName()))
+                        if(rsvpList != null && rsvpList.contains(item.getUserID()))
                         {
                             item.setlName(item.getlName() + " RSVP'ed!");
                         }
