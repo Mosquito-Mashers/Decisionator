@@ -214,7 +214,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 String end = finalLoc.latitude+","+finalLoc.longitude;
                 String uri = "https://www.google.com/maps/dir/"+start+"/"+end+"/";
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                startActivity(browserIntent);
+
+                if(marker.getSnippet() != null && marker.getSnippet().contentEquals("Tap for directions!"))
+                {
+                    startActivity(browserIntent);
+                }
             }
         });
     }
