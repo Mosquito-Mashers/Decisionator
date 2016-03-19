@@ -17,17 +17,6 @@ public class User {
     private double latitude;
     private double longitude;
 
-    public boolean isSelected() {
-        return selected;
-    }
-
-    public void setSelected(boolean selected) {
-        this.selected = selected;
-    }
-
-    private boolean selected = false;
-
-
     @DynamoDBHashKey(attributeName = "userID")
     public String getUserID() {
         return userID;

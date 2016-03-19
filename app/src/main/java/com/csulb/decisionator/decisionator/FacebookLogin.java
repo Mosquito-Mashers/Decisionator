@@ -4,19 +4,16 @@ package com.csulb.decisionator.decisionator;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -62,7 +59,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
     private boolean isLoggedIn;
     private boolean foundLoc = false;
-    private SharedPreferences prefs;
     private static final Map<String, String> intentValues = new HashMap<String, String>();
     private User currentUser;
     private uProfile userProf;
@@ -70,7 +66,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     //Facebook api items
     private CallbackManager callbackManager;
     private ProfileTracker mProfileTracker;
-    private Profile me;
     private LoginManager logManager;
     private LoginButton loginButton;
     private ProgressBar locationProg;
@@ -82,14 +77,11 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     protected LocationManager locationManager;
     LocationUpdateTimeoutHandler timeout;
     private Location userLoc;
-    private Event evnt;
-    private String eventID;
     private String userID;
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     //Gui items
     private TextView info;
-    private Button goToLobby;
     private Intent loginSuccess;
 
     @Override
@@ -116,8 +108,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
         //Start the Facebook api callback
         createFBCallback();
-
-        //checkIfLoggedIn();
     }
 
     private void createFBCallback() {
@@ -152,11 +142,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         }
     }
 
-    private void initializeListeners() {
-
-
-    }
-
     private void initializeGlobals() {
         //Initialize Amazon api
         credentialsProvider = new CognitoCachingCredentialsProvider(
@@ -165,10 +150,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
 
-        //Initialize android objects
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        ProfileTracker mProfileTracker = new ProfileTracker() {
+        mProfileTracker = new ProfileTracker() {
             @Override
             protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
                 this.stopTracking();
@@ -185,6 +167,9 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         loginButton = (LoginButton)findViewById(R.id.login_button);
 		locationProg = (ProgressBar) findViewById(R.id.locationProgress);
         loginButton.setReadPermissions(Arrays.asList("user_likes","user_tagged_places"));
+    }
+
+    private void initializeListeners() {
     }
 
     private void validateAndProceed(Profile currUser) {
@@ -208,9 +193,8 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
         populateIntent(loginSuccess, intentValues);
 
-        //Show the button to allow the user to move on
-        isLoggedIn = true;
-        prefs.edit().putBoolean("isLoggedIn", isLoggedIn).commit(); // isLoggedIn is a boolean value of your login status
+
+
         //Getting user location
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         //permission check for requestLocationUpdates()
@@ -415,39 +399,6 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             }
             mapper.save(temp);
             return null;
-        }
-    }
-    //Asynchronous task to add a user to the db, updates user it they already exist
-    class getUserProf extends AsyncTask<Void, Void, Profile> {
-        private ProfileTracker mProfileTracker;
-
-        @Override
-        protected Profile doInBackground(Void... arg0) {
-            //Get all relevant facebook data
-            Profile me = Profile.getCurrentProfile();
-
-            if (me == null) {
-                mProfileTracker = new ProfileTracker() {
-                    @Override
-                    protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
-                        // profile2 is the new profile
-                        Log.v("facebook - profile", profile2.getFirstName());
-                        mProfileTracker.stopTracking();
-                    }
-                };
-                mProfileTracker.startTracking();
-                me = Profile.getCurrentProfile();
-            } else {
-                me = Profile.getCurrentProfile();
-            }
-
-            return me;
-        }
-
-        @Override
-        protected void onPostExecute(Profile prof) {
-
-
         }
     }
 
