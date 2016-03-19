@@ -61,6 +61,7 @@ public class LobbyActivity extends AppCompatActivity {
     private ProgressBar feedProg;
     private EventAdapter eventAdapter;
     private ArrayList<Event> events;
+    private ArrayList<User> users = new ArrayList<User>();
     private ListView eventList;
     private CognitoCachingCredentialsProvider credentialsProvider;
     private DateFormat format = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
@@ -165,6 +166,7 @@ public class LobbyActivity extends AppCompatActivity {
         //GUI Update based on intent
         welcomeString = welcomeMessage.getText() + " " + uName + "!";
         welcomeMessage.setText(welcomeString);
+        new getAllUsers().execute();
         new getCurrUser().execute(uID);
         new getEvents().execute();
     }
@@ -218,9 +220,7 @@ public class LobbyActivity extends AppCompatActivity {
                 holder.attendeeList = (TextView) convertView.findViewById(R.id.attendeeList);
                 holder.eventButton = (Button) convertView.findViewById(R.id.goToEvent);
 
-
                 convertView.setTag(holder);
-
 
             }
             else {
@@ -248,7 +248,7 @@ public class LobbyActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent gotoEvent = new Intent(getApplicationContext(), EventActivity.class);
 
-                    gotoEvent.putExtra(EventCreationActivity.EVENT_ID,event.getEventID());
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
                     gotoEvent.putExtra(EventCreationActivity.EVENT_TOPIC, event.getTopic());
                     gotoEvent.putExtra(EventCreationActivity.EVENT_INVITES, event.getAttendees());
                     gotoEvent.putExtra(EventCreationActivity.EVENT_HOST_NAME, event.getHostName());
@@ -265,7 +265,21 @@ public class LobbyActivity extends AppCompatActivity {
             String cat = event.getCategory();
 
             holder.eventTopic.setText("The topic is: " + event.getTopic());
-            holder.attendeeList.setText(event.getAttendees());
+
+            String attenList[] = event.getAttendees().split(", ");
+            String attenName = "";
+
+            for(int m = 0; m < users.size(); m++)
+            {
+                for(int j = 0; j < attenList.length; j++)
+                {
+                    if(users.get(m).getUserID().contentEquals(attenList[j]))
+                    {
+                        attenName += users.get(j).getfName() + " " +users.get(j).getlName() + ", ";
+                    }
+                }
+            }
+            holder.attendeeList.setText(attenName);
 
             //new getHost(holder.hostName).execute(event.getHostID());
             holder.hostName.setText(event.getHostName());
@@ -416,8 +430,28 @@ public class LobbyActivity extends AppCompatActivity {
         }
     }
 
-    class getCurrUser extends AsyncTask<String, Void, Void> {
+    class getAllUsers extends AsyncTask<Void, Void, PaginatedScanList<User>> {
 
+        @Override
+        protected PaginatedScanList<User> doInBackground(Void... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<User> result = mapper.scan(User.class, scanExpression);
+
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(PaginatedScanList<User> res)
+        {
+            users.addAll(res);
+        }
+    }
+
+    class getCurrUser extends AsyncTask<String, Void, Void> {
 
         @Override
         protected Void doInBackground(String... params) {
