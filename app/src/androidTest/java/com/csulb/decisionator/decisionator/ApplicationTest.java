@@ -34,7 +34,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         );
 
         Map<String, String> logins = new HashMap<>();
-        logins.put("graph.facebook.com", "CAAHqhnf8GfgBAANrINuV76yt8lLEkYwBx9Qf60y7ZCfc9KZCRA7lZCvVjReQFBNW24fNR4ZAjqbAFvQERLvjbNq9OFXWCZBrMRFqvw9893ZCdCRB70LcpKHXKBg4DjiMUVJl4phQwv2fN5j4lHQPX1Rs0ZBKtWr7K31pZBr74rUMqZCoSlmC7aiJZCk9GnJArWddJ6y3pUYg2ZAZCwZDZD");
+        logins.put("graph.facebook.com", "CAAHqhnf8GfgBAHLRGJ6nbJBKv6S8sitdxdnLuGioZCaZBcRx9VtQrNxe9xfmyS9KVEhm7rCJmY9ZArZBeVbXoT7XprePE0r6xfw8oMm6rAdGECZBitRp2NBCAAf1FytDWZBPWw6Bz6nYv9mXWaLKmtQk7gFwjMzalYslSmCZAuBTCLlvXwPyPAnSQpUDIpBETw0QC6ZCYxZAuCwZDZD");
         credentialsProvider.setLogins(logins);
         ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         mapper = new DynamoDBMapper(ddbClient);
@@ -53,6 +53,11 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         assertEquals(check,hash);
         assertNotSame(check1, check1_1);
+
+        check1 = temp.getlName();
+        check1_1 = "Tang";
+
+        assertEquals(check1, check1_1);
     }
 
 
