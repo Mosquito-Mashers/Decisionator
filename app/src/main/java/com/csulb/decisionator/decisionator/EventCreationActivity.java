@@ -150,7 +150,7 @@ public class EventCreationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 topic = eventTopic.getText().toString();
-                if(TextUtils.isEmpty(topic))
+                if(TextUtils.isEmpty(topic) || topic.trim().equals(""))
                 {
                     eventTopic.setError("Please enter your selection");
                     return;
