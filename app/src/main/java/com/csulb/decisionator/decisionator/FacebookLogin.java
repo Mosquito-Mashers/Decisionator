@@ -58,6 +58,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     protected final static String POOL_ID = "com.csulb.decisionator.POOL_ID";
     protected final static String UN_ROLE_ARN = "com.csulb.decisionator.UN_ROLE_ARN";
     protected final static String AU_ROLE_ARN = "com.csulb.decisionator.AU_ROLE_ARN";
+    private static final int REQUEST_LOCATION = 2;
 
     private boolean isLoggedIn;
     private boolean foundLoc = false;
@@ -284,7 +285,9 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            return;
+            ActivityCompat.requestPermissions(FacebookLogin.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
         }
         //Checking for current location from GPS_Provider (will timeout after 10sec)
         timeout = new LocationUpdateTimeoutHandler();
@@ -575,15 +578,11 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             if(userLoc == null) {
                 //Checking since current location via GPS timed out
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    Log.d("Location", "Permission check returned");
-                    return;
+                    // Check Permissions Now
+
+                    ActivityCompat.requestPermissions(FacebookLogin.this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            REQUEST_LOCATION);
                 }
                 userLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
@@ -609,6 +608,19 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
             //kill the async requestLocationUpdates() task here?
 
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode == REQUEST_LOCATION) {
+            if(grantResults.length == 1
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // We can now safely use the API we requested access to
+            } else {
+                // Permission was denied or request was cancelled
+            }
         }
     }
 
