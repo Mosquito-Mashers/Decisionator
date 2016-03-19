@@ -411,7 +411,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
             DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
             Event event = mapper.load(Event.class, params[0]);
-            String currName = currUser.getfName() + " " + currUser.getlName();
+            String currName = currUser.getUserID();
 
             String rsvps = event.getRsvpList();
             String rsvpList[];
