@@ -10,11 +10,9 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.*;
 import com.amazonaws.services.dynamodbv2.model.*;
 
 import android.content.Context;
-import android.test.mock.MockContext;
 
 import org.junit.Test;
 import org.junit.runners.model.TestClass;
-import org.mockito.Mockito;
 
 /**
  * Created by Jose on 3/7/2016.
@@ -42,27 +40,6 @@ public class ProfileTest extends TestCase {
         data1.setLatitude(latitude);
         assertSame(data1.getUserID(), id1);
         assertEquals(data1.getLatitude(), latitude);
-
-        Context context = new MockContext();
-
-        //This throws an error that involves the context
-        //If getApplicationContext() is used it would state use FacebookSdk.sdkinitialize() first
-        //after trying that it still did not work
-        //CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                //context,   /* get the context for the application */
-                //"us-east-1:a74e3f8c-6c2b-40b6-89d5-46d4f870a6f2", // Identity Pool ID
-                //Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
-        //);
-        //AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-        //DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-
-        //Need to figure this part out
-        //User temp = mapper.load(User.class,"russell-2345");
-        //String check = temp.getUserID();
-        //String check1 = temp.getfName();
-        //String check1_1 = "Russ";
-        //User temp1 = null;
-        //temp1.setUserID("russell-2345");
     }
 
     public void testSetUserID() throws Exception {
