@@ -56,6 +56,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -80,7 +81,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String uID;
     private String uName;
     private String venue;
-    private String placesCloud;
+    private ArrayList<String> placesCloud = new ArrayList<String>();
     private Event currEvent;
     private ArrayList<User> allUsers = new ArrayList<User>();
     private ArrayList<uProfile> allProfiles = new ArrayList<uProfile>();
@@ -410,7 +411,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
             DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
             Event event = mapper.load(Event.class, params[0]);
-            String currName = currUser.getfName() + " " + currUser.getlName();
+            String currName = currUser.getUserID();
 
             String userViewed = event.getViewedList();
             String viewList[];
@@ -484,10 +485,38 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
             if(currUser == null)
             {
+                currUser = new User();
                 currUser.setLatitude(33.760605);
                 currUser.setLongitude(-118.156446);
             }
 
+            return null;
+        }
+    }
+
+    class populatePlaces extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<uProfile> profileResult = mapper.scan(uProfile.class, scanExpression);
+
+            int k;
+            for (k = 0; k < profileResult.size(); k++)
+            {
+                uProfile item = profileResult.get(k);
+                for(int i = 0; i < allUsers.size(); i++)
+                {
+                    if(item.getPlacesTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getPlacesTags().split(","));
+                        }
+                    }
+                }
+            }
             return null;
         }
     }
@@ -514,13 +543,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 {
                     allUsers.add(item);
                 }
-                String name = item.getfName() + " " + item.getlName();
+                String name = item.getUserID();
 
                 for(int i = 0; i < invitedArray.length; i++)
                 {
                     if (invitedArray[i].replaceAll("\\s+$", "").contentEquals(name))
                     {
-                        if(rsvpList != null && rsvpList.contains(item.getfName() + " " + item.getlName()))
+                        if(rsvpList != null && rsvpList.contains(item.getUserID()))
                         {
                             item.setlName(item.getlName() + " RSVP'ed!");
                         }
@@ -540,11 +569,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         @Override
         protected void onPostExecute(ArrayList<User> res)
         {
-            new getAllProfiles().execute(res);
+            //new getAllProfiles().execute(res);
             friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_user_display,res);
 
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
+            new populatePlaces().execute();
             generateFriendMap(res, map);
         }
     }
@@ -583,7 +613,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             if(res != null) {
                 int i;
                 for (i = 0; i < res.size(); i++) {
-                    placesCloud += res.get(i).getPlacesTags() + ",";
+                    if(res.get(i).getPlacesTags() != null) {
+                        placesCloud.add(res.get(i).getPlacesTags());
+                    }
                 }
             }
         }
@@ -614,6 +646,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         @Override
         protected void onPostExecute(ArrayList<JSONObject> places)
         {
+            int k;
+            int i;
             if(places.size() > 0) {
                 finalLoc = new LatLng(mid.getLatitude(), mid.getLongitude());
                 venue = "Could not find " + eTopic;
@@ -626,6 +660,24 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     String lat = location.getString("lat");
                     String lng = location.getString("lng");
                     finalLoc = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+
+                    for(k = 0; k < finalResultList.length(); k++)
+                    {
+
+                        JSONObject Res = finalResultList.getJSONObject(k);
+                        String bName = Res.getString("name");
+                        for(i = 0; i < placesCloud.size(); i++)
+                        {
+                            if (bName.contains(placesCloud.get(i)))
+                            {
+                                venue = bName;
+                                location = Res.getJSONObject("geometry").getJSONObject("location");
+                                lat = location.getString("lat");
+                                lng = location.getString("lng");
+                                finalLoc = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+                            }
+                        }
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

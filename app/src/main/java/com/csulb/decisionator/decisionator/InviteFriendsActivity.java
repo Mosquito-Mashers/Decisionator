@@ -103,7 +103,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 ArrayList<User> userList = friendAdapter.friends;
                 for (int i = 0; i < invitedFriends.size(); i++) {
                     User user = invitedFriends.get(i);
-                    attendeeList.append(user.getfName() + " " + user.getlName() + ", ");
+                    attendeeList.append(user.getUserID()+", ");
 
                 }
                 if (attendeeList.length() > 0) {

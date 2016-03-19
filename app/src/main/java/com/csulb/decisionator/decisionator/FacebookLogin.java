@@ -291,7 +291,9 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         info.setText("Updating your location...");
         locationProg.setVisibility(View.VISIBLE);
         timeout.execute(currentUser.getUserID());
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
+        if(locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 300, this);
+        }
 		analyzeProfile(AccessToken.getCurrentAccessToken());
 //        startActivity(loginSuccess);
 
