@@ -34,11 +34,12 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         );
 
         Map<String, String> logins = new HashMap<>();
-        logins.put("graph.facebook.com", "CAAHqhnf8GfgBAHLRGJ6nbJBKv6S8sitdxdnLuGioZCaZBcRx9VtQrNxe9xfmyS9KVEhm7rCJmY9ZArZBeVbXoT7XprePE0r6xfw8oMm6rAdGECZBitRp2NBCAAf1FytDWZBPWw6Bz6nYv9mXWaLKmtQk7gFwjMzalYslSmCZAuBTCLlvXwPyPAnSQpUDIpBETw0QC6ZCYxZAuCwZDZD");
+        logins.put("graph.facebook.com", "CAAHqhnf8GfgBAGmV1hFl63q5g68As5ZB486htVvXqfLPovZAYgzsHZColsHBuhb31GbATiVAzFWTXddMAXGOOYgxL8JXp0SBAlkgwyoZAGt951vSuFmrnHDpN6neSBQRxGUeNy5dC33DdGbyrsKdAi5evngkJwSAHRsfmCxIKCvYD7GH8uzbdV8gkTFMEGQM3DW8ncljFQZDZD");
         credentialsProvider.setLogins(logins);
         ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         mapper = new DynamoDBMapper(ddbClient);
     }
+
 
     public void test_DB_userGet() throws Exception{
         //test
@@ -59,7 +60,4 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         assertEquals(check1, check1_1);
     }
-
-
-
 }
