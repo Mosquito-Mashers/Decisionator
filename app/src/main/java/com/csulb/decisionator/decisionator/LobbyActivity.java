@@ -246,6 +246,7 @@ public class LobbyActivity extends AppCompatActivity {
             holder.eventButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    new updateViewedList().execute(event.getEventID());
                     Intent gotoEvent = new Intent(getApplicationContext(), EventActivity.class);
 
                     gotoEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
@@ -256,7 +257,6 @@ public class LobbyActivity extends AppCompatActivity {
                     gotoEvent.putExtra(FacebookLogin.POOL_ID, poolID);
                     gotoEvent.putExtra(FacebookLogin.USER_ID, uID);
                     gotoEvent.putExtra(FacebookLogin.USER_F_NAME, uName);
-                    
                     startActivity(gotoEvent);
                 }
             });
@@ -461,6 +461,29 @@ public class LobbyActivity extends AppCompatActivity {
 
             lastLogin = result.getLastLogin();
 
+            return null;
+        }
+    }
+    class updateViewedList extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            Event result = mapper.load(Event.class, params[0]);
+            Event temp;
+
+            if(result != null) {
+                temp = result;
+                if(result.getViewedList()==null) {
+                    temp.setViewedList(uID + ",");
+                }
+                else {
+                    temp.setViewedList(result.getViewedList() + uID + ",");
+                }
+                mapper.save(temp);
+            }
             return null;
         }
     }

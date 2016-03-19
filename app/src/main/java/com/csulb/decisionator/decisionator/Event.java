@@ -20,6 +20,10 @@ public class Event {
     private String topic;
     private String dateCreated;
     private String category;
+
+
+
+    private String viewedList;
     private double latitude;
     private double longitude;
 
@@ -67,6 +71,15 @@ public class Event {
 
     public void setRsvpList(String rsvpList) {
         this.rsvpList = rsvpList;
+    }
+
+    @DynamoDBAttribute(attributeName = "viewedList")
+    public String getViewedList() {
+        return viewedList;
+    }
+
+    public void setViewedList(String viewedList) {
+        this.viewedList = viewedList;
     }
 
     @DynamoDBAttribute(attributeName = "topic")

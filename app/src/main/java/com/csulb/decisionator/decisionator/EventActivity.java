@@ -413,6 +413,14 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             Event event = mapper.load(Event.class, params[0]);
             String currName = currUser.getUserID();
 
+            String userViewed = event.getViewedList();
+            String viewList[];
+            if(userViewed != null){
+                viewList = userViewed.split(", ");
+                int r;
+
+            }
+
             String rsvps = event.getRsvpList();
             String rsvpList[];
             if(rsvps != null) {
@@ -437,6 +445,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             return null;
         }
     }
+
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
