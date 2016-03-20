@@ -133,6 +133,11 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        this.recreate();
+    }
+
     private void populateIntent(Intent loginSuccess, Map<String, String> intentValues) {
         Iterator mapIter = intentValues.entrySet().iterator();
 
@@ -167,6 +172,9 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         loginButton = (LoginButton)findViewById(R.id.login_button);
 		locationProg = (ProgressBar) findViewById(R.id.locationProgress);
         loginButton.setReadPermissions(Arrays.asList("user_likes","user_tagged_places"));
+
+        info.setVisibility(View.GONE);
+        locationProg.setVisibility(View.GONE);
     }
 
     private void initializeListeners() {
@@ -206,6 +214,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         //Checking for current location from GPS_Provider (will timeout after 10sec)
         timeout = new LocationUpdateTimeoutHandler();
         info.setText("Updating your location...");
+        info.setVisibility(View.VISIBLE);
         locationProg.setVisibility(View.VISIBLE);
         timeout.execute(currentUser.getUserID());
         if(locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)) {
