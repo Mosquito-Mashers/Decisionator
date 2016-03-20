@@ -135,6 +135,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
     @Override
     public void onBackPressed() {
+        this.recreate();
     }
 
     private void populateIntent(Intent loginSuccess, Map<String, String> intentValues) {
