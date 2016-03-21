@@ -569,6 +569,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         @Override
         protected ArrayList<JSONObject> doInBackground(Void... params) {
+            String type = currEvent.getCategory();
             String query = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
             query += "keyword=" + currEvent.getTopic().replace(' ','+');
             query += "&location="+currEvent.getLatitude() + "," + currEvent.getLongitude();
