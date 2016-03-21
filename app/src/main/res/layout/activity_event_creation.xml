@@ -42,25 +42,19 @@
                     android:id="@+id/radioFood"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Food Based - tbd"
+                    android:text="Food Based"
                     android:textSize="25dp"/>
                 <RadioButton
                     android:id="@+id/radioEntertainment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Entertainment Based - tbd"
+                    android:text="Entertainment Based"
                     android:textSize="25dp"/>
                 <RadioButton
                     android:id="@+id/radioRandom"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Random - tbd"
-                    android:textSize="25dp"/>
-                <RadioButton
-                    android:id="@+id/radioMisc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Misc - tbd"
+                    android:text="Random"
                     android:textSize="25dp"/>
             </RadioGroup>
         </LinearLayout>

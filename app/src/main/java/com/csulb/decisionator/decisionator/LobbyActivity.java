@@ -258,6 +258,7 @@ public class LobbyActivity extends AppCompatActivity {
 
             String attenList[] = event.getAttendees().split(",");
             String attenName = "";
+            int count = 0;
 
             for(int m = 0; m < users.size(); m++)
             {
@@ -265,9 +266,27 @@ public class LobbyActivity extends AppCompatActivity {
                 {
                     if(users.get(m).getUserID().contentEquals(attenList[j]))
                     {
-                        attenName += users.get(m).getfName() + " " +users.get(m).getlName() + ", ";
+                        if(count < 3) {
+                            if(count != 2) {
+                                attenName += users.get(m).getfName() + " " + users.get(m).getlName() + ", ";
+                            }
+                            else
+                            {
+                                attenName += users.get(m).getfName() + " " + users.get(m).getlName() + " ";
+                            }
+                        }
+                        count++;
                     }
                 }
+            }
+
+            if(count > 3)
+            {
+                attenName += "+ " + (count-2) + " more";
+            }
+            if(count == 0)
+            {
+                attenName = "No one";
             }
             holder.attendeeList.setText(attenName);
 

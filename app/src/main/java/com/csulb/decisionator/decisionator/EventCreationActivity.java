@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -51,9 +52,14 @@ public class EventCreationActivity extends AppCompatActivity {
     private String topic;
     private UUID eventID;
 
+    private TextView eventPredicate;
     private EditText eventTopic;
     private Button inviteFriends;
     private RadioGroup categories;
+    private RadioButton locCategory;
+    private RadioButton foodCategory;
+    private RadioButton entertainCategory;
+    private RadioButton randomCategory;
     private RadioButton selectedCategory;
 
     @Override
@@ -115,14 +121,41 @@ public class EventCreationActivity extends AppCompatActivity {
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uFname);
 
         eventID = UUID.randomUUID();
+        eventPredicate = (TextView) findViewById(R.id.topicPredicate);
         eventTopic = (EditText) findViewById(R.id.eventTopic);
         inviteFriends = (Button) findViewById(R.id.inviteFriendsBtn);
+        locCategory = (RadioButton)findViewById(R.id.radioLocation);
+        foodCategory = (RadioButton)findViewById(R.id.radioFood);
+        entertainCategory = (RadioButton)findViewById(R.id.radioEntertainment);
+        randomCategory = (RadioButton)findViewById(R.id.radioRandom);
         categories = (RadioGroup) findViewById(R.id.eventCategories);
+
 
         context = getApplicationContext();
     }
 
     private void initializeListeners() {
+
+        locCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                eventPredicate.setText("Lets go to a...");
+
+            }
+        });
+        foodCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                eventPredicate.setText("I'm feeling...");
+            }
+        });
+        entertainCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                eventPredicate.setText("Lets go to a...");
+            }
+        });
+
         eventTopic.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
             @Override
