@@ -2,6 +2,7 @@ package com.csulb.decisionator.decisionator;
 
 import android.app.Application;
 
+import android.location.Location;
 import android.test.ApplicationTestCase;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -10,6 +11,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.FacebookSdk;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
