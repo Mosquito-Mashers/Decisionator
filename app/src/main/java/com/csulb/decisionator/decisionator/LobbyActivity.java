@@ -330,11 +330,23 @@ public class LobbyActivity extends AppCompatActivity {
             PaginatedScanList<Event> result = mapper.scan(Event.class, scanExpression);
 
             int k;
+            int m;
             for (k = 0; k < result.size(); k++)
             {
                 Event item = result.get(k);
                 if(item.getAttendees() != null) {
-                    if (item.getHostID().contentEquals(uID) || item.getAttendees().contains(uName)) {
+
+                    String[] attens = item.getAttendees().split(",");
+                    for(m = 0; m < attens.length; m++)
+                    {
+                        if(attens[m].contentEquals(uID))
+                        {
+                            temp.add(item);
+                            break;
+                        }
+                    }
+
+                    if (item.getHostID().contentEquals(uID)) {
                         temp.add(item);
                     }
                 }

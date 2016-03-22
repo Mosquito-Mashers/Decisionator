@@ -354,6 +354,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         private class ViewHolder
         {
             RelativeLayout friendContainer;
+            ImageView rsvpStatus;
             ImageView profilePic;
             TextView name;
         }
@@ -370,6 +371,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
                 holder = new ViewHolder();
                 holder.friendContainer = (RelativeLayout) convertView.findViewById(R.id.invFriendContainer);
+                holder.rsvpStatus = (ImageView) convertView.findViewById(R.id.rsvpStatus);
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.invUserProfilePicture);
                 holder.name = (TextView) convertView.findViewById(R.id.invUserName);
 
@@ -388,6 +390,30 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             {
                 new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
             }
+
+
+            int k;
+            //String rsvps[] = rs
+
+            //for(k = 0; k < )
+
+            String lName = user.getlName();
+            String lastChar = lName.substring(lName.length() - 1);
+
+            if(lastChar.contentEquals("?"))
+            {
+                holder.rsvpStatus.setImageResource(R.mipmap.unread_icon);
+                user.setlName(lName.substring(0, lName.length() - 1));
+            }
+            else if(lastChar.contentEquals("R"))
+            {
+                holder.rsvpStatus.setImageResource(R.mipmap.rsvp_icon);
+            }
+            else
+            {
+                holder.rsvpStatus.setImageResource(R.mipmap.host_icon);
+            }
+
             holder.name.setText(user.getfName() + " " + user.getlName());
 
             return convertView;
@@ -531,7 +557,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     {
                         if(rsvpList != null && rsvpList.contains(item.getUserID()))
                         {
-                            item.setlName(item.getlName() + " RSVP'ed!");
+                            item.setlName(item.getlName() + "R");
                         }
                         else
                         {
