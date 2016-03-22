@@ -15,6 +15,12 @@
         android:text="" />
 
     <ImageView
+        android:id="@+id/rsvpStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/invUserName"/>
+
+    <ImageView
         android:id="@+id/invUserProfilePicture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
