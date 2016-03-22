@@ -2,12 +2,9 @@ package com.csulb.decisionator.decisionator;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,8 +26,6 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanLis
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
-import java.io.InputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,22 +45,23 @@ public class LobbyActivity extends AppCompatActivity {
     private String lastLogin;
     private String poolID;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
+    private CognitoCachingCredentialsProvider credentialsProvider;
 
     //Gui items
     private Intent loginSuccess;
     private Intent logoutIntent;
     private Intent createEventIntent;
+
     private TextView welcomeMessage;
     private Button createEvent;
     private ImageButton refreshEvents;
     private ProgressBar feedProg;
     private EventAdapter eventAdapter;
-    private ArrayList<Event> events;
-    private ArrayList<User> users = new ArrayList<User>();
     private ListView eventList;
-    private CognitoCachingCredentialsProvider credentialsProvider;
-    private DateFormat format = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
+
+    private ArrayList<User> users = new ArrayList<User>();
+    private ArrayList<Event> events = new ArrayList<Event>();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -85,10 +81,7 @@ public class LobbyActivity extends AppCompatActivity {
                 return true;
 
             default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
@@ -102,35 +95,6 @@ public class LobbyActivity extends AppCompatActivity {
         initializeListeners();
 
         prepareIntent(createEventIntent, intentPairs);
-    }
-
-    private void prepareIntent(Intent createEventIntent, Map<String, String> intentPairs) {
-        Iterator mapIter = intentPairs.entrySet().iterator();
-
-        while (mapIter.hasNext())
-        {
-            Map.Entry kvPair = (Map.Entry) mapIter.next();
-            createEventIntent.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
-        }
-    }
-
-    private void initializeListeners() {
-        createEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(createEventIntent);
-            }
-        });
-
-        refreshEvents.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                new getEvents().execute();
-
-
-            }
-        });
     }
 
     private void initializeGlobals() {
@@ -162,25 +126,43 @@ public class LobbyActivity extends AppCompatActivity {
         intentPairs.put(FacebookLogin.USER_ID, uID);
         intentPairs.put(FacebookLogin.USER_F_NAME, uName);
 
-
         //GUI Update based on intent
         welcomeString = welcomeMessage.getText() + " " + uName + "!";
         welcomeMessage.setText(welcomeString);
         new getAllUsers().execute();
-        new getCurrUser().execute(uID);
+        new getLastLogin().execute(uID);
         new getEvents().execute();
     }
 
+    private void initializeListeners() {
+        createEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(createEventIntent);
+            }
+        });
+
+        refreshEvents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new getEvents().execute();
+            }
+        });
+    }
+
+    private void prepareIntent(Intent createEventIntent, Map<String, String> intentPairs) {
+        Iterator mapIter = intentPairs.entrySet().iterator();
+
+        while (mapIter.hasNext())
+        {
+            Map.Entry kvPair = (Map.Entry) mapIter.next();
+            createEventIntent.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
+        }
+    }
 
     private class EventAdapter extends ArrayAdapter<Event>
     {
         private ArrayList<Event> events;
-        private ViewHolder holder;
-
-        public void addEvent(Event ev)
-        {
-            events.add(ev);
-        }
 
         public EventAdapter(Context context, int profilePictureResourceID, ArrayList<Event> eventList)
         {
@@ -221,28 +203,37 @@ public class LobbyActivity extends AppCompatActivity {
                 holder.eventButton = (Button) convertView.findViewById(R.id.goToEvent);
 
                 convertView.setTag(holder);
-
             }
             else {
                 holder = (ViewHolder) convertView.getTag();
             }
 
             final Event event = events.get(position);
-            Date lastLogDate = new Date();
-            Date eventCreateDate = new Date();
-            try {
-                lastLogDate = date.parse(lastLogin);
-                eventCreateDate = date.parse(event.getDateCreated());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            holder.newEvent.setVisibility(View.GONE);
+            holder.newEvText.setVisibility(View.GONE);
 
-            if(lastLogDate.before(eventCreateDate))
+            if(event.getViewedList() == null)
             {
+                holder.newEvent.setVisibility(View.VISIBLE);
+                holder.newEvText.setVisibility(View.VISIBLE);
                 holder.newEvent.setImageResource(R.mipmap.new_event_icon);
                 holder.newEvText.setText("NEW!");
             }
+            else
+            {
 
+                String viewed[] = event.getViewedList().split(",");
+                for(int k = 0; k < viewed.length; k++) {
+
+                    if (!viewed[k].contentEquals(uID)) {
+                        holder.newEvent.setVisibility(View.VISIBLE);
+                        holder.newEvText.setVisibility(View.VISIBLE);
+                        holder.newEvent.setImageResource(R.mipmap.new_event_icon);
+                        holder.newEvText.setText("NEW!");
+                        break;
+                    }
+                }
+            }
             holder.eventButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -265,8 +256,9 @@ public class LobbyActivity extends AppCompatActivity {
 
             holder.eventTopic.setText("The topic is: " + event.getTopic());
 
-            String attenList[] = event.getAttendees().split(", ");
+            String attenList[] = event.getAttendees().split(",");
             String attenName = "";
+            int count = 0;
 
             for(int m = 0; m < users.size(); m++)
             {
@@ -274,16 +266,31 @@ public class LobbyActivity extends AppCompatActivity {
                 {
                     if(users.get(m).getUserID().contentEquals(attenList[j]))
                     {
-                        attenName += users.get(j).getfName() + " " +users.get(j).getlName() + ", ";
+                        if(count < 3) {
+                            if(count != 2) {
+                                attenName += users.get(m).getfName() + " " + users.get(m).getlName() + ", ";
+                            }
+                            else
+                            {
+                                attenName += users.get(m).getfName() + " " + users.get(m).getlName() + " ";
+                            }
+                        }
+                        count++;
                     }
                 }
             }
+
+            if(count > 3)
+            {
+                attenName += "+ " + (count-2) + " more";
+            }
+            if(count == 0)
+            {
+                attenName = "No one";
+            }
             holder.attendeeList.setText(attenName);
 
-            //new getHost(holder.hostName).execute(event.getHostID());
             holder.hostName.setText(event.getHostName());
-
-            //new DownloadImageTask(holder.hostPic).execute(host.getProfilePic());
 
             if( cat == null )
             {
@@ -305,36 +312,9 @@ public class LobbyActivity extends AppCompatActivity {
                 }
             }
 
-
-
             holder.eventTopic.setTag(event);
 
             return convertView;
-        }
-    }
-
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
-
-        public DownloadImageTask(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
         }
     }
 
@@ -393,42 +373,6 @@ public class LobbyActivity extends AppCompatActivity {
         }
     }
 
-    class getHost extends AsyncTask<String, Void, User> {
-
-        private TextView hostName;
-
-        getHost(TextView hstName)
-        {
-            this.hostName = hstName;
-        }
-        @Override
-        protected User doInBackground(String... params) {
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-            PaginatedScanList<User> result = mapper.scan(User.class, scanExpression);
-
-            int k;
-            for (k = 0; k < result.size(); k++)
-            {
-                User item = result.get(k);
-                if (item.getUserID().contentEquals(uID))
-                {
-                    return item;
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(User hst)
-        {
-            hostName.setText(hst.getfName() + " " + hst.getlName());
-        }
-    }
-
     class getAllUsers extends AsyncTask<Void, Void, PaginatedScanList<User>> {
 
         @Override
@@ -438,7 +382,6 @@ public class LobbyActivity extends AppCompatActivity {
 
             DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
             PaginatedScanList<User> result = mapper.scan(User.class, scanExpression);
-
 
             return result;
         }
@@ -450,7 +393,7 @@ public class LobbyActivity extends AppCompatActivity {
         }
     }
 
-    class getCurrUser extends AsyncTask<String, Void, Void> {
+    class getLastLogin extends AsyncTask<String, Void, Void> {
 
         @Override
         protected Void doInBackground(String... params) {

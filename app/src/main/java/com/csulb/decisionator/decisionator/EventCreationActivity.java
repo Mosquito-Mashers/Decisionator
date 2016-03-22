@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -35,26 +36,31 @@ public class EventCreationActivity extends AppCompatActivity {
     protected final static String EVENT_HOST_NAME = "com.decisionator.decisionator.evenetcreationactivity.EVENT_HOST_NAME";
     protected final static String EVENT_CATEGORY = "com.decisionator.decisionator.evenetcreationactivity.EVENT_CATEGORY";
 
-
     private CognitoCachingCredentialsProvider credentialsProvider;
-    private String uID;
-    private String poolID;
-    private String uFname;
-    private String topic;
-    private UUID eventID;
-    private static final Map<String, String> intentPairs = new HashMap<String, String>();
-    SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
-
-    private EditText eventTopic;
-    private Button inviteFriends;
-    private RadioGroup categories;
-    private RadioButton selectedCategory;
+    private SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     private Intent fromLobby;
     private Intent logoutIntent;
     private Intent lobbyIntent;
     private Intent moveToInvite;
+    private static final Map<String, String> intentPairs = new HashMap<String, String>();
     private Context context;
+
+    private String uID;
+    private String poolID;
+    private String uFname;
+    private String topic;
+    private UUID eventID;
+
+    private TextView eventPredicate;
+    private EditText eventTopic;
+    private Button inviteFriends;
+    private RadioGroup categories;
+    private RadioButton locCategory;
+    private RadioButton foodCategory;
+    private RadioButton entertainCategory;
+    private RadioButton randomCategory;
+    private RadioButton selectedCategory;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -74,10 +80,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 startActivity(lobbyIntent);
                 return true;
             default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
@@ -97,16 +100,6 @@ public class EventCreationActivity extends AppCompatActivity {
         prepareIntent(moveToInvite, intentPairs);
     }
 
-    private void prepareIntent(Intent moveToInvite, Map<String, String> intentPairs) {
-        Iterator mapIter = intentPairs.entrySet().iterator();
-
-        while (mapIter.hasNext())
-        {
-            Map.Entry kvPair = (Map.Entry) mapIter.next();
-            moveToInvite.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
-        }
-    }
-
     private void initializeGlobals() {
         moveToInvite = new Intent(this, InviteFriendsActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
@@ -117,25 +110,52 @@ public class EventCreationActivity extends AppCompatActivity {
         poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
         uFname = fromLobby.getStringExtra(FacebookLogin.USER_F_NAME);
 
-        lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
-        lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
-        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uFname);
-
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
                 poolID, // Identity Pool ID
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
 
+        lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
+        lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
+        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uFname);
+
         eventID = UUID.randomUUID();
+        eventPredicate = (TextView) findViewById(R.id.topicPredicate);
         eventTopic = (EditText) findViewById(R.id.eventTopic);
         inviteFriends = (Button) findViewById(R.id.inviteFriendsBtn);
+        locCategory = (RadioButton)findViewById(R.id.radioLocation);
+        foodCategory = (RadioButton)findViewById(R.id.radioFood);
+        entertainCategory = (RadioButton)findViewById(R.id.radioEntertainment);
+        randomCategory = (RadioButton)findViewById(R.id.radioRandom);
         categories = (RadioGroup) findViewById(R.id.eventCategories);
+
 
         context = getApplicationContext();
     }
 
     private void initializeListeners() {
+
+        locCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                eventPredicate.setText("Lets go to a...");
+
+            }
+        });
+        foodCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                eventPredicate.setText("I'm feeling...");
+            }
+        });
+        entertainCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                eventPredicate.setText("Lets go to a...");
+            }
+        });
+
         eventTopic.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
             @Override
@@ -172,8 +192,6 @@ public class EventCreationActivity extends AppCompatActivity {
                 evnt.setLongitude(-118.156446);
                 evnt.setDateCreated(date.format(currDate));
 
-
-
                 if(categories.getCheckedRadioButtonId() > 0)
                 {
                     selectedCategory = (RadioButton) findViewById(categories.getCheckedRadioButtonId());
@@ -191,6 +209,16 @@ public class EventCreationActivity extends AppCompatActivity {
                 startActivity(moveToInvite);
             }
         });
+    }
+
+    private void prepareIntent(Intent moveToInvite, Map<String, String> intentPairs) {
+        Iterator mapIter = intentPairs.entrySet().iterator();
+
+        while (mapIter.hasNext())
+        {
+            Map.Entry kvPair = (Map.Entry) mapIter.next();
+            moveToInvite.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
+        }
     }
 
     private void hideKeyboard() {
