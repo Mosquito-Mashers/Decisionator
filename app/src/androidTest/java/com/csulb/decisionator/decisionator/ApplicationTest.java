@@ -1,6 +1,7 @@
 package com.csulb.decisionator.decisionator;
 
 import android.app.Application;
+
 import android.test.ApplicationTestCase;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -11,6 +12,8 @@ import com.facebook.FacebookSdk;
 
 import java.util.HashMap;
 import java.util.Map;
+
+
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
@@ -34,30 +37,93 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         );
 
         Map<String, String> logins = new HashMap<>();
-        logins.put("graph.facebook.com", "CAAHqhnf8GfgBAGmV1hFl63q5g68As5ZB486htVvXqfLPovZAYgzsHZColsHBuhb31GbATiVAzFWTXddMAXGOOYgxL8JXp0SBAlkgwyoZAGt951vSuFmrnHDpN6neSBQRxGUeNy5dC33DdGbyrsKdAi5evngkJwSAHRsfmCxIKCvYD7GH8uzbdV8gkTFMEGQM3DW8ncljFQZDZD");
+        logins.put("graph.facebook.com", "CAAHqhnf8GfgBAACq010542bQngXesdtDGAthBz6SdZAP11JU1rDnWTZCcCWeB8eu0Ep7DDHgeERo19DtwgS4S8PDZAgiI8N3Fy0PCktpwG6ruAKVyCZAoIIgAodZAYMX3v8jgCs0t62w6kl1KD3uySb4zOjzphVagNWZBZCYxFkYA67p8r707pz4B8ZCt2LZACa2M2g9RZAPJybgZDZD");
         credentialsProvider.setLogins(logins);
         ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         mapper = new DynamoDBMapper(ddbClient);
     }
 
-
     public void test_DB_userGet() throws Exception{
-        //test
         String hash = "russell-2345";
         User temp = mapper.load(User.class, hash);
-        String check = temp.getUserID();
+        String ID = temp.getUserID();
+        String wID = "russell-2";
 
-        String check1 = temp.getfName();
-        String check1_1 = "Russ";
-        User temp1 = new User();
-        temp1.setUserID("russell-2345");
+        //test userID
+        assertEquals(ID, hash);
+        assertNotSame(wID, ID);
 
-        assertEquals(check,hash);
-        assertNotSame(check1, check1_1);
+        String FName = "Russell";
+        String fName = temp.getfName();
+        String wFName = "Russ";
 
-        check1 = temp.getlName();
-        check1_1 = "Tang";
+        //test first name
+        assertEquals(fName, FName);
+        assertNotSame(wFName, fName);
 
-        assertEquals(check1, check1_1);
+        String LName = "Tang";
+        String lName = temp.getlName();
+        String wLName = "Tan";
+
+        //test last name
+        assertEquals(lName, LName);
+        assertNotSame(wLName, lName);
+
+        Double Latitude = 33.778347;
+        Double latitude = temp.getLatitude();
+        Double wLatitude = 33.6000;
+
+        //test latitude
+        assertEquals(latitude, Latitude);
+        assertNotSame(wLatitude, latitude);
+
+        Double Longitude = -118.184932;
+        Double longitude = temp.getLongitude();
+        Double wLongitude = 118.184932;
+
+        //test longitude
+        assertEquals(longitude, Longitude);
+        assertNotSame(wLongitude, longitude);
+
+        String ProfilePic = "https://graph.facebook.com/1168940069/picture?height=250&width=250&migration_overrides=%7Boctober_2012%3Atrue%7D";
+        String profilePic = temp.getProfilePic();
+        String wProfilePic = "random";
+
+        //test profile picture
+        assertEquals(profilePic, ProfilePic);
+        assertNotSame(wProfilePic, profilePic);
+    }
+
+    public void test_DB_createUser(){
+        String ID = "Test";
+        String fName = "Tester";
+        String lName = "Testing";
+        Double latitude = 33.0;
+        Double longitude = -118.0;
+        String profilePic = "Random";
+        User temp = new User();
+        temp.setUserID(ID);
+        temp.setfName(fName);
+        temp.setlName(lName);
+        temp.setLatitude(latitude);
+        temp.setLongitude(longitude);
+        temp.setProfilePic(profilePic);
+        //test creation of a new user
+        mapper.save(temp);
+        temp = mapper.load(User.class, ID);
+        assertNotNull(temp);
+    }
+
+    public void test_DB_deleteUser(){
+        User temp = new User();
+        temp.setUserID("Test");
+        temp.setfName("Tester");
+        temp.setlName("Testing");
+        temp.setLatitude(33.0);
+        temp.setLongitude(-118.0);
+        temp.setProfilePic("Random");
+        //deletion of a created user
+        mapper.delete(temp);
+        assertNull(mapper.load(User.class, temp.getUserID()));
     }
 }
