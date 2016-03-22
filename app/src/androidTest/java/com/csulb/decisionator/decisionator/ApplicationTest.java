@@ -37,7 +37,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         );
 
         Map<String, String> logins = new HashMap<>();
-        logins.put("graph.facebook.com", "CAAHqhnf8GfgBAACq010542bQngXesdtDGAthBz6SdZAP11JU1rDnWTZCcCWeB8eu0Ep7DDHgeERo19DtwgS4S8PDZAgiI8N3Fy0PCktpwG6ruAKVyCZAoIIgAodZAYMX3v8jgCs0t62w6kl1KD3uySb4zOjzphVagNWZBZCYxFkYA67p8r707pz4B8ZCt2LZACa2M2g9RZAPJybgZDZD");
+        logins.put("graph.facebook.com", "CAAHqhnf8GfgBAMmRT0g9sVZAfFvijZANLuaQgbEUxLzsNVdXxtNMxW4GguBh2lEBVI7iKUQX6HBPEt7g9uxGZCcmSJzalX2gJ12vHChsyKoyKAvukddQjbZB8gkpRy8XqCC8cqldWwWyFRmopH92ZAAIssGhvuHQ94aWISuXh5fgdEENEoJK4");
         credentialsProvider.setLogins(logins);
         ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         mapper = new DynamoDBMapper(ddbClient);
