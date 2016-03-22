@@ -223,15 +223,20 @@ public class LobbyActivity extends AppCompatActivity {
             {
 
                 String viewed[] = event.getViewedList().split(",");
+                boolean alreadyViewed = false;
                 for(int k = 0; k < viewed.length; k++) {
 
-                    if (!viewed[k].contentEquals(uID)) {
-                        holder.newEvent.setVisibility(View.VISIBLE);
-                        holder.newEvText.setVisibility(View.VISIBLE);
-                        holder.newEvent.setImageResource(R.mipmap.new_event_icon);
-                        holder.newEvText.setText("NEW!");
+                    if (viewed[k].contentEquals(uID)) {
+                        alreadyViewed = true;
                         break;
                     }
+                }
+                if(!alreadyViewed)
+                {
+                    holder.newEvent.setVisibility(View.VISIBLE);
+                    holder.newEvText.setVisibility(View.VISIBLE);
+                    holder.newEvent.setImageResource(R.mipmap.new_event_icon);
+                    holder.newEvText.setText("NEW!");
                 }
             }
             holder.eventButton.setOnClickListener(new View.OnClickListener() {
@@ -428,6 +433,9 @@ public class LobbyActivity extends AppCompatActivity {
 
             Event result = mapper.load(Event.class, params[0]);
             Event temp;
+            String[] existingViews;
+            int k;
+            boolean existsInList = false;
 
             if(result != null) {
                 temp = result;
@@ -435,7 +443,18 @@ public class LobbyActivity extends AppCompatActivity {
                     temp.setViewedList(uID + ",");
                 }
                 else {
-                    temp.setViewedList(result.getViewedList() + uID + ",");
+                    existingViews = temp.getViewedList().split(",");
+                    for(k = 0; k < existingViews.length; k++)
+                    {
+                        if(existingViews[k].contentEquals(uID))
+                        {
+                            existsInList = true;
+                            break;
+                        }
+                    }
+                    if(!existsInList) {
+                        temp.setViewedList(temp.getViewedList() + uID + ",");
+                    }
                 }
                 mapper.save(temp);
             }

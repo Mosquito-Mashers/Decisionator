@@ -80,7 +80,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String poolID;
     private String uID;
     private String uName;
+
     private User currUser;
+
 
     private Event currEvent;
     private String venue;
@@ -91,6 +93,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private ArrayList<User> allUsers = new ArrayList<User>();
     private ArrayList<uProfile> allProfiles = new ArrayList<uProfile>();
     private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
+    private ArrayList<String> invited = new ArrayList<String>();
+    private ArrayList<String> rsvped = new ArrayList<String>();
 
     private ListView invitedList;
     private Button rsvp;
@@ -393,25 +397,36 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
 
             int k;
-            //String rsvps[] = rs
+            int m;
+            boolean assignedImage = false;
 
-            //for(k = 0; k < )
-
-            String lName = user.getlName();
-            String lastChar = lName.substring(lName.length() - 1);
-
-            if(lastChar.contentEquals("?"))
-            {
-                holder.rsvpStatus.setImageResource(R.mipmap.unread_icon);
-                user.setlName(lName.substring(0, lName.length() - 1));
-            }
-            else if(lastChar.contentEquals("R"))
-            {
-                holder.rsvpStatus.setImageResource(R.mipmap.rsvp_icon);
-            }
-            else
+            if(user.getUserID().contentEquals(uID))
             {
                 holder.rsvpStatus.setImageResource(R.mipmap.host_icon);
+                assignedImage = true;
+            }
+
+            for(k = 0; k < rsvped.size(); k++)
+            {
+                if(user.getUserID().contentEquals(rsvped.get(k)) && !assignedImage)
+                {
+                    holder.rsvpStatus.setImageResource(R.mipmap.rsvp_icon);
+                    assignedImage = true;
+                    break;
+                }
+            }
+            if(!assignedImage) {
+                for (m = 0; m < invited.size(); m++) {
+                    if (user.getUserID().contentEquals(invited.get(m))) {
+                        holder.rsvpStatus.setImageResource(R.mipmap.unread_icon);
+                        assignedImage = true;
+                        break;
+                    }
+                }
+            }
+            if(!assignedImage)
+            {
+                holder.rsvpStatus.setImageResource(R.mipmap.star_icon);
             }
 
             holder.name.setText(user.getfName() + " " + user.getlName());
@@ -557,11 +572,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     {
                         if(rsvpList != null && rsvpList.contains(item.getUserID()))
                         {
-                            item.setlName(item.getlName() + "R");
+                            rsvped.add(item.getUserID());
+                            //item.setlName(item.getlName() + "R");
                         }
                         else
                         {
-                            item.setlName(item.getlName() + "?");
+                            invited.add(item.getUserID());
+                            //item.setlName(item.getlName() + "?");
                         }
                         allUsers.add(item);
 
