@@ -1,11 +1,14 @@
 package com.csulb.decisionator.decisionator;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,10 +53,14 @@ public class LobbyActivity extends AppCompatActivity {
     private String poolID;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
 
+    private static final int notifyID = 111;
+
     //Gui items
     private Intent loginSuccess;
     private Intent logoutIntent;
     private Intent createEventIntent;
+    private Intent notificationIntent;
+
     private TextView welcomeMessage;
     private Button createEvent;
     private ImageButton refreshEvents;
@@ -387,5 +394,70 @@ public class LobbyActivity extends AppCompatActivity {
         {
             hostName.setText(hst.getfName() + " " + hst.getlName());
         }
+    }
+    class checkUpdates extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<Event> result = mapper.scan(Event.class, scanExpression);
+
+            notificationIntent = new Intent(getApplicationContext(), LobbyActivity.class);
+            notificationIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+            notificationIntent.putExtra(FacebookLogin.USER_ID, uID);
+            notificationIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+
+            NotificationCompat.Builder nb =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.notification_icon)
+                            .setContentTitle("Decisionator")
+                            .setContentText("You have new activities on Decisionator.");
+            PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationManager nm = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+            nm.notify(notifyID, nm);
+            //execute every 30s
+
+            int k;
+            int m;
+            int j;
+            boolean notViewed = false;
+            for(k = 0; k < result.size(); k++)
+            {
+                Event item = result.get(k);
+                String[] attendees = item.getAttendees().split(",");
+                String[] viewed = item.getViewedList().split(",");
+                if(attendees != null && !notViewed)
+                {
+                    for( m = 0; m < attendees.length; m++)
+                    {
+                        if(uID == attendees[m] && !notViewed)
+                        {
+                            for(j = 0; j < viewed.length; j++)
+                            {
+                                if(uID != viewed[j] && !notViewed)
+                                {
+                                    //Send notification
+
+                                    notViewed = true;
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+            if(isCancelled())
+            {
+                return null;
+            }
+            return null;
+        }
+
+
+
+
     }
 }
