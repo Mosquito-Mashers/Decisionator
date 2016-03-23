@@ -8,11 +8,13 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
  * Created by Russell on 2/22/2016.
  */
 @DynamoDBTable(tableName = "Profiles")
-public class Profile {
+public class uProfile {
     private String userID;
     private String imageTags;
     private String textTags;
+    private String placesTags;
     private String likeTags;
+    private String movieLikeTags;
 
     @DynamoDBHashKey(attributeName = "userID")
     public String getUserID() {
@@ -48,5 +50,23 @@ public class Profile {
 
     public void setLikeTags(String likeTags) {
         this.likeTags = likeTags;
+    }
+
+    @DynamoDBAttribute(attributeName = "placesTags")
+    public String getPlacesTags() {
+        return placesTags;
+    }
+
+    public void setPlacesTags(String placesTags) {
+        this.placesTags = placesTags;
+    }
+
+    @DynamoDBAttribute(attributeName = "movieLikeTags")
+    public String getMovieLikeTags() {
+        return movieLikeTags;
+    }
+
+    public void setMovieLikeTags(String movieLikeTags) {
+        this.movieLikeTags = movieLikeTags;
     }
 }

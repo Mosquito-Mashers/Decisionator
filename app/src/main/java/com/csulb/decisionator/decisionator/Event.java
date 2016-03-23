@@ -13,16 +13,13 @@ public class Event {
     private String hostID;
     private String hostName;
     private String attendees;
-
-
-
     private String rsvpList;
     private String topic;
     private String dateCreated;
     private String category;
+    private String viewedList;
     private double latitude;
     private double longitude;
-
 
     @DynamoDBHashKey(attributeName = "eventID")
     public String getEventID() {
@@ -68,6 +65,13 @@ public class Event {
     public void setRsvpList(String rsvpList) {
         this.rsvpList = rsvpList;
     }
+
+    @DynamoDBAttribute(attributeName = "viewedList")
+    public String getViewedList() {
+        return viewedList;
+    }
+
+    public void setViewedList(String viewedList) { this.viewedList = viewedList; }
 
     @DynamoDBAttribute(attributeName = "topic")
     public String getTopic() {

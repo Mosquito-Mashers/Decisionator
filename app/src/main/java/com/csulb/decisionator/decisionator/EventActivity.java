@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +31,8 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpr
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -53,8 +56,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -65,8 +68,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
     private Intent enterEvent;
     private Intent logoutIntent;
-    private Intent goToLobby;
+    private Intent lobbyIntent;
     private Map<String, String> intentPairs = new HashMap<String, String>();
+    private CognitoCachingCredentialsProvider credentialsProvider;
 
     private String eTopic;
     private String eHost;
@@ -76,21 +80,27 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String poolID;
     private String uID;
     private String uName;
+
+    private User currUser;
+
+
     private Event currEvent;
-    private ArrayList<User> allUsers = new ArrayList<User>();
-    private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
-    private CognitoCachingCredentialsProvider credentialsProvider;
-
-    private TextView eventTitle;
-    private TextView mapsContainer;
-    private TextView eventHost;
-    private ListView invitedList;
-    private Button returnToLobby;
-    private Button rsvp;
-    private ImageView eventCategory;
+    private String venue;
     private Location mid;
+    private LatLng finalLoc;
 
+    private ArrayList<String> placesCloud = new ArrayList<String>();
+    private ArrayList<User> allUsers = new ArrayList<User>();
+    private ArrayList<uProfile> allProfiles = new ArrayList<uProfile>();
+    private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
+    private ArrayList<String> invited = new ArrayList<String>();
+    private ArrayList<String> rsvped = new ArrayList<String>();
+
+    private ListView invitedList;
+    private Button rsvp;
+    private Button share;
     private GoogleMap map;
+    private ShareDialog shareDialog;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -106,12 +116,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             case R.id.logout:
                 startActivity(logoutIntent);
                 return true;
-
+            case R.id.lobby:
+                startActivity(lobbyIntent);
+                return true;
             default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
@@ -124,17 +133,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         initializeGlobals();
 
         initializeListeners();
-
-        prepareIntent(goToLobby,intentPairs);
-
     }
-
-
 
     private void initializeGlobals()
     {
-        goToLobby = new Intent(this, LobbyActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
+        lobbyIntent = new Intent(this, LobbyActivity.class);
 
         enterEvent = getIntent();
         eTopic = enterEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
@@ -146,91 +150,129 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         uID = enterEvent.getStringExtra(FacebookLogin.USER_ID);
         uName = enterEvent.getStringExtra(FacebookLogin.USER_F_NAME);
 
-        intentPairs.put(FacebookLogin.POOL_ID, poolID);
-        intentPairs.put(FacebookLogin.USER_ID, uID);
-        intentPairs.put(FacebookLogin.USER_F_NAME, uName);
-
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
                 poolID, // Identity Pool ID
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
 
-        eventTitle = (TextView) findViewById(R.id.eventTitle);
-        eventHost = (TextView) findViewById(R.id.eventHost);
-        invitedList = (ListView) findViewById(R.id.invitedList);
-        returnToLobby = (Button) findViewById(R.id.returnToLobby);
-        rsvp = (Button) findViewById(R.id.rsvpButton);
-        eventCategory = (ImageView) findViewById(R.id.eventDescPic);
+        this.setTitle(eTopic);
 
-        eventTitle.setText(eTopic);
-        eventHost.setText(eHost);
+        lobbyIntent.putExtra(FacebookLogin.USER_ID, uID);
+        lobbyIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
+        intentPairs.put(FacebookLogin.POOL_ID, poolID);
+        intentPairs.put(FacebookLogin.USER_ID, uID);
+        intentPairs.put(FacebookLogin.USER_F_NAME, uName);
+
+        new getCurrUser().execute(uID);
         new getAllFriends().execute(eID);
+
+        invitedList = (ListView) findViewById(R.id.invitedList);
+        rsvp = (Button) findViewById(R.id.rsvpButton);
+        share = (Button) findViewById(R.id.shareButton);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+
+        shareDialog = new ShareDialog(this);
     }
 
-
     private void initializeListeners() {
-
-        returnToLobby.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(goToLobby);
-            }
-        });
         rsvp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 new updateEvent().execute(eID);
+            }
+        });
 
+        share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String description = "";
+                String end = finalLoc.latitude+","+finalLoc.longitude;
+                String uri = "https://www.google.com/maps/dir//"+end+"/";
+                ShareLinkContent linkContent = new ShareLinkContent.Builder()
+                        .setContentTitle("Lets go to..." + venue)
+                        .setContentDescription(description)
+                        .setContentUrl(Uri.parse(uri))
+                        .build();
+
+                shareDialog.show(linkContent);
+            }
+        });
+
+        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                String start = currUser.getLatitude()+","+currUser.getLongitude();
+                String end = finalLoc.latitude+","+finalLoc.longitude;
+                String uri = "https://www.google.com/maps/dir/"+start+"/"+end+"/";
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+
+                if(marker.getSnippet() != null && marker.getSnippet().contentEquals("Tap for directions!"))
+                {
+                    startActivity(browserIntent);
+                }
             }
         });
     }
 
-    private void prepareIntent(Intent moveToLobby, Map<String, String> intentPairs) {
-        Iterator mapIter = intentPairs.entrySet().iterator();
-
-        while (mapIter.hasNext())
+    private boolean checkExists(String item, ArrayList<User> list)
+    {
+        boolean found = false;
+        int k;
+        for(k = 0; k < list.size(); k++)
         {
-            Map.Entry kvPair = (Map.Entry) mapIter.next();
-            moveToLobby.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
+            if(list.get(k).getUserID().contentEquals(item))
+            {
+                found = true;
+            }
         }
+        return found;
     }
 
     private void generateFriendMap(ArrayList<User> allUsers, GoogleMap mp)
     {
         int k;
-        int i;
         ArrayList<Location> locs = new ArrayList<Location>();
         ArrayList<Marker> markers = new ArrayList<Marker>();
         Location temp;
+
         for(k = 0; k < allUsers.size(); k++)
         {
             temp = new Location("");
             User user = allUsers.get(k);
-
 
             if(user.getLatitude() == 0 || user.getLongitude() == 0)
             {
                 user.setLatitude(33.784091);
                 user.setLongitude( -118.114090);
             }
+
             temp.setLatitude(user.getLatitude());
             temp.setLongitude(user.getLongitude());
             locs.add(temp);
 
             LatLng loc = new LatLng(user.getLatitude(),user.getLongitude());
-            Marker mark = map.addMarker(new MarkerOptions()
-                    .position(loc)
-                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.person_icon))
-                    .title(user.getfName() + " " + user.getlName()));
+            if(user.getUserID().contentEquals(uID))
+            {
+                map.addMarker(new MarkerOptions()
+                        .position(loc)
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.host_icon))
+                        .title(user.getfName() + " " + user.getlName()));
+            }
+            else
+            {
+                map.addMarker(new MarkerOptions()
+                        .position(loc)
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.person_icon))
+                        .title(user.getfName() + " " + user.getlName()));
+            }
         }
 
         mid = getMidLocation(locs);
 
-        Marker mark = map.addMarker(new MarkerOptions()
+        map.addMarker(new MarkerOptions()
                 .position(new LatLng(mid.getLatitude(),mid.getLongitude()))
                 .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
                 .title("midpoint"));
@@ -245,7 +287,6 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         map.moveCamera(center);
         map.animateCamera(zoom);
-
     }
     public Address getAddress(Location location)
     {
@@ -289,6 +330,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         midLocation.setLatitude( sumX / locCount);
         midLocation.setLongitude(sumY / locCount);
 
+        if(midLocation.getLatitude() == 0 || midLocation.getLongitude() == 0)
+        {
+            midLocation.setLatitude(33.760605);
+            midLocation.setLongitude(-118.156446);
+        }
+
         return midLocation;
     }
 
@@ -311,6 +358,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         private class ViewHolder
         {
             RelativeLayout friendContainer;
+            ImageView rsvpStatus;
             ImageView profilePic;
             TextView name;
         }
@@ -327,6 +375,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
                 holder = new ViewHolder();
                 holder.friendContainer = (RelativeLayout) convertView.findViewById(R.id.invFriendContainer);
+                holder.rsvpStatus = (ImageView) convertView.findViewById(R.id.rsvpStatus);
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.invUserProfilePicture);
                 holder.name = (TextView) convertView.findViewById(R.id.invUserName);
 
@@ -345,6 +394,41 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             {
                 new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
             }
+
+
+            int k;
+            int m;
+            boolean assignedImage = false;
+
+            if(user.getUserID().contentEquals(uID))
+            {
+                holder.rsvpStatus.setImageResource(R.mipmap.host_icon);
+                assignedImage = true;
+            }
+
+            for(k = 0; k < rsvped.size(); k++)
+            {
+                if(user.getUserID().contentEquals(rsvped.get(k)) && !assignedImage)
+                {
+                    holder.rsvpStatus.setImageResource(R.mipmap.rsvp_icon);
+                    assignedImage = true;
+                    break;
+                }
+            }
+            if(!assignedImage) {
+                for (m = 0; m < invited.size(); m++) {
+                    if (user.getUserID().contentEquals(invited.get(m))) {
+                        holder.rsvpStatus.setImageResource(R.mipmap.unread_icon);
+                        assignedImage = true;
+                        break;
+                    }
+                }
+            }
+            if(!assignedImage)
+            {
+                holder.rsvpStatus.setImageResource(R.mipmap.star_icon);
+            }
+
             holder.name.setText(user.getfName() + " " + user.getlName());
 
             return convertView;
@@ -355,31 +439,28 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         @Override
         protected Void doInBackground(String... params) {
-            ArrayList<Event> temp = new ArrayList<Event>();
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
             Event event = mapper.load(Event.class, params[0]);
-            User currUser = mapper.load(User.class, uID);
-            String currName = currUser.getfName() + " " + currUser.getlName();
+            String currID = uID;
 
             String rsvps = event.getRsvpList();
             String rsvpList[];
             if(rsvps != null) {
-                rsvpList = rsvps.split(", ");
+                rsvpList = rsvps.split(",");
                 int k;
 
                 for (k = 0; k < rsvpList.length; k++) {
-                    if (!rsvpList[k].contentEquals(currName)) {
-                        rsvps += ", " + currName;
+                    if (!rsvpList[k].contentEquals(currID)) {
+                        rsvps += "," + currID;
                         break;
                     }
                 }
             }
             else
             {
-                rsvps = currName;
+                rsvps = currID;
             }
 
             event.setRsvpList(rsvps);
@@ -415,6 +496,52 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         }
     }
 
+    class getCurrUser extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            currUser = mapper.load(User.class, params[0]);
+
+            if(currUser == null)
+            {
+                currUser = new User();
+                currUser.setLatitude(33.760605);
+                currUser.setLongitude(-118.156446);
+            }
+
+            return null;
+        }
+    }
+
+    class populatePlaces extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<uProfile> profileResult = mapper.scan(uProfile.class, scanExpression);
+
+            int k;
+            for (k = 0; k < profileResult.size(); k++)
+            {
+                uProfile item = profileResult.get(k);
+                for(int i = 0; i < allUsers.size(); i++)
+                {
+                    if(item.getPlacesTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getPlacesTags().split(","));
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
     class getAllFriends extends AsyncTask<String, Void, ArrayList<User>> {
         @Override
         protected ArrayList<User> doInBackground(String... params) {
@@ -426,7 +553,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             Event eventResult = mapper.load(Event.class, params[0]);
             currEvent = eventResult;
 
-            String invitedArray[] = eventResult.getAttendees().split(", ");
+            String invitedArray[] = eventResult.getAttendees().split(",");
             String rsvpList = eventResult.getRsvpList();
 
             int k;
@@ -437,15 +564,21 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 {
                     allUsers.add(item);
                 }
-                String name = item.getfName() + " " + item.getlName();
+                String itemID = item.getUserID();
 
                 for(int i = 0; i < invitedArray.length; i++)
                 {
-                    if (invitedArray[i].replaceAll("\\s+$", "").contentEquals(name))
+                    if (invitedArray[i].replaceAll("\\s+$", "").contentEquals(itemID))
                     {
-                        if(rsvpList != null && rsvpList.contains(item.getfName() + " " + item.getlName()))
+                        if(rsvpList != null && rsvpList.contains(item.getUserID()))
                         {
-                            item.setlName(item.getlName() + " RSVP'ed!");
+                            rsvped.add(item.getUserID());
+                            //item.setlName(item.getlName() + "R");
+                        }
+                        else
+                        {
+                            invited.add(item.getUserID());
+                            //item.setlName(item.getlName() + "?");
                         }
                         allUsers.add(item);
 
@@ -463,10 +596,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
+            new populatePlaces().execute();
             generateFriendMap(res, map);
         }
     }
-
 
     class getFinalLocation extends AsyncTask<Void, Void, ArrayList<JSONObject>> {
         private GoogleMap map;
@@ -479,6 +612,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         @Override
         protected ArrayList<JSONObject> doInBackground(Void... params) {
+            String type = currEvent.getCategory();
             String query = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
             query += "keyword=" + currEvent.getTopic().replace(' ','+');
             query += "&location="+currEvent.getLatitude() + "," + currEvent.getLongitude();
@@ -492,9 +626,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         @Override
         protected void onPostExecute(ArrayList<JSONObject> places)
         {
+            int k;
+            int i;
             if(places.size() > 0) {
-                LatLng finalLoc = new LatLng(mid.getLatitude(), mid.getLongitude());
-                String venue = "Could not find " + eTopic;
+                finalLoc = new LatLng(mid.getLatitude(), mid.getLongitude());
+                venue = "Could not find " + eTopic;
                 JSONObject firstResult = places.get(0);
                 try {
                     JSONArray finalResultList = firstResult.getJSONArray("results");
@@ -504,12 +640,36 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     String lat = location.getString("lat");
                     String lng = location.getString("lng");
                     finalLoc = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+
+                    for(k = 0; k < finalResultList.length(); k++)
+                    {
+
+                        JSONObject Res = finalResultList.getJSONObject(k);
+                        String bName = Res.getString("name");
+                        for(i = 0; i < placesCloud.size(); i++)
+                        {
+                            if (bName.contains(placesCloud.get(i)))
+                            {
+                                venue = bName;
+                                location = Res.getJSONObject("geometry").getJSONObject("location");
+                                lat = location.getString("lat");
+                                lng = location.getString("lng");
+                                finalLoc = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+                            }
+                        }
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                if(finalLoc.latitude == 0 || finalLoc.longitude == 0)
+                {
+                    finalLoc = new LatLng(33.78705292, -118.1564652);
+                    venue = "Result not found";
+                }
                 MarkerOptions finalMark = new MarkerOptions()
                         .position(finalLoc)
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_loc_icon))
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.final_resolved_loc_icon))
+                        .snippet("Tap for directions!")
                         .title(venue);
                 map.addMarker(finalMark).showInfoWindow();
 

@@ -12,20 +12,10 @@ public class User {
     private String userID;
     private String fName;
     private String lName;
+    private String lastLogin;
     private String profilePic;
     private double latitude;
     private double longitude;
-
-    public boolean isSelected() {
-        return selected;
-    }
-
-    public void setSelected(boolean selected) {
-        this.selected = selected;
-    }
-
-    private boolean selected = false;
-
 
     @DynamoDBHashKey(attributeName = "userID")
     public String getUserID() {
@@ -52,6 +42,15 @@ public class User {
 
     public void setlName(String lName) {
         this.lName = lName;
+    }
+
+    @DynamoDBAttribute(attributeName = "lastLogin")
+    public String getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(String lastLogin) {
+        this.lastLogin = lastLogin;
     }
 
     @DynamoDBAttribute(attributeName = "profilePic")

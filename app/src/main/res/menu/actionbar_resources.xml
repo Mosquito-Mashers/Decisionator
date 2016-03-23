@@ -2,8 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/lobby"
+        android:title="Lobby"
+        android:icon="@mipmap/lobby_icon"
+        app:showAsAction="always|withText"/>
+    <item
         android:id="@+id/logout"
-        android:icon="@mipmap/logout_icon_white"
         android:title="Exit"
         app:showAsAction="always|withText"/>
+
 </menu>

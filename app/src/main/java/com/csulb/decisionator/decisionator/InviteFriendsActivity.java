@@ -30,7 +30,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class InviteFriendsActivity extends AppCompatActivity {
 
@@ -43,14 +42,13 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private String uFName;
     String topic;
     String uID;
-    private Map<String, String> intentPairs = null;
 
     private ArrayList<User> fbFriends;
     private ArrayList<User> invitedFriends;
-    private StringBuffer attendeeList;
 
     private Intent inEvent;
     private Intent logoutIntent;
+    private Intent lobbyIntent;
     private Intent startEvent;
     private Event event;
 
@@ -71,7 +69,9 @@ public class InviteFriendsActivity extends AppCompatActivity {
             case R.id.logout:
                 startActivity(logoutIntent);
                 return true;
-
+            case R.id.lobby:
+                startActivity(lobbyIntent);
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -90,46 +90,10 @@ public class InviteFriendsActivity extends AppCompatActivity {
         initializeListeners();
     }
 
-    private void initializeListeners() {
-        inviteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                StringBuffer attendeeList = new StringBuffer();
-                String attendees;
-                ArrayList<User> userList = friendAdapter.friends;
-                for (int i = 0; i < invitedFriends.size(); i++) {
-                    User user = invitedFriends.get(i);
-                    attendeeList.append(user.getfName() + " " + user.getlName() + ", ");
-
-                }
-                if (attendeeList.length() > 0) {
-                    attendees = attendeeList.substring(0, attendeeList.length() - 2);
-                } else {
-                    attendees = "None";
-                }
-                event = new Event();
-                event.setTopic(topic);
-                event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
-                event.setEventID(inEvent.getStringExtra(EventCreationActivity.EVENT_ID));
-                event.setAttendees(attendees);
-                new updateEvent().execute(event);
-
-                startEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
-                startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, topic);
-                startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
-                startEvent.putExtra(FacebookLogin.USER_ID, uID);
-                startEvent.putExtra(ATTENDEES, attendees);
-                startEvent.putExtra(FacebookLogin.USER_F_NAME, uFName);
-
-                startActivity(startEvent);
-            }
-        });
-    }
-
     private void initializeGlobals() {
-        startEvent = new Intent(this, LocationActivity.class);
+        startEvent = new Intent(this, EventActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
+        lobbyIntent = new Intent(this, LobbyActivity.class);
         fbFriends = new ArrayList<User>();
         invitedFriends = new ArrayList<User>();
 
@@ -146,9 +110,52 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
 
-        new getAllFriends().execute();
+        lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
+        lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
+        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uFName);
 
         inviteButton = (Button) findViewById(R.id.inviteButton);
+
+        new getAllFriends().execute();
+    }
+
+    private void initializeListeners() {
+        inviteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                StringBuffer attendeeList = new StringBuffer();
+                String attendees;
+                for (int i = 0; i < invitedFriends.size(); i++) {
+                    User user = invitedFriends.get(i);
+                    attendeeList.append(user.getUserID()+",");
+                }
+                if (attendeeList.length() > 0) {
+                    attendees = attendeeList.substring(0, attendeeList.length() - 1);
+                } else {
+                    attendees = "None";
+                }
+                event = new Event();
+                event.setTopic(topic);
+                event.setHostID(inEvent.getStringExtra(FacebookLogin.USER_ID));
+                event.setEventID(inEvent.getStringExtra(EventCreationActivity.EVENT_ID));
+                event.setAttendees(attendees);
+                event.setCategory(inEvent.getStringExtra(EventCreationActivity.EVENT_CATEGORY));
+
+                new updateEvent().execute(event);
+
+                startEvent.putExtra(FacebookLogin.POOL_ID, poolID);
+                startEvent.putExtra(FacebookLogin.USER_ID, uID);
+                startEvent.putExtra(FacebookLogin.USER_F_NAME, uFName);
+                startEvent.putExtra(EventCreationActivity.EVENT_ID,event.getEventID());
+                startEvent.putExtra(EventCreationActivity.EVENT_TOPIC, event.getTopic());
+                startEvent.putExtra(EventCreationActivity.EVENT_INVITES, event.getAttendees());
+                startEvent.putExtra(EventCreationActivity.EVENT_HOST_NAME, uFName);
+                startEvent.putExtra(EventCreationActivity.EVENT_CATEGORY, event.getCategory());
+
+                startActivity(startEvent);
+            }
+        });
     }
 
     private class FriendAdapter extends ArrayAdapter<User>

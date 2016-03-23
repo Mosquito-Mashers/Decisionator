@@ -12,7 +12,7 @@
         android:orientation="vertical">
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
             <ImageView
                 android:id="@+id/eventPicture"
@@ -20,25 +20,13 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"/>
             <TextView
-                android:id="@+id/eventTopic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="15dp"
-                android:layout_alignParentRight="true"
-                android:text="Event Name"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-            <TextView
                 android:id="@+id/withHost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15dp"
                 android:layout_centerVertical="true"
-                android:layout_alignParentLeft="true"
-                android:text="With your host: "/>
+                android:layout_centerHorizontal="true"
+                android:text="Hosted by: "/>
             <TextView
                 android:id="@+id/hostName"
                 android:layout_width="wrap_content"
@@ -46,6 +34,32 @@
                 android:layout_centerVertical="true"
                 android:textSize="15dp"
                 android:layout_toRightOf="@id/withHost"/>
+            <ImageView
+                android:id="@+id/newEvent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:layout_toRightOf="@id/hostName" />
+            <TextView
+                android:id="@+id/newEventText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/newEvent"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/eventTopic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:text="Event Name"/>
             <Button
                 android:id="@+id/goToEvent"
                 android:layout_width="wrap_content"
@@ -57,7 +71,7 @@
         </RelativeLayout>
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
                 android:layout_width="match_parent"
