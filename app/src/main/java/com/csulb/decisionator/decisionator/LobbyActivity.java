@@ -478,7 +478,9 @@ public class LobbyActivity extends AppCompatActivity {
                             .setContentIntent(pendIntent).build();
 
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+           // nm.cancel(notifyID);
             nm.notify(notifyID, nb);
+
             //execute every 30s
 
             int k;
