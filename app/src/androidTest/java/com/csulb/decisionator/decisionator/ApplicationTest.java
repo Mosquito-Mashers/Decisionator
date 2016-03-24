@@ -7,6 +7,8 @@ import android.test.ApplicationTestCase;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.FacebookSdk;
@@ -154,5 +156,32 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         //deletion of a created user
         mapper.delete(temp);
         assertNull(mapper.load(User.class, temp.getUserID()));
+    }
+
+    public void Sprint1TestCase3() {
+        //Initializing unit under test
+        InviteFriendsActivity uut = new InviteFriendsActivity();
+
+        //Initializing test variables
+        ArrayList<User> friends = new ArrayList<User>();
+        String hash = "russell-2345";
+        User user = mapper.load(User.class, hash);
+        String ID = user.getUserID();
+
+        //database stuff
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+        PaginatedScanList<User> result = mapper.scan(User.class, scanExpression);
+
+        //getAllFriends() mock implementation
+        for (int k = 0; k < result.size(); k++)
+        {
+            User item = result.get(k);
+            if (!item.getUserID().contentEquals(ID))
+            {
+                friends.add(item);
+            }
+        }
+
+        assertNotNull(friends);
     }
 }
