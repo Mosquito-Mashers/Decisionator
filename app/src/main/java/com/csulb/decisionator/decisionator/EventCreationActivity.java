@@ -140,19 +140,27 @@ public class EventCreationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 eventPredicate.setText("Lets go to a...");
-
+                eventTopic.setHint("Bar, Zoo, Park,...");
             }
         });
         foodCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 eventPredicate.setText("I'm feeling...");
+                eventTopic.setHint("Thai, Mexican, Italian,...");
             }
         });
         entertainCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 eventPredicate.setText("Lets go to a...");
+                eventTopic.setHint("Movie, Theme Park, Club,...");
+            }
+        });
+        randomCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                
             }
         });
 
