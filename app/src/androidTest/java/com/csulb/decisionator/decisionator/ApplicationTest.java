@@ -165,7 +165,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         assertNull(mapper.load(User.class, temp.getUserID()));
     }
 
-
     //Sprint 1 Test Case 3
     public void test_getAllFriends() {
         //Initializing unit under test
@@ -240,26 +239,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         assertNotNull(temp);
         assertTrue(temp.get(0) instanceof Event);
     }
-
-    //Sprint 2 Test Case 4 – User Story #5
-   /* public void test_Sprint2TestCase2() {
-        //Initializing unit under test
-        EventActivity uut = new EventActivity();
-
-        //getFinalLocation mock implementation
-        ShareDialog shareDialog;
-        String venue = "KFC";
-        String description = "";
-        String end = "15, 15";
-        String uri = "https://www.google.com/maps/dir//"+end+"/";
-        ShareLinkContent linkContent = new ShareLinkContent.Builder()
-                .setContentTitle("Lets go to..." + venue)
-                .setContentDescription(description)
-                .setContentUrl(Uri.parse(uri))
-                .build();
-
-
-    }*/
 
     //Sprint 2 Test Case 5 – User Story #5 - B
     public void test_getJSON() {
