@@ -377,7 +377,11 @@ public class LobbyActivity extends AppCompatActivity {
             eventList = (ListView) findViewById(R.id.eventList);
             eventList.setAdapter(eventAdapter);
             feedProg.setVisibility(View.GONE);
+
+            updateRefresh = new checkUpdates();
+
             updateRefresh.execute();
+
         }
     }
 
@@ -452,15 +456,24 @@ public class LobbyActivity extends AppCompatActivity {
 
     class checkUpdates extends AsyncTask<Void, Void, PaginatedScanList<Event>> {
 
+        private boolean isRunning;
+
+        @Override
+        protected void onPreExecute()
+        {
+            isRunning = true;
+        }
+
         @Override
         protected PaginatedScanList<Event> doInBackground(Void... params) {
-
+/*
             try{
                 Thread.sleep(15000); //sleep for 15 seconds
             }
             catch(InterruptedException e){
                 e.getMessage();
             }
+            */
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
@@ -483,6 +496,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(PaginatedScanList<Event> res) {
+            isRunning = false;
             PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             Notification nb =
                     new Notification.Builder(getApplicationContext())
@@ -494,7 +508,7 @@ public class LobbyActivity extends AppCompatActivity {
 
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-            nm.notify(notifyID, nb);
+            //nm.notify(notifyID, nb);
 
             //execute every 30s
 
@@ -507,14 +521,34 @@ public class LobbyActivity extends AppCompatActivity {
             boolean isAttendee = false;
             if (res != null) {
                 for (k = 0; k < res.size(); k++) {
-                    Event item = res.get(k);
 
-                    viewed = item.getViewedList().split(",");
-                    attendees = item.getAttendees().split(",");
+                    if(notViewed)
+                    {
+                        break;
+                    }
+                    Event item = res.get(k);
+                    if(item.getViewedList() != null)
+                    {
+                        viewed = item.getViewedList().split(",");
+                    }
+                    else
+                    {
+                        viewed = null;
+                    }
+
+                    if(item.getAttendees() != null)
+                    {
+                        attendees = item.getAttendees().split(",");
+                    }
+                    else
+                    {
+                        attendees = null;
+                    }
+
 
                     if (viewed != null && attendees != null) {
-                        for (k = 0; k < attendees.length; k++) {
-                            if (uID == attendees[k]) {
+                        for (m = 0; m < attendees.length; m++) {
+                            if (uID.contentEquals(attendees[m])) {
 
                                 isAttendee = true;
                                 notViewed = true;
@@ -522,21 +556,20 @@ public class LobbyActivity extends AppCompatActivity {
                             }
                         }
 
-                        for (k = 0; k < viewed.length; k++) {
-                            if (uID == viewed[k] && isAttendee) {
+                        for (j = 0; j < viewed.length; j++) {
+                            if (uID.contentEquals(viewed[j]) && isAttendee) {
 
                                 notViewed = false;
                                 break;
                             }
                         }
                     } else if (viewed == null && attendees != null) {
-                        for (k = 0; k < attendees.length; k++) {
-                            if (uID == attendees[k]) {
+                        for (m = 0; m < attendees.length; m++) {
+                            if (uID.contentEquals(attendees[m])) {
 
                                 notViewed = true;
                                 break;
                                 //Send notification
-
                             }
                         }
                     }
@@ -544,9 +577,8 @@ public class LobbyActivity extends AppCompatActivity {
 
                 if (notViewed) {
                     nm.notify(notifyID, nb);
+                    return;
                 }
-
-                new checkUpdates().execute();
             }
         }
         }
