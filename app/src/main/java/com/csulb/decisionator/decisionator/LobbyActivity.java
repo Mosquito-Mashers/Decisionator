@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -65,6 +64,7 @@ public class LobbyActivity extends AppCompatActivity {
     private ProgressBar feedProg;
     private EventAdapter eventAdapter;
     private ListView eventList;
+    private checkUpdates updateRefresh = new checkUpdates();
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     private ArrayList<User> users = new ArrayList<User>();
@@ -84,6 +84,7 @@ public class LobbyActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.logout:
+                updateRefresh.cancel(true);
                 startActivity(logoutIntent);
                 return true;
 
@@ -146,6 +147,7 @@ public class LobbyActivity extends AppCompatActivity {
         createEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                updateRefresh.cancel(true);
                 startActivity(createEventIntent);
             }
         });
@@ -153,6 +155,7 @@ public class LobbyActivity extends AppCompatActivity {
         refreshEvents.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                feedProg.setVisibility(View.VISIBLE);
                 new getEvents().execute();
             }
         });
@@ -252,6 +255,7 @@ public class LobbyActivity extends AppCompatActivity {
                     gotoEvent.putExtra(FacebookLogin.POOL_ID, poolID);
                     gotoEvent.putExtra(FacebookLogin.USER_ID, uID);
                     gotoEvent.putExtra(FacebookLogin.USER_F_NAME, uName);
+                    updateRefresh.cancel(true);
                     startActivity(gotoEvent);
                 }
             });
@@ -373,7 +377,7 @@ public class LobbyActivity extends AppCompatActivity {
             eventList = (ListView) findViewById(R.id.eventList);
             eventList.setAdapter(eventAdapter);
             feedProg.setVisibility(View.GONE);
-            new checkUpdates().execute();
+            updateRefresh.execute();
         }
     }
 
@@ -467,6 +471,9 @@ public class LobbyActivity extends AppCompatActivity {
             notificationIntent.putExtra(FacebookLogin.POOL_ID, poolID);
             notificationIntent.putExtra(FacebookLogin.USER_ID, uID);
             notificationIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+
+            if (isCancelled()) return null;
+
             if (result != null) {
                 return result;
             } else {
@@ -481,7 +488,7 @@ public class LobbyActivity extends AppCompatActivity {
                     new Notification.Builder(getApplicationContext())
                             .setSmallIcon(R.drawable.notification_icon)
                             .setContentTitle("Decisionator")
-                            .setContentText("You have new activities on Decisionator.")
+                            .setContentText("You have new events on Decisionator!")
                             .setAutoCancel(true)
                             .setContentIntent(pendIntent).build();
 
@@ -495,42 +502,53 @@ public class LobbyActivity extends AppCompatActivity {
             int m;
             int j;
             String[] attendees;
+            String[] viewed;
             boolean notViewed = false;
-            for (k = 0; k < res.size(); k++) {
-                Event item = res.get(k);
-                if(item.getViewedList() == null){
-                    if (item.getAttendees() != null ){
-                        attendees = item.getAttendees().split(",");
-                        for (m = 0; m < attendees.length; m++) {
-                            if (uID == attendees[m]) {
+            boolean isAttendee = false;
+            if (res != null) {
+                for (k = 0; k < res.size(); k++) {
+                    Event item = res.get(k);
 
-                                        //Send notification
-                                        nm.notify(notifyID, nb);
-                                    }
-                                }
+                    viewed = item.getViewedList().split(",");
+                    attendees = item.getAttendees().split(",");
+
+                    if (viewed != null && attendees != null) {
+                        for (k = 0; k < attendees.length; k++) {
+                            if (uID == attendees[k]) {
+
+                                isAttendee = true;
+                                notViewed = true;
+                                break;
                             }
                         }
-                else {
-                    if (item.getViewedList() != null && item.getAttendees() != null) {
-                        attendees = item.getAttendees().split(",");
-                        String[] viewed = item.getViewedList().split(",");
-                        if (attendees != null && !notViewed) {
-                            for (m = 0; m < attendees.length; m++) {
-                                if (uID == attendees[m] && !notViewed) {
-                                    for (j = 0; j < viewed.length; j++) {
-                                        if (uID != viewed[j] && !notViewed) {
-                                            //Send notification
-                                            nm.notify(notifyID, nb);
-                                           // notViewed = true;
-                                        }
-                                    }
-                                }
+
+                        for (k = 0; k < viewed.length; k++) {
+                            if (uID == viewed[k] && isAttendee) {
+
+                                notViewed = false;
+                                break;
                             }
                         }
-                    }
+                    } else if (viewed == null && attendees != null) {
+                        for (k = 0; k < attendees.length; k++) {
+                            if (uID == attendees[k]) {
+
+                                notViewed = true;
+                                break;
+                                //Send notification
+
+                            }
+                        }
                     }
                 }
+
+                if (notViewed) {
+                    nm.notify(notifyID, nb);
+                }
+
+                new checkUpdates().execute();
             }
+        }
         }
 
     }

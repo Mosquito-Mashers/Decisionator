@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -61,6 +62,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
 
@@ -181,6 +183,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         rsvp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast toast = Toast.makeText(getApplicationContext(), "You have RSVP'ed!", Toast.LENGTH_SHORT);
+                toast.show();
+                rsvp.setVisibility(View.GONE);
                 new updateEvent().execute(eID);
             }
         });
@@ -626,6 +631,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         @Override
         protected void onPostExecute(ArrayList<JSONObject> places)
         {
+            ArrayList<String> resultingPlaces = new ArrayList<String>();
             int k;
             int i;
             if(places.size() > 0) {
@@ -646,21 +652,26 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
                         JSONObject Res = finalResultList.getJSONObject(k);
                         String bName = Res.getString("name");
-                        for(i = 0; i < placesCloud.size(); i++)
+                        resultingPlaces.add(bName);
+                    }
+                    String finalDec = makeFinalDecision(resultingPlaces);
+                    for(k = 0; k < finalResultList.length(); k++) {
+
+                        JSONObject Res = finalResultList.getJSONObject(k);
+                        if(Res.getString("name").contentEquals(finalDec))
                         {
-                            if (bName.contains(placesCloud.get(i)))
-                            {
-                                venue = bName;
-                                location = Res.getJSONObject("geometry").getJSONObject("location");
-                                lat = location.getString("lat");
-                                lng = location.getString("lng");
-                                finalLoc = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
-                            }
+                            venue = finalDec;
+                            location = Res.getJSONObject("geometry").getJSONObject("location");
+                            lat = location.getString("lat");
+                            lng = location.getString("lng");
+                            finalLoc = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
                         }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                makeFinalDecision(resultingPlaces);
                 if(finalLoc.latitude == 0 || finalLoc.longitude == 0)
                 {
                     finalLoc = new LatLng(33.78705292, -118.1564652);
@@ -679,6 +690,49 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             CameraUpdate zoom= CameraUpdateFactory.zoomTo(10);
             map.animateCamera(zoom);
         }
+    }
+
+
+    public String makeFinalDecision(ArrayList<String> choices)
+    {
+        String choice = "Could not find a location!";
+
+        int k;
+        int m;
+        TreeMap<String,Integer> weight = new TreeMap<String, Integer>();
+
+        for(m = 0; m < choices.size(); m++)
+        {
+            weight.put(choices.get(m),0);
+        }
+
+        for(k = 0; k < placesCloud.size(); k++)
+        {
+            for(m = 0; m < choices.size(); m++)
+            {
+                String place = choices.get(m);
+                int freq = weight.get(place);
+
+                if(place.contains(placesCloud.get(k)))
+                {
+                    freq += 1;
+                    weight.put(place,freq);
+                }
+            }
+        }
+
+        int biggestWeight = 0;
+        for(m = 0; m < choices.size(); m++)
+        {
+            int value = weight.get(choices.get(m));
+            if(value > biggestWeight)
+            {
+                choice = choices.get(m);
+                biggestWeight = value;
+            }
+        }
+
+        return choice;
     }
 
     public ArrayList<JSONObject> getJSON(String inUrl) {
