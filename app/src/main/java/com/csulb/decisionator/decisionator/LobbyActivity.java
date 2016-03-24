@@ -450,6 +450,13 @@ public class LobbyActivity extends AppCompatActivity {
 
         @Override
         protected PaginatedScanList<Event> doInBackground(Void... params) {
+
+            try{
+                Thread.sleep(15000); //sleep for 15 seconds
+            }
+            catch(InterruptedException e){
+                e.getMessage();
+            }
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
@@ -475,10 +482,11 @@ public class LobbyActivity extends AppCompatActivity {
                             .setSmallIcon(R.drawable.notification_icon)
                             .setContentTitle("Decisionator")
                             .setContentText("You have new activities on Decisionator.")
+                            .setAutoCancel(true)
                             .setContentIntent(pendIntent).build();
 
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-           // nm.cancel(notifyID);
+
             nm.notify(notifyID, nb);
 
             //execute every 30s
@@ -513,17 +521,16 @@ public class LobbyActivity extends AppCompatActivity {
                                         if (uID != viewed[j] && !notViewed) {
                                             //Send notification
                                             nm.notify(notifyID, nb);
-                                            notViewed = true;
+                                           // notViewed = true;
                                         }
                                     }
-
                                 }
                             }
                         }
                     }
                     }
-
                 }
             }
         }
+
     }
