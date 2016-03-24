@@ -12,6 +12,9 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    dexOptions {
+        javaMaxHeapSize "4g" //specify the heap size for the dex process
+    }
     buildTypes {
         release {
             minifyEnabled false
