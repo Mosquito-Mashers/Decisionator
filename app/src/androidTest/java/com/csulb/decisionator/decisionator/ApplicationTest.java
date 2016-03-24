@@ -158,7 +158,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         assertNull(mapper.load(User.class, temp.getUserID()));
     }
 
-    public void Sprint1TestCase3() {
+    public void test_Sprint1TestCase3() {
         //Initializing unit under test
         InviteFriendsActivity uut = new InviteFriendsActivity();
 
@@ -183,5 +183,50 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         }
 
         assertNotNull(friends);
+        assertTrue(friends.get(0) instanceof User);
+    }
+
+    public void test_Sprint1TestCase4() {
+        //Initializing unit under test
+        InviteFriendsActivity uut = new InviteFriendsActivity();
+
+        //Initializing test variables
+        ArrayList<Event> temp = new ArrayList<Event>();
+        String hash = "russell-2345";
+        User user = mapper.load(User.class, hash);
+        String uID = user.getUserID();
+        Event event = new Event();
+
+        //database stuff
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+        PaginatedScanList<Event> result = mapper.scan(Event.class, scanExpression);
+
+        //getAllFriends() mock implementation
+        int k;
+        int m;
+        for (k = 0; k < result.size(); k++)
+        {
+            Event item = result.get(k);
+            if(item.getAttendees() != null) {
+
+                String[] attens = item.getAttendees().split(",");
+                for(m = 0; m < attens.length; m++)
+                {
+                    if(attens[m].contentEquals(uID))
+                    {
+                        temp.add(item);
+                        break;
+                    }
+                }
+
+                if (item.getHostID().contentEquals(uID)) {
+                    temp.add(item);
+                }
+            }
+        }
+
+        //
+        assertNotNull(temp);
+        assertTrue(temp.get(0) instanceof Event);
     }
 }
