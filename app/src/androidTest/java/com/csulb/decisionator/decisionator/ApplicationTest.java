@@ -2,6 +2,7 @@ package com.csulb.decisionator.decisionator;
 
 import android.app.Application;
 
+import android.location.Location;
 import android.test.ApplicationTestCase;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -10,6 +11,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.FacebookSdk;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +43,33 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         credentialsProvider.setLogins(logins);
         ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         mapper = new DynamoDBMapper(ddbClient);
+    }
+
+    public void test_getMidpoint() throws Exception {
+        //Initializing test locations
+        Location loc1 = new Location("");
+        Location loc2 = new Location("");
+        Location result = new Location("");
+        loc1.setLatitude(10.0);
+        loc1.setLongitude(10.0);
+        loc2.setLatitude(20.0);
+        loc2.setLongitude(20.0);
+        ArrayList<Location> testLocations = new ArrayList<Location>();
+        testLocations.add(loc1);
+        testLocations.add(loc2);
+
+        //Initializing unit under test
+        EventActivity test = new EventActivity();
+
+        //Passing test values to unit under test
+        result = test.getMidLocation(testLocations);
+
+        //comparing results to expected results
+
+         //Are these correct assumed values?
+        assertEquals(15.0, result.getLongitude());
+        assertEquals(15.0, result.getLatitude());
+
     }
 
     public void test_DB_userGet() throws Exception{
