@@ -75,7 +75,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         //comparing results to expected results
 
-         //Are these correct assumed values?
+        //Are these correct assumed values?
         assertEquals(15.0, result.getLongitude());
         assertEquals(15.0, result.getLatitude());
 
@@ -164,6 +164,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         mapper.delete(temp);
         assertNull(mapper.load(User.class, temp.getUserID()));
     }
+
 
     //Sprint 1 Test Case 3
     public void test_getAllFriends() {
