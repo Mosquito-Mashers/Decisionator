@@ -5,9 +5,12 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -21,6 +24,10 @@ import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.clarifai.api.ClarifaiClient;
+import com.clarifai.api.RecognitionRequest;
+import com.clarifai.api.RecognitionResult;
+import com.clarifai.api.exception.ClarifaiException;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -38,6 +45,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -72,6 +82,11 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
     //Amazon api items
     private CognitoCachingCredentialsProvider credentialsProvider;
+
+    //Clarifai api items
+    private ClarifaiClient client;
+
+    private Bitmap profPic;
 
     //location suff...
     protected LocationManager locationManager;
@@ -148,6 +163,10 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     }
 
     private void initializeGlobals() {
+
+        client = new ClarifaiClient(getString(R.string.clarifai_app_id),
+                getString(R.string.clarifai_app_secret));
+
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Check Permissions Now
 
@@ -359,7 +378,8 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
                             }
                             userProf.setLikeTags(likes);
                         }
-                        new updateProfile().execute(userProf);
+                        new DownloadImageTask().execute(currentUser.getProfilePic());
+
                     }
                 });
         tagged_placesRequest.executeAsync();
@@ -557,5 +577,112 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             }
             return null;
         }
+    }
+
+    // Run recognition on a background thread since it makes a network call.
+    class clarifaiImage extends AsyncTask<Bitmap, Void, RecognitionResult>
+    {
+        @Override
+        protected RecognitionResult doInBackground(Bitmap... bitmaps)
+        {
+            return recognizeBitmap(bitmaps[0]);
+        }
+        @Override protected void onPostExecute(RecognitionResult result)
+        {
+            String imageTags = "";
+            int k;
+
+            if(result != null)
+            {
+                for(k = 0; k < result.getTags().size(); k++)
+                {
+                    imageTags += result.getTags().get(k).getName() + ",";
+                }
+            }
+            userProf.setImageTags(imageTags);
+
+            new updateProfile().execute(userProf);
+        }
+    }
+
+    class getBitmap extends AsyncTask<String, Void, Bitmap>
+    {
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+
+            profPic = loadBitmapFromUri(Uri.parse(params[0]));
+
+            return profPic;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bm)
+        {
+            new clarifaiImage().execute(bm);
+        }
+    }
+    /** Sends the given bitmap to Clarifai for recognition and returns the result. */
+    private RecognitionResult recognizeBitmap(Bitmap bitmap) {
+        try {
+            // Scale down the image. This step is optional. However, sending large images over the
+            // network is slow and  does not significantly improve recognition performance.
+            Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 320,
+                    320 * bitmap.getHeight() / bitmap.getWidth(), true);
+
+            // Compress the image as a JPEG.
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            scaled.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            byte[] jpeg = out.toByteArray();
+
+            // Send the JPEG to Clarifai and return the result.
+            return client.recognize(new RecognitionRequest(jpeg)).get(0);
+        } catch (ClarifaiException e) {
+            return null;
+        }
+    }
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            profPic = mIcon11;
+            return mIcon11;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bm)
+        {
+            new clarifaiImage().execute(bm);
+        }
+    }
+
+    /** Loads a Bitmap from a content URI returned by the media picker. */
+    private Bitmap loadBitmapFromUri(Uri uri) {
+        try {
+            // The image may be large. Load an image that is sized for display. This follows best
+            // practices from http://developer.android.com/training/displaying-bitmaps/load-bitmap.html
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(getContentResolver().openInputStream(uri), null, opts);
+            int sampleSize = 1;
+            while (opts.outWidth / (2 * sampleSize) >= 250 &&
+                    opts.outHeight / (2 * sampleSize) >= 250) {
+                sampleSize *= 2;
+            }
+            opts = new BitmapFactory.Options();
+            opts.inSampleSize = sampleSize;
+            return BitmapFactory.decodeStream(getContentResolver().openInputStream(uri), null, opts);
+        } catch (IOException e) {
+        }
+        return null;
     }
 }

@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -182,6 +183,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         rsvp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast toast = Toast.makeText(getApplicationContext(), "You have RSVP'ed!", Toast.LENGTH_SHORT);
+                toast.show();
+                rsvp.setVisibility(View.GONE);
                 new updateEvent().execute(eID);
             }
         });

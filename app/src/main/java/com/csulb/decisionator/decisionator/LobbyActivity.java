@@ -145,6 +145,7 @@ public class LobbyActivity extends AppCompatActivity {
         refreshEvents.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                feedProg.setVisibility(View.VISIBLE);
                 new getEvents().execute();
             }
         });

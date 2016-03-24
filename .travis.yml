@@ -3,7 +3,7 @@ jdk: oraclejdk7
 cache:
   directories:
    - node_modules
-sudo: false
+sudo: required
 
 android:
   components:
@@ -37,6 +37,7 @@ android:
 
 env:
   global:
+    - MALLOC_ARENA_MAX=2
    # install timeout in minutes (2 minutes by default)
     - ADB_INSTALL_TIMEOUT=8
   matrix:
@@ -52,5 +53,5 @@ before_script:
   - adb shell input keyevent 82 &
 
 script:
-  - ./gradlew build connectedAndroidTest
+  - ./gradlew clean build connectedAndroidTest
   
