@@ -1,5 +1,8 @@
 package com.csulb.decisionator.decisionator;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -47,10 +50,13 @@ public class LobbyActivity extends AppCompatActivity {
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
     private CognitoCachingCredentialsProvider credentialsProvider;
 
+    private static final int notifyID = 111;
+
     //Gui items
     private Intent loginSuccess;
     private Intent logoutIntent;
     private Intent createEventIntent;
+    private Intent notificationIntent;
 
     private TextView welcomeMessage;
     private Button createEvent;
@@ -58,6 +64,7 @@ public class LobbyActivity extends AppCompatActivity {
     private ProgressBar feedProg;
     private EventAdapter eventAdapter;
     private ListView eventList;
+    private checkUpdates updateRefresh = new checkUpdates();
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     private ArrayList<User> users = new ArrayList<User>();
@@ -77,6 +84,7 @@ public class LobbyActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.logout:
+                updateRefresh.cancel(true);
                 startActivity(logoutIntent);
                 return true;
 
@@ -132,12 +140,14 @@ public class LobbyActivity extends AppCompatActivity {
         new getAllUsers().execute();
         new getLastLogin().execute(uID);
         new getEvents().execute();
+        //new checkUpdates().execute();
     }
 
     private void initializeListeners() {
         createEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                updateRefresh.cancel(true);
                 startActivity(createEventIntent);
             }
         });
@@ -154,26 +164,22 @@ public class LobbyActivity extends AppCompatActivity {
     private void prepareIntent(Intent createEventIntent, Map<String, String> intentPairs) {
         Iterator mapIter = intentPairs.entrySet().iterator();
 
-        while (mapIter.hasNext())
-        {
+        while (mapIter.hasNext()) {
             Map.Entry kvPair = (Map.Entry) mapIter.next();
             createEventIntent.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
         }
     }
 
-    private class EventAdapter extends ArrayAdapter<Event>
-    {
+    private class EventAdapter extends ArrayAdapter<Event> {
         private ArrayList<Event> events;
 
-        public EventAdapter(Context context, int profilePictureResourceID, ArrayList<Event> eventList)
-        {
+        public EventAdapter(Context context, int profilePictureResourceID, ArrayList<Event> eventList) {
             super(context, profilePictureResourceID, eventList);
             this.events = new ArrayList<Event>();
             this.events.addAll(eventList);
         }
 
-        private class ViewHolder
-        {
+        private class ViewHolder {
             ImageView eventPic;
             ImageView newEvent;
             TextView newEvText;
@@ -189,7 +195,7 @@ public class LobbyActivity extends AppCompatActivity {
             ViewHolder holder = null;
 
             if (convertView == null) {
-                LayoutInflater vi = (LayoutInflater)getSystemService(
+                LayoutInflater vi = (LayoutInflater) getSystemService(
                         Context.LAYOUT_INFLATER_SERVICE);
                 convertView = vi.inflate(R.layout.list_item_event_info, null);
 
@@ -204,8 +210,7 @@ public class LobbyActivity extends AppCompatActivity {
                 holder.eventButton = (Button) convertView.findViewById(R.id.goToEvent);
 
                 convertView.setTag(holder);
-            }
-            else {
+            } else {
                 holder = (ViewHolder) convertView.getTag();
             }
 
@@ -213,27 +218,23 @@ public class LobbyActivity extends AppCompatActivity {
             holder.newEvent.setVisibility(View.GONE);
             holder.newEvText.setVisibility(View.GONE);
 
-            if(event.getViewedList() == null)
-            {
+            if (event.getViewedList() == null) {
                 holder.newEvent.setVisibility(View.VISIBLE);
                 holder.newEvText.setVisibility(View.VISIBLE);
                 holder.newEvent.setImageResource(R.mipmap.new_event_icon);
                 holder.newEvText.setText("NEW!");
-            }
-            else
-            {
+            } else {
 
                 String viewed[] = event.getViewedList().split(",");
                 boolean alreadyViewed = false;
-                for(int k = 0; k < viewed.length; k++) {
+                for (int k = 0; k < viewed.length; k++) {
 
                     if (viewed[k].contentEquals(uID)) {
                         alreadyViewed = true;
                         break;
                     }
                 }
-                if(!alreadyViewed)
-                {
+                if (!alreadyViewed) {
                     holder.newEvent.setVisibility(View.VISIBLE);
                     holder.newEvText.setVisibility(View.VISIBLE);
                     holder.newEvent.setImageResource(R.mipmap.new_event_icon);
@@ -254,6 +255,7 @@ public class LobbyActivity extends AppCompatActivity {
                     gotoEvent.putExtra(FacebookLogin.POOL_ID, poolID);
                     gotoEvent.putExtra(FacebookLogin.USER_ID, uID);
                     gotoEvent.putExtra(FacebookLogin.USER_F_NAME, uName);
+                    updateRefresh.cancel(true);
                     startActivity(gotoEvent);
                 }
             });
@@ -266,18 +268,13 @@ public class LobbyActivity extends AppCompatActivity {
             String attenName = "";
             int count = 0;
 
-            for(int m = 0; m < users.size(); m++)
-            {
-                for(int j = 0; j < attenList.length; j++)
-                {
-                    if(users.get(m).getUserID().contentEquals(attenList[j]))
-                    {
-                        if(count < 3) {
-                            if(count != 2) {
+            for (int m = 0; m < users.size(); m++) {
+                for (int j = 0; j < attenList.length; j++) {
+                    if (users.get(m).getUserID().contentEquals(attenList[j])) {
+                        if (count < 3) {
+                            if (count != 2) {
                                 attenName += users.get(m).getfName() + " " + users.get(m).getlName() + ", ";
-                            }
-                            else
-                            {
+                            } else {
                                 attenName += users.get(m).getfName() + " " + users.get(m).getlName() + " ";
                             }
                         }
@@ -286,23 +283,19 @@ public class LobbyActivity extends AppCompatActivity {
                 }
             }
 
-            if(count > 3)
-            {
-                attenName += "+ " + (count-2) + " more";
+            if (count > 3) {
+                attenName += "+ " + (count - 2) + " more";
             }
-            if(count == 0)
-            {
+            if (count == 0) {
                 attenName = "No one";
             }
             holder.attendeeList.setText(attenName);
 
             holder.hostName.setText(event.getHostName());
 
-            if( cat == null )
-            {
+            if (cat == null) {
                 holder.eventPic.setImageResource(R.mipmap.gps_icon);
-            }
-            else {
+            } else {
                 cat = cat.toLowerCase();
 
                 if (cat.contains("location")) {
@@ -337,16 +330,13 @@ public class LobbyActivity extends AppCompatActivity {
 
             int k;
             int m;
-            for (k = 0; k < result.size(); k++)
-            {
+            for (k = 0; k < result.size(); k++) {
                 Event item = result.get(k);
-                if(item.getAttendees() != null) {
+                if (item.getAttendees() != null) {
 
                     String[] attens = item.getAttendees().split(",");
-                    for(m = 0; m < attens.length; m++)
-                    {
-                        if(attens[m].contentEquals(uID))
-                        {
+                    for (m = 0; m < attens.length; m++) {
+                        if (attens[m].contentEquals(uID)) {
                             temp.add(item);
                             break;
                         }
@@ -361,8 +351,7 @@ public class LobbyActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Event> res)
-        {
+        protected void onPostExecute(ArrayList<Event> res) {
             ArrayList<Event> beforeRes = res;
 
             Collections.sort(res, new Comparator<Event>() {
@@ -388,6 +377,11 @@ public class LobbyActivity extends AppCompatActivity {
             eventList = (ListView) findViewById(R.id.eventList);
             eventList.setAdapter(eventAdapter);
             feedProg.setVisibility(View.GONE);
+
+            updateRefresh = new checkUpdates();
+
+            updateRefresh.execute();
+
         }
     }
 
@@ -405,8 +399,7 @@ public class LobbyActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(PaginatedScanList<User> res)
-        {
+        protected void onPostExecute(PaginatedScanList<User> res) {
             users.addAll(res);
         }
     }
@@ -425,6 +418,7 @@ public class LobbyActivity extends AppCompatActivity {
             return null;
         }
     }
+
     class updateViewedList extends AsyncTask<String, Void, Void> {
 
         @Override
@@ -438,22 +432,19 @@ public class LobbyActivity extends AppCompatActivity {
             int k;
             boolean existsInList = false;
 
-            if(result != null) {
+            if (result != null) {
                 temp = result;
-                if(result.getViewedList()==null) {
+                if (result.getViewedList() == null) {
                     temp.setViewedList(uID + ",");
-                }
-                else {
+                } else {
                     existingViews = temp.getViewedList().split(",");
-                    for(k = 0; k < existingViews.length; k++)
-                    {
-                        if(existingViews[k].contentEquals(uID))
-                        {
+                    for (k = 0; k < existingViews.length; k++) {
+                        if (existingViews[k].contentEquals(uID)) {
                             existsInList = true;
                             break;
                         }
                     }
-                    if(!existsInList) {
+                    if (!existsInList) {
                         temp.setViewedList(temp.getViewedList() + uID + ",");
                     }
                 }
@@ -462,4 +453,134 @@ public class LobbyActivity extends AppCompatActivity {
             return null;
         }
     }
-}
+
+    class checkUpdates extends AsyncTask<Void, Void, PaginatedScanList<Event>> {
+
+        private boolean isRunning;
+
+        @Override
+        protected void onPreExecute()
+        {
+            isRunning = true;
+        }
+
+        @Override
+        protected PaginatedScanList<Event> doInBackground(Void... params) {
+/*
+            try{
+                Thread.sleep(15000); //sleep for 15 seconds
+            }
+            catch(InterruptedException e){
+                e.getMessage();
+            }
+            */
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<Event> result = mapper.scan(Event.class, scanExpression);
+
+            notificationIntent = new Intent(getApplicationContext(), LobbyActivity.class);
+            notificationIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+            notificationIntent.putExtra(FacebookLogin.USER_ID, uID);
+            notificationIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+
+            if (isCancelled()) return null;
+
+            if (result != null) {
+                return result;
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(PaginatedScanList<Event> res) {
+            isRunning = false;
+            PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Notification nb =
+                    new Notification.Builder(getApplicationContext())
+                            .setSmallIcon(R.drawable.notification_icon)
+                            .setContentTitle("Decisionator")
+                            .setContentText("You have new events on Decisionator!")
+                            .setAutoCancel(true)
+                            .setContentIntent(pendIntent).build();
+
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+            //nm.notify(notifyID, nb);
+
+            //execute every 30s
+
+            int k;
+            int m;
+            int j;
+            String[] attendees;
+            String[] viewed;
+            boolean notViewed = false;
+            boolean isAttendee = false;
+            if (res != null) {
+                for (k = 0; k < res.size(); k++) {
+
+                    if(notViewed)
+                    {
+                        break;
+                    }
+                    Event item = res.get(k);
+                    if(item.getViewedList() != null)
+                    {
+                        viewed = item.getViewedList().split(",");
+                    }
+                    else
+                    {
+                        viewed = null;
+                    }
+
+                    if(item.getAttendees() != null)
+                    {
+                        attendees = item.getAttendees().split(",");
+                    }
+                    else
+                    {
+                        attendees = null;
+                    }
+
+
+                    if (viewed != null && attendees != null) {
+                        for (m = 0; m < attendees.length; m++) {
+                            if (uID.contentEquals(attendees[m])) {
+
+                                isAttendee = true;
+                                notViewed = true;
+                                break;
+                            }
+                        }
+
+                        for (j = 0; j < viewed.length; j++) {
+                            if (uID.contentEquals(viewed[j]) && isAttendee) {
+
+                                notViewed = false;
+                                break;
+                            }
+                        }
+                    } else if (viewed == null && attendees != null) {
+                        for (m = 0; m < attendees.length; m++) {
+                            if (uID.contentEquals(attendees[m])) {
+
+                                notViewed = true;
+                                break;
+                                //Send notification
+                            }
+                        }
+                    }
+                }
+
+                if (notViewed) {
+                    nm.notify(notifyID, nb);
+                    return;
+                }
+            }
+        }
+        }
+
+    }
