@@ -3,7 +3,9 @@ package com.csulb.decisionator.decisionator;
 import android.app.Application;
 
 import android.location.Location;
+import android.net.Uri;
 import android.test.ApplicationTestCase;
+import android.test.UiThreadTest;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -12,6 +14,10 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanLis
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.FacebookSdk;
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +53,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         mapper = new DynamoDBMapper(ddbClient);
     }
 
+    //Sprint 1 Test Case 5 – User story #5
     public void test_getMidpoint() throws Exception {
         //Initializing test locations
         Location loc1 = new Location("");
@@ -158,7 +165,8 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         assertNull(mapper.load(User.class, temp.getUserID()));
     }
 
-    public void test_Sprint1TestCase3() {
+    //Sprint 1 Test Case 3
+    public void test_getAllFriends() {
         //Initializing unit under test
         InviteFriendsActivity uut = new InviteFriendsActivity();
 
@@ -183,13 +191,14 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         }
 
         //Testing expected values
-        //assertNotNull(friends);
-        //assertTrue(friends.get(0) instanceof User);
+        assertNotNull(friends);
+        assertTrue(friends.get(0) instanceof User);
     }
 
-    public void test_Sprint1TestCase4() {
+    //Sprint 1 Test Case 4
+    public void test_getEvents() {
         //Initializing unit under test
-        InviteFriendsActivity uut = new InviteFriendsActivity();
+        LobbyActivity uut = new LobbyActivity();
 
         //Initializing test variables
         ArrayList<Event> temp = new ArrayList<Event>();
@@ -202,7 +211,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
         PaginatedScanList<Event> result = mapper.scan(Event.class, scanExpression);
 
-        //getAllFriends() mock implementation
+        //getEvents() mock implementation
         int k;
         int m;
         for (k = 0; k < result.size(); k++)
@@ -227,7 +236,48 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         }
 
         //Testing expected values
-        //assertNotNull(temp);
-        //assertTrue(temp.get(0) instanceof Event);
+        assertNotNull(temp);
+        assertTrue(temp.get(0) instanceof Event);
+    }
+
+    //Sprint 2 Test Case 4 – User Story #5
+   /* public void test_Sprint2TestCase2() {
+        //Initializing unit under test
+        EventActivity uut = new EventActivity();
+
+        //getFinalLocation mock implementation
+        ShareDialog shareDialog;
+        String venue = "KFC";
+        String description = "";
+        String end = "15, 15";
+        String uri = "https://www.google.com/maps/dir//"+end+"/";
+        ShareLinkContent linkContent = new ShareLinkContent.Builder()
+                .setContentTitle("Lets go to..." + venue)
+                .setContentDescription(description)
+                .setContentUrl(Uri.parse(uri))
+                .build();
+
+
+    }*/
+
+    //Sprint 2 Test Case 5 – User Story #5 - B
+    public void test_getJSON() {
+        //Initializing unit under test
+        EventActivity uut = new EventActivity();
+
+        //initializing test variables
+        ArrayList<JSONObject> result = new ArrayList<JSONObject>();
+        String query = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+        query += "keyword=" + "Bar+";
+        query += "&location=51.5034070,-0.1275920";
+        query += "&rankby=distance";
+        query += "&key=AIzaSyCpKblHKkLlan0H33WsA_yPgkDe4K6-C38";
+
+        //executing uut
+        result = uut.getJSON(query);
+
+        //testing results
+        assertNotNull(result);
+        assertTrue(result.get(0) instanceof JSONObject);
     }
 }

@@ -49,7 +49,7 @@ public class EventCreationActivity extends AppCompatActivity {
     private String uID;
     private String poolID;
     private String uFname;
-    private String topic;
+    public String topic;
     private UUID eventID;
 
     private TextView eventPredicate;
@@ -134,7 +134,7 @@ public class EventCreationActivity extends AppCompatActivity {
         context = getApplicationContext();
     }
 
-    private void initializeListeners() {
+    public void initializeListeners() {
 
         locCategory.setOnClickListener(new View.OnClickListener() {
             @Override
