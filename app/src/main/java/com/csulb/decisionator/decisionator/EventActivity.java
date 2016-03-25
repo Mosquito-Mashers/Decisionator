@@ -1,5 +1,8 @@
 package com.csulb.decisionator.decisionator;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -24,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -103,6 +107,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private GoogleMap map;
     private ShareDialog shareDialog;
 
+
+    private checkUpdates updateRefresh = new checkUpdates();
+    private Intent notificationIntent;
+    private static final int notifyID = 111;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
@@ -115,9 +124,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.logout:
+                updateRefresh.cancel(true);
                 startActivity(logoutIntent);
                 return true;
             case R.id.lobby:
+                updateRefresh.cancel(true);
                 startActivity(lobbyIntent);
                 return true;
             default:
@@ -176,12 +187,17 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
         shareDialog = new ShareDialog(this);
+
+        updateRefresh.execute();
     }
 
     private void initializeListeners() {
         rsvp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast toast = Toast.makeText(getApplicationContext(), "You have RSVP'ed!", Toast.LENGTH_SHORT);
+                toast.show();
+                rsvp.setVisibility(View.GONE);
                 new updateEvent().execute(eID);
             }
         });
@@ -212,6 +228,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
                 if(marker.getSnippet() != null && marker.getSnippet().contentEquals("Tap for directions!"))
                 {
+                    updateRefresh.cancel(true);
                     startActivity(browserIntent);
                 }
             }
@@ -768,4 +785,134 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         }
         return objs;
     }
+
+    class checkUpdates extends AsyncTask<Void, Void, PaginatedScanList<Event>> {
+
+        private boolean isRunning;
+
+        @Override
+        protected void onPreExecute()
+        {
+            isRunning = true;
+        }
+
+        @Override
+        protected PaginatedScanList<Event> doInBackground(Void... params) {
+/*
+            try{
+                Thread.sleep(15000); //sleep for 15 seconds
+            }
+            catch(InterruptedException e){
+                e.getMessage();
+            }
+            */
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<Event> result = mapper.scan(Event.class, scanExpression);
+
+            notificationIntent = new Intent(getApplicationContext(), LobbyActivity.class);
+            notificationIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+            notificationIntent.putExtra(FacebookLogin.USER_ID, uID);
+            notificationIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+
+            if (isCancelled()) return null;
+
+            if (result != null) {
+                return result;
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(PaginatedScanList<Event> res) {
+            isRunning = false;
+            PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Notification nb =
+                    new Notification.Builder(getApplicationContext())
+                            .setSmallIcon(R.drawable.notification_icon)
+                            .setContentTitle("Decisionator")
+                            .setContentText("You have new events on Decisionator!")
+                            .setAutoCancel(true)
+                            .setContentIntent(pendIntent).build();
+
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+            //nm.notify(notifyID, nb);
+
+            //execute every 30s
+
+            int k;
+            int m;
+            int j;
+            String[] attendees;
+            String[] viewed;
+            boolean notViewed = false;
+            boolean isAttendee = false;
+            if (res != null) {
+                for (k = 0; k < res.size(); k++) {
+
+                    if(notViewed)
+                    {
+                        break;
+                    }
+                    Event item = res.get(k);
+                    if(item.getViewedList() != null)
+                    {
+                        viewed = item.getViewedList().split(",");
+                    }
+                    else
+                    {
+                        viewed = null;
+                    }
+
+                    if(item.getAttendees() != null)
+                    {
+                        attendees = item.getAttendees().split(",");
+                    }
+                    else
+                    {
+                        attendees = null;
+                    }
+
+
+                    if (viewed != null && attendees != null) {
+                        for (m = 0; m < attendees.length; m++) {
+                            if (uID.contentEquals(attendees[m])) {
+
+                                isAttendee = true;
+                                notViewed = true;
+                                break;
+                            }
+                        }
+
+                        for (j = 0; j < viewed.length; j++) {
+                            if (uID.contentEquals(viewed[j]) && isAttendee) {
+
+                                notViewed = false;
+                                break;
+                            }
+                        }
+                    } else if (viewed == null && attendees != null) {
+                        for (m = 0; m < attendees.length; m++) {
+                            if (uID.contentEquals(attendees[m])) {
+
+                                notViewed = true;
+                                break;
+                                //Send notification
+                            }
+                        }
+                    }
+                }
+
+                if (notViewed) {
+                    nm.notify(notifyID, nb);
+                    return;
+                }
+            }
+        }
+    }
+
 }

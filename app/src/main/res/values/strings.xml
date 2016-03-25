@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Decisionator</string>
     <string name="facebook_app_id">539338236238328</string>
+    <string name="clarifai_app_id">bbUYxU-3_WWVbiy1kOkeZqSV6Fl2-G6qfG2TKjN9</string>
+    <string name="clarifai_app_secret">aszmjKnt3yEIeyhKsE8-WDOKCrQyhUE7NAVI6sTY</string>
     <string name="places_api_key">AIzaSyCpKblHKkLlan0H33WsA_yPgkDe4K6-C38</string>
     <string name="welcomeMessage">Welcome </string>
 </resources>

@@ -37,7 +37,11 @@ android:
 
 env:
   global:
+<<<<<<< HEAD
+  	- MALLOC_ARENA_MAX=2
+=======
     - MALLOC_ARENA_MAX=2
+>>>>>>> ebf6d13ae40beee394abda4b2b528c84a0143892
    # install timeout in minutes (2 minutes by default)
     - ADB_INSTALL_TIMEOUT=8
   matrix:
