@@ -35,6 +35,9 @@ android:
   licenses:
    - 'android-sdk-license-.+'
 
+addons:
+    code_climate:
+        repo_token: 3e88d9e162f2e9df5d3057c4ef888c4dc394499a778df083735f3ce8b5875223
 env:
   global:
     - MALLOC_ARENA_MAX=2
@@ -52,6 +55,9 @@ before_script:
   - adb devices
   - adb shell input keyevent 82 &
 
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
 script:
-  - ./gradlew clean build connectedAndroidTest
+  - ./gradlew clean build jacocoTestReport connectedAndroidTest
   
