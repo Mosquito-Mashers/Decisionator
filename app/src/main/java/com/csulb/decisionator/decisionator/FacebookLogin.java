@@ -132,6 +132,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
                 Map<String, String> logins = new HashMap<String, String>();
                 logins.put("graph.facebook.com", AccessToken.getCurrentAccessToken().getToken());
+                credentialsProvider.setSessionDuration(86400);
 
                 credentialsProvider.setLogins(logins);
             }
