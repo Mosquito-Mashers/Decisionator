@@ -1,6 +1,8 @@
 # Decisionator
 #### [Team Website](http://web.csulb.edu/~jcover/cecs492/index.html)
 
+Code Coverage: ![codecov.io](https://codecov.io/github/Mosquito-Mashers/Decisionator/branch.svg?branch=master)
+
 Continuous integration status: ![Build status](https://travis-ci.org/Mosquito-Mashers/Decisionator.svg)
 
 #### [Build History](https://travis-ci.org/Mosquito-Mashers/Decisionator/builds)
