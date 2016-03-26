@@ -258,8 +258,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     ////////////////////CODE COVERAGE BLOCK/////////////////////
-    //Sprint 1 Test Case 4
-    public void test_getCreateEvent() {
+    public void test_CreateEvent() {
         String eventID = "Test event";
         String hostID = "russell-2345";
         String hostName = "Russell Tang";
@@ -288,13 +287,14 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         before.setLongitude(longitude);
 
         Event dbEvent = new Event();
-        
+
         mapper.save(before);
 
         dbEvent = mapper.load(Event.class, before.getEventID());
         Date newDate = new Date();
         String dateUpdate = date.format(newDate);
 
+        assertNotNull(dbEvent);
         assertEquals(dbEvent.getEventID(),eventID);
         assertEquals(dbEvent.getAttendees(),attendees);
         assertEquals(dbEvent.getCategory(),category);
@@ -306,8 +306,46 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         assertEquals(dbEvent.getRsvpList(),rsvpList);
         assertEquals(dbEvent.getTopic(),topic);
         assertEquals(dbEvent.getViewedList(),viewedList);
-        assertNotSame(dbEvent.getDateCreated(),dateUpdate);
+        assertNotSame(dbEvent.getDateCreated(), dateUpdate);
+
+        mapper.delete(before);
+
+        assertNull(mapper.load(Event.class,before.getEventID()));
     }
 
+    public void test_CreateProfile()
+    {
+        String userID ="russell-2345";
+        String imageTags ="Man";
+        String textTags = "text";
+        String placesTags = "Long Beach";
+        String likeTags = "Burgers";
+        String movieLikeTags = "Deadpool";
 
+        uProfile before = new uProfile();
+        uProfile dbProfile = new uProfile();
+
+        before.setUserID(userID);
+        before.setPlacesTags(placesTags);
+        before.setMovieLikeTags(movieLikeTags);
+        before.setImageTags(imageTags);
+        before.setTextTags(textTags);
+        before.setLikeTags(likeTags);
+
+        mapper.save(before);
+
+        dbProfile = mapper.load(uProfile.class, before.getUserID());
+
+        assertNotNull(dbProfile);
+        assertEquals(dbProfile.getUserID(), userID);
+        assertEquals(dbProfile.getImageTags(), imageTags);
+        assertEquals(dbProfile.getMovieLikeTags(), movieLikeTags);
+        assertEquals(dbProfile.getLikeTags(), likeTags);
+        assertEquals(dbProfile.getPlacesTags(), placesTags);
+        assertEquals(dbProfile.getTextTags(),textTags);
+
+        mapper.delete(before);
+        assertNull(mapper.load(uProfile.class,before.getUserID()));
+
+    }
 }

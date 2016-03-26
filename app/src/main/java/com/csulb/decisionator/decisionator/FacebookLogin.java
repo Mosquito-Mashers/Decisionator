@@ -163,7 +163,8 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         }
     }
 
-    private void initializeGlobals() {
+    public boolean initializeGlobals() {
+        boolean success = false;
 
         client = new ClarifaiClient(getString(R.string.clarifai_app_id),
                 getString(R.string.clarifai_app_secret));
@@ -202,6 +203,8 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
         info.setVisibility(View.GONE);
         locationProg.setVisibility(View.GONE);
+        success = true;
+        return success;
     }
 
     private void initializeListeners() {
