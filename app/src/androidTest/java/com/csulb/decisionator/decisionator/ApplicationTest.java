@@ -77,6 +77,33 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     }
 
+    public void test_getMidpointNull()
+    {
+        //Initializing test locations
+        Location loc1 = new Location("");
+        Location loc2 = new Location("");
+        Location result = new Location("");
+        loc1.setLatitude(0.0);
+        loc1.setLongitude(0.0);
+        loc2.setLatitude(0.0);
+        loc2.setLongitude(0.0);
+        ArrayList<Location> testLocations = new ArrayList<Location>();
+        testLocations.add(loc1);
+        testLocations.add(loc2);
+
+        //Initializing unit under test
+        EventActivity test = new EventActivity();
+
+        //Passing test values to unit under test
+        result = test.getMidLocation(testLocations);
+
+        //comparing results to expected results
+
+        //Are these correct assumed values?
+        assertEquals(-118.156446, result.getLongitude());
+        assertEquals(33.760605, result.getLatitude());
+    }
+
     public void test_DB_userGet() throws Exception{
         String hash = "russell-2345";
         User temp = mapper.load(User.class, hash);
