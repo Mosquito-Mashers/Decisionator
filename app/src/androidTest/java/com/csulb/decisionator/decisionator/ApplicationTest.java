@@ -1,11 +1,8 @@
 package com.csulb.decisionator.decisionator;
 
 import android.app.Application;
-
 import android.location.Location;
-import android.net.Uri;
 import android.test.ApplicationTestCase;
-import android.test.UiThreadTest;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -14,15 +11,14 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanLis
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.FacebookSdk;
-import com.facebook.share.model.ShareLinkContent;
-import com.facebook.share.widget.ShareDialog;
 
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 
 
 /**
@@ -79,6 +75,33 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         assertEquals(15.0, result.getLongitude());
         assertEquals(15.0, result.getLatitude());
 
+    }
+
+    public void test_getMidpointNull()
+    {
+        //Initializing test locations
+        Location loc1 = new Location("");
+        Location loc2 = new Location("");
+        Location result = new Location("");
+        loc1.setLatitude(0.0);
+        loc1.setLongitude(0.0);
+        loc2.setLatitude(0.0);
+        loc2.setLongitude(0.0);
+        ArrayList<Location> testLocations = new ArrayList<Location>();
+        testLocations.add(loc1);
+        testLocations.add(loc2);
+
+        //Initializing unit under test
+        EventActivity test = new EventActivity();
+
+        //Passing test values to unit under test
+        result = test.getMidLocation(testLocations);
+
+        //comparing results to expected results
+
+        //Are these correct assumed values?
+        assertEquals(-118.156446, result.getLongitude());
+        assertEquals(33.760605, result.getLatitude());
     }
 
     public void test_DB_userGet() throws Exception{
@@ -259,5 +282,97 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         //testing results
         assertNotNull(result);
         assertTrue(result.get(0) instanceof JSONObject);
+    }
+
+    ////////////////////CODE COVERAGE BLOCK/////////////////////
+    public void test_CreateEvent() {
+        String eventID = "Test event";
+        String hostID = "russell-2345";
+        String hostName = "Russell Tang";
+        String attendees = "russell-2345";
+        String rsvpList = "russell-2345";
+        String topic = "Chinese Restaurant";
+        SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
+        Date currDate = new Date();
+        String dateCreated = date.format(currDate);
+        String category = "Location Based";
+        String viewedList = "russell-2345";
+        double latitude = 0.0;
+        double longitude = 0.0;
+
+        Event before = new Event();
+        before.setEventID(eventID);
+        before.setHostID(hostID);
+        before.setHostName(hostName);
+        before.setAttendees(attendees);
+        before.setRsvpList(rsvpList);
+        before.setTopic(topic);
+        before.setDateCreated(dateCreated);
+        before.setCategory(category);
+        before.setViewedList(viewedList);
+        before.setLatitude(latitude);
+        before.setLongitude(longitude);
+
+        Event dbEvent = new Event();
+
+        mapper.save(before);
+
+        dbEvent = mapper.load(Event.class, before.getEventID());
+        Date newDate = new Date();
+        String dateUpdate = date.format(newDate);
+
+        assertNotNull(dbEvent);
+        assertEquals(dbEvent.getEventID(),eventID);
+        assertEquals(dbEvent.getAttendees(),attendees);
+        assertEquals(dbEvent.getCategory(),category);
+        assertEquals(dbEvent.getDateCreated(),dateCreated);
+        assertEquals(dbEvent.getHostName(),hostName);
+        assertEquals(dbEvent.getHostID(),hostID);
+        assertEquals(dbEvent.getLatitude(),latitude);
+        assertEquals(dbEvent.getLongitude(),longitude);
+        assertEquals(dbEvent.getRsvpList(),rsvpList);
+        assertEquals(dbEvent.getTopic(),topic);
+        assertEquals(dbEvent.getViewedList(),viewedList);
+        assertNotSame(dbEvent.getDateCreated(), dateUpdate);
+
+        mapper.delete(before);
+
+        assertNull(mapper.load(Event.class,before.getEventID()));
+    }
+
+    public void test_CreateProfile()
+    {
+        String userID ="russell-2345";
+        String imageTags ="Man";
+        String textTags = "text";
+        String placesTags = "Long Beach";
+        String likeTags = "Burgers";
+        String movieLikeTags = "Deadpool";
+
+        uProfile before = new uProfile();
+        uProfile dbProfile = new uProfile();
+
+        before.setUserID(userID);
+        before.setPlacesTags(placesTags);
+        before.setMovieLikeTags(movieLikeTags);
+        before.setImageTags(imageTags);
+        before.setTextTags(textTags);
+        before.setLikeTags(likeTags);
+
+        mapper.save(before);
+
+        dbProfile = mapper.load(uProfile.class, before.getUserID());
+
+        assertNotNull(dbProfile);
+        assertEquals(dbProfile.getUserID(), userID);
+        assertEquals(dbProfile.getImageTags(), imageTags);
+        assertEquals(dbProfile.getMovieLikeTags(), movieLikeTags);
+        assertEquals(dbProfile.getLikeTags(), likeTags);
+        assertEquals(dbProfile.getPlacesTags(), placesTags);
+        assertEquals(dbProfile.getTextTags(),textTags);
+
+        mapper.delete(before);
+        assertNull(mapper.load(uProfile.class,before.getUserID()));
+
     }
 }
