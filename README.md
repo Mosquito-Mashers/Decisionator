@@ -1,13 +1,14 @@
 # Decisionator
+
+Test Coverage:[![codecov.io](https://codecov.io/github/Mosquito-Mashers/Decisionator/coverage.svg?branch=master)](https://codecov.io/github/Mosquito-Mashers/Decisionator?branch=master)
+Continuous Integration:![Build status](https://travis-ci.org/Mosquito-Mashers/Decisionator.svg)
+Stories to be claimed: [![Stories in Ready](https://badge.waffle.io/Mosquito-Mashers/Decisionator.png?label=ready&title=Ready)](https://waffle.io/Mosquito-Mashers/Decisionator)
+
 #### [Team Website](http://web.csulb.edu/~jcover/cecs492/index.html)
-
-Code Coverage: ![codecov.io](https://codecov.io/github/Mosquito-Mashers/Decisionator/branch.svg?branch=master)
-
-Continuous integration status: ![Build status](https://travis-ci.org/Mosquito-Mashers/Decisionator.svg)
 
 #### [Build History](https://travis-ci.org/Mosquito-Mashers/Decisionator/builds)
 
-Items to be claimed in backlog for this sprint: [![Stories in Ready](https://badge.waffle.io/Mosquito-Mashers/Decisionator.png?label=ready&title=Ready)](https://waffle.io/Mosquito-Mashers/Decisionator)
+Test Coverage: ![codecov.io](https://codecov.io/github/Mosquito-Mashers/Decisionator/branch.svg?branch=master)
 
 Project Throughput:[![Throughput Graph](https://graphs.waffle.io/Mosquito-Mashers/Decisionator/throughput.svg)](https://waffle.io/Mosquito-Mashers/Decisionator/metrics)
 
