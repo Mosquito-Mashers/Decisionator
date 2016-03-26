@@ -225,12 +225,18 @@ public class EventCreationActivity extends AppCompatActivity {
                 intentPairs.put(EVENT_CATEGORY, evnt.getCategory());
                 prepareIntent(moveToInvite, intentPairs);
 
-                new addEventToDB().execute(evnt);
+                addToDB(evnt);
+                //new addEventToDB().execute(evnt);
 
                 updateRefresh.cancel(true);
                 startActivity(moveToInvite);
             }
         });
+    }
+
+    public void addToDB(Event ev)
+    {
+        new addEventToDB().execute(ev);
     }
 
     private void prepareIntent(Intent moveToInvite, Map<String, String> intentPairs) {

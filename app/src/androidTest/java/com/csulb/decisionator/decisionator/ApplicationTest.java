@@ -1,11 +1,8 @@
 package com.csulb.decisionator.decisionator;
 
 import android.app.Application;
-
 import android.location.Location;
-import android.net.Uri;
 import android.test.ApplicationTestCase;
-import android.test.UiThreadTest;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -14,15 +11,14 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanLis
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.FacebookSdk;
-import com.facebook.share.model.ShareLinkContent;
-import com.facebook.share.widget.ShareDialog;
 
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 
 
 /**
@@ -260,4 +256,58 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         assertNotNull(result);
         assertTrue(result.get(0) instanceof JSONObject);
     }
+
+    ////////////////////CODE COVERAGE BLOCK/////////////////////
+    //Sprint 1 Test Case 4
+    public void test_getCreateEvent() {
+        String eventID = "Test event";
+        String hostID = "russell-2345";
+        String hostName = "Russell Tang";
+        String attendees = "russell-2345";
+        String rsvpList = "russell-2345";
+        String topic = "Chinese Restaurant";
+        SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
+        Date currDate = new Date();
+        String dateCreated = date.format(currDate);
+        String category = "Location Based";
+        String viewedList = "russell-2345";
+        double latitude = 0.0;
+        double longitude = 0.0;
+
+        Event before = new Event();
+        before.setEventID(eventID);
+        before.setHostID(hostID);
+        before.setHostName(hostName);
+        before.setAttendees(attendees);
+        before.setRsvpList(rsvpList);
+        before.setTopic(topic);
+        before.setDateCreated(dateCreated);
+        before.setCategory(category);
+        before.setViewedList(viewedList);
+        before.setLatitude(latitude);
+        before.setLongitude(longitude);
+
+        Event dbEvent = new Event();
+        
+        mapper.save(before);
+
+        dbEvent = mapper.load(Event.class, before.getEventID());
+        Date newDate = new Date();
+        String dateUpdate = date.format(newDate);
+
+        assertEquals(dbEvent.getEventID(),eventID);
+        assertEquals(dbEvent.getAttendees(),attendees);
+        assertEquals(dbEvent.getCategory(),category);
+        assertEquals(dbEvent.getDateCreated(),dateCreated);
+        assertEquals(dbEvent.getHostName(),hostName);
+        assertEquals(dbEvent.getHostID(),hostID);
+        assertEquals(dbEvent.getLatitude(),latitude);
+        assertEquals(dbEvent.getLongitude(),longitude);
+        assertEquals(dbEvent.getRsvpList(),rsvpList);
+        assertEquals(dbEvent.getTopic(),topic);
+        assertEquals(dbEvent.getViewedList(),viewedList);
+        assertNotSame(dbEvent.getDateCreated(),dateUpdate);
+    }
+
+
 }
