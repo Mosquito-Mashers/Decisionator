@@ -103,7 +103,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         initializeListeners();
 
-        prepareIntent(createEventIntent, intentPairs);
+
     }
 
     private void initializeGlobals() {
@@ -160,6 +160,7 @@ public class LobbyActivity extends AppCompatActivity {
                 new getEvents().execute();
             }
         });
+        prepareIntent(createEventIntent, intentPairs);
     }
 
     private void prepareIntent(Intent createEventIntent, Map<String, String> intentPairs) {

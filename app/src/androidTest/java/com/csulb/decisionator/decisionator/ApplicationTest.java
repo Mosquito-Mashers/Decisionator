@@ -373,6 +373,28 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         mapper.delete(before);
         assertNull(mapper.load(uProfile.class,before.getUserID()));
+    }
 
+    public void test_MakeFinalDecision()
+    {
+        EventActivity uut = new EventActivity();
+        String expectedResult = "Wendys";
+        String actualResult = null;
+
+        ArrayList<String> sampleCloud = new ArrayList<String>();
+        ArrayList<String> places = new ArrayList<String>();
+        places.add("McDonalds");
+        places.add("Wendys");
+        places.add("Taco Bell");
+
+        sampleCloud.add("Wendys");
+        sampleCloud.add("Carls Junior");
+        sampleCloud.add("Jack In The Box");
+
+        uut.setPlacesCloud(sampleCloud);
+        actualResult = uut.makeFinalDecision(places);
+        assertNotNull(actualResult);
+
+        assertEquals(actualResult,expectedResult);
     }
 }

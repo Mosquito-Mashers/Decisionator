@@ -147,6 +147,15 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         initializeListeners();
     }
 
+
+    public ArrayList<String> getPlacesCloud() {
+        return placesCloud;
+    }
+
+    public void setPlacesCloud(ArrayList<String> placesCloud) {
+        this.placesCloud = placesCloud;
+    }
+
     private void initializeGlobals()
     {
         logoutIntent = new Intent(this, FacebookLogin.class);
