@@ -36,7 +36,6 @@
         <activity android:name=".LobbyActivity" >
         </activity>
         <activity android:name=".EventCreationActivity" />
-        <activity android:name=".LocationActivity" />
         <activity android:name=".InviteFriendsActivity" >
         </activity>
         <activity android:name=".EventActivity" >
