@@ -162,7 +162,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         this.recreate();
     }
 
-    private void populateIntent(Intent loginSuccess, Map<String, String> intentValues) {
+    public void populateIntent(Intent loginSuccess, Map<String, String> intentValues) {
         Iterator mapIter = intentValues.entrySet().iterator();
 
         while (mapIter.hasNext()) {
