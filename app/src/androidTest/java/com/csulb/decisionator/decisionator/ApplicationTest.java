@@ -28,6 +28,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     private CognitoCachingCredentialsProvider credentialsProvider;
     private AmazonDynamoDBClient ddbClient;
     private DynamoDBMapper mapper;
+    private String fbToken = "CAAHqhnf8GfgBAMmRT0g9sVZAfFvijZANLuaQgbEUxLzsNVdXxtNMxW4GguBh2lEBVI7iKUQX6HBPEt7g9uxGZCcmSJzalX2gJ12vHChsyKoyKAvukddQjbZB8gkpRy8XqCC8cqldWwWyFRmopH92ZAAIssGhvuHQ94aWISuXh5fgdEENEoJK4";
 
     public ApplicationTest() {
         super(Application.class);
@@ -43,10 +44,11 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         );
 
         Map<String, String> logins = new HashMap<>();
-        logins.put("graph.facebook.com", "CAAHqhnf8GfgBAMmRT0g9sVZAfFvijZANLuaQgbEUxLzsNVdXxtNMxW4GguBh2lEBVI7iKUQX6HBPEt7g9uxGZCcmSJzalX2gJ12vHChsyKoyKAvukddQjbZB8gkpRy8XqCC8cqldWwWyFRmopH92ZAAIssGhvuHQ94aWISuXh5fgdEENEoJK4");
+        logins.put("graph.facebook.com", fbToken);
         credentialsProvider.setLogins(logins);
         ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         mapper = new DynamoDBMapper(ddbClient);
+        FacebookSdk.setClientToken(fbToken);
     }
 
     //Sprint 1 Test Case 5 – User story #5
@@ -395,6 +397,18 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         actualResult = uut.makeFinalDecision(places);
         assertNotNull(actualResult);
 
-        assertEquals(actualResult,expectedResult);
+        assertEquals(actualResult, expectedResult);
+    }
+
+    public void test_initializeClasses()
+    {
+        Event ev = new Event();
+        EventActivity evAct = new EventActivity();
+        EventCreationActivity evCreAct = new EventCreationActivity();
+        FacebookLogin uut = new FacebookLogin();
+        InviteFriendsActivity inv = new InviteFriendsActivity();
+        LobbyActivity lob = new LobbyActivity();
+        uProfile uProf = new uProfile();
+        User user = new User();
     }
 }

@@ -125,6 +125,14 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         createFBCallback();
     }
 
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
+
     private void createFBCallback() {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -253,7 +261,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 		analyzeProfile(AccessToken.getCurrentAccessToken());
     }
 
-    private void analyzeProfile(AccessToken token) {
+    public void analyzeProfile(AccessToken token) {
         userProf = new uProfile();
         userProf.setUserID(currentUser.getUserID());
         GraphRequest movieRequest = GraphRequest.newGraphPathRequest(
@@ -398,7 +406,7 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     }
 
     //Asynchronous task to add a user to the db, updates user it they already exist
-    class addUserToDB extends AsyncTask<User, Void, Void> {
+    public class addUserToDB extends AsyncTask<User, Void, Void> {
 
         protected Void doInBackground(User... arg0) {
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
