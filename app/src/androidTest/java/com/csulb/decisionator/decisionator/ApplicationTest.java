@@ -1,6 +1,7 @@
 package com.csulb.decisionator.decisionator;
 
 import android.app.Application;
+import android.content.Intent;
 import android.location.Location;
 import android.test.ApplicationTestCase;
 
@@ -28,6 +29,8 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     private CognitoCachingCredentialsProvider credentialsProvider;
     private AmazonDynamoDBClient ddbClient;
     private DynamoDBMapper mapper;
+    private String fbToken = "CAAHqhnf8GfgBAMmRT0g9sVZAfFvijZANLuaQgbEUxLzsNVdXxtNMxW4GguBh2lEBVI7iKUQX6HBPEt7g9uxGZCcmSJzalX2gJ12vHChsyKoyKAvukddQjbZB8gkpRy8XqCC8cqldWwWyFRmopH92ZAAIssGhvuHQ94aWISuXh5fgdEENEoJK4";
+    private String poolID = "us-east-1:a74e3f8c-6c2b-40b6-89d5-46d4f870a6f2";
 
     public ApplicationTest() {
         super(Application.class);
@@ -38,15 +41,16 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         FacebookSdk.sdkInitialize(getContext());
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
                 getContext(),   /* get the context for the application */
-                "us-east-1:a74e3f8c-6c2b-40b6-89d5-46d4f870a6f2", // Identity Pool ID
+                poolID, // Identity Pool ID
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
 
         Map<String, String> logins = new HashMap<>();
-        logins.put("graph.facebook.com", "CAAHqhnf8GfgBAMmRT0g9sVZAfFvijZANLuaQgbEUxLzsNVdXxtNMxW4GguBh2lEBVI7iKUQX6HBPEt7g9uxGZCcmSJzalX2gJ12vHChsyKoyKAvukddQjbZB8gkpRy8XqCC8cqldWwWyFRmopH92ZAAIssGhvuHQ94aWISuXh5fgdEENEoJK4");
+        logins.put("graph.facebook.com", fbToken);
         credentialsProvider.setLogins(logins);
         ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         mapper = new DynamoDBMapper(ddbClient);
+        FacebookSdk.setClientToken(fbToken);
     }
 
     //Sprint 1 Test Case 5 – User story #5
@@ -395,6 +399,31 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         actualResult = uut.makeFinalDecision(places);
         assertNotNull(actualResult);
 
-        assertEquals(actualResult,expectedResult);
+        assertEquals(actualResult, expectedResult);
+    }
+
+    public void test_initializeClasses()
+    {
+        Event ev = new Event();
+        EventActivity evAct = new EventActivity();
+        EventCreationActivity evCreAct = new EventCreationActivity();
+        FacebookLogin uut = new FacebookLogin();
+        InviteFriendsActivity inv = new InviteFriendsActivity();
+        LobbyActivity lob = new LobbyActivity();
+        uProfile uProf = new uProfile();
+        User user = new User();
+    }
+
+    public void test_intentTransition()
+    {
+        Map<String, String> intentValues = new HashMap<String, String>();
+        Intent nextIntent = new Intent(getContext(), LobbyActivity.class);
+        FacebookLogin uut = new FacebookLogin();
+
+        intentValues.put(FacebookLogin.USER_F_NAME, "Russell");
+        intentValues.put(FacebookLogin.USER_ID, "russell-2345");
+        intentValues.put(FacebookLogin.POOL_ID, poolID);
+
+        uut.populateIntent(nextIntent,intentValues);
     }
 }
