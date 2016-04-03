@@ -12,5 +12,8 @@
     <style name="RoboAppTheme" parent="@android:style/Theme.Holo.Light.DarkActionBar">
         //<!-- Customize your theme here. -->
     </style>
+    <style name="CKButton" parent="android:style/Widget.Button">
+        <item name="android:background">@color/colorAccent</item>
+    </style>
 
 </resources>
