@@ -187,6 +187,11 @@ public class LobbyActivity extends AppCompatActivity {
     private class EventAdapter extends ArrayAdapter<Event> {
         private ArrayList<Event> events;
 
+        @Override
+        public int getCount(){
+            return this.events!=null ? this.events.size() : 0;
+        }
+
         public EventAdapter(Context context, int profilePictureResourceID, ArrayList<Event> eventList) {
             super(context, profilePictureResourceID, eventList);
             this.events = new ArrayList<Event>();
