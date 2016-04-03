@@ -37,6 +37,8 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
+import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -139,8 +141,15 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        int temp = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
         setContentView(R.layout.activity_event);
-        MapsInitializer.initialize(getApplicationContext());
+
+
+        if(GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext()) == 1)
+        {
+            MapsInitializer.initialize(getApplicationContext());
+        }
+
 
         initializeGlobals();
 
