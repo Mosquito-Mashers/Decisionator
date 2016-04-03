@@ -80,6 +80,8 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
     private LoginButton loginButton;
     private ProgressBar locationProg;
 
+
+
     //Amazon api items
     private CognitoCachingCredentialsProvider credentialsProvider;
 
@@ -215,10 +217,18 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
         return success;
     }
 
+    public CognitoCachingCredentialsProvider getCredentialsProvider() {
+        return credentialsProvider;
+    }
+
+    public void setCredentialsProvider(CognitoCachingCredentialsProvider credentialsProvider) {
+        this.credentialsProvider = credentialsProvider;
+    }
+
     private void initializeListeners() {
     }
 
-    private void validateAndProceed(Profile currUser) {
+    public void validateAndProceed(Profile currUser) {
         //Create a new user db object
         Date currDate = new Date();
 

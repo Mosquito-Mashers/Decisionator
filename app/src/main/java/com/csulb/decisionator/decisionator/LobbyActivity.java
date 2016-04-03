@@ -47,6 +47,9 @@ public class LobbyActivity extends AppCompatActivity {
     private String uID;
     private String welcomeString;
     private String lastLogin;
+
+
+
     private String poolID;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
     private CognitoCachingCredentialsProvider credentialsProvider;
@@ -126,7 +129,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
-                poolID, // Identity Pool ID
+                "us-east-1:a74e3f8c-6c2b-40b6-89d5-46d4f870a6f2", // Identity Pool ID
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
 
@@ -171,6 +174,14 @@ public class LobbyActivity extends AppCompatActivity {
             Map.Entry kvPair = (Map.Entry) mapIter.next();
             createEventIntent.putExtra(kvPair.getKey().toString(), kvPair.getValue().toString());
         }
+    }
+
+    public String getPoolID() {
+        return poolID;
+    }
+
+    public void setPoolID(String poolID) {
+        this.poolID = poolID;
     }
 
     private class EventAdapter extends ArrayAdapter<Event> {
