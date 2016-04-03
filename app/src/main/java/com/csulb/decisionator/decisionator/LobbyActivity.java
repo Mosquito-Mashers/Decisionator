@@ -163,6 +163,7 @@ public class LobbyActivity extends AppCompatActivity {
                 new getEvents().execute();
             }
         });
+
         prepareIntent(createEventIntent, intentPairs);
     }
 
@@ -186,10 +187,20 @@ public class LobbyActivity extends AppCompatActivity {
     private class EventAdapter extends ArrayAdapter<Event> {
         private ArrayList<Event> events;
 
+        @Override
+        public int getCount(){
+            return this.events!=null ? this.events.size() : 0;
+        }
+
         public EventAdapter(Context context, int profilePictureResourceID, ArrayList<Event> eventList) {
             super(context, profilePictureResourceID, eventList);
             this.events = new ArrayList<Event>();
             this.events.addAll(eventList);
+        }
+
+        public void removeEvent(int position) {
+            this.events.remove(position);
+            this.notifyDataSetChanged();
         }
 
         private class ViewHolder {
@@ -389,6 +400,17 @@ public class LobbyActivity extends AppCompatActivity {
             eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, res);
             eventList = (ListView) findViewById(R.id.eventList);
             eventList.setAdapter(eventAdapter);
+            SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(eventList, new SwipeDismissListViewTouchListener.OnDismissCallback() {
+                @Override
+                public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+                    for (int position : reverseSortedPositions) {
+                        eventAdapter.removeEvent(position);
+                    }
+                    eventAdapter.notifyDataSetChanged();
+                }
+            });
+
+            eventList.setOnTouchListener(touchListener);
             feedProg.setVisibility(View.GONE);
 
             updateRefresh = new checkUpdates();
