@@ -13,6 +13,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -213,6 +214,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         rsvp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ResultGraphFragment frag = new ResultGraphFragment();
+                FragmentManager fragmentManager = null;
+                fragmentManager.beginTransaction().add(R.id.resultGraphFragmentContainer, frag).commit();
+
                 Toast toast = Toast.makeText(getApplicationContext(), "You have RSVP'ed!", Toast.LENGTH_SHORT);
                 toast.show();
                 rsvp.setVisibility(View.GONE);
