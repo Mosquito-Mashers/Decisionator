@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -37,7 +38,6 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
-import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -71,6 +71,7 @@ import java.util.TreeMap;
 
 public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
 
+    protected final static String WORD_CLOUD_DATA = "com.csulb.decisionator.WORD_CLOUD_DATA";
     private FriendAdapter friendAdapter;
 
     private Intent enterEvent;
@@ -87,6 +88,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String poolID;
     private String uID;
     private String uName;
+    private String strForCloud = "";
 
     private User currUser;
 
@@ -106,6 +108,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private ListView invitedList;
     private Button rsvp;
     private Button share;
+    private ImageButton clearFragment;
+    private RelativeLayout fragContainer;
     private GoogleMap map;
     private ShareDialog shareDialog;
 
@@ -113,6 +117,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private checkUpdates updateRefresh = new checkUpdates();
     private Intent notificationIntent;
     private static final int notifyID = 111;
+
+    private ResultGraphFragment frag;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -132,6 +138,15 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             case R.id.lobby:
                 updateRefresh.cancel(true);
                 startActivity(lobbyIntent);
+                return true;
+            case R.id.chart:
+
+                Bundle fragArgs = new Bundle();
+                fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+                ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
+                getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
+                fragContainer.setVisibility(View.VISIBLE);
+                enableDisableView(findViewById(R.id.event_main_container), false);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -167,6 +182,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
     private void initializeGlobals()
     {
+        frag = new ResultGraphFragment();
+
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
 
@@ -202,11 +219,33 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         invitedList = (ListView) findViewById(R.id.invitedList);
         rsvp = (Button) findViewById(R.id.rsvpButton);
         share = (Button) findViewById(R.id.shareButton);
+        clearFragment = (ImageButton) findViewById(R.id.clear_Fragment);
+        fragContainer = (RelativeLayout) findViewById(R.id.fragment_Conatiner);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+
+        clearFragment.setImageResource(R.mipmap.clear_icon);
+
+        Bundle fragArgs = new Bundle();
+        fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+        ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
+        getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
+
+        fragContainer.setVisibility(View.GONE);
 
         shareDialog = new ShareDialog(this);
 
         updateRefresh.execute();
+    }
+
+    public void enableDisableView(View view, boolean enabled) {
+        view.setEnabled(enabled);
+        if ( view instanceof ViewGroup ) {
+            ViewGroup group = (ViewGroup)view;
+
+            for ( int idx = 0 ; idx < group.getChildCount() ; idx++ ) {
+                enableDisableView(group.getChildAt(idx), enabled);
+            }
+        }
     }
 
     private void initializeListeners() {
@@ -217,6 +256,19 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 toast.show();
                 rsvp.setVisibility(View.GONE);
                 new updateEvent().execute(eID);
+            }
+        });
+
+        clearFragment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Bundle fragArgs = new Bundle();
+                fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+                ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
+                getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
+                fragContainer.setVisibility(View.GONE);
+                enableDisableView(findViewById(R.id.event_main_container), true);
             }
         });
 
@@ -551,9 +603,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         }
     }
 
-    class populatePlaces extends AsyncTask<Void, Void, Void> {
+    class populatePlaces extends AsyncTask<Void, Void, String> {
         @Override
-        protected Void doInBackground(Void... params) {
+        protected String doInBackground(Void... params) {
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
@@ -570,11 +622,23 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                         User usr = allUsers.get(i);
                         if (item.getUserID().contentEquals(usr.getUserID())) {
                             Collections.addAll(placesCloud, item.getPlacesTags().split(","));
+                            strForCloud += item.getPlacesTags();
                         }
                     }
                 }
             }
-            return null;
+
+            return strForCloud;
+        }
+
+        @Override
+        protected void onPostExecute(String val)
+        {
+            Bundle fragArgs = new Bundle();
+            fragArgs.putString(WORD_CLOUD_DATA,val);
+            ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
+            getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
+
         }
     }
 

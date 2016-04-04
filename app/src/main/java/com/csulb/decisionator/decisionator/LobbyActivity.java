@@ -81,6 +81,8 @@ public class LobbyActivity extends AppCompatActivity {
         inflater.inflate(R.menu.actionbar_resources, menu);
         MenuItem item = menu.findItem(R.id.lobby);
         item.setVisible(false);
+        MenuItem itemChart = menu.findItem(R.id.chart);
+        itemChart.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
