@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/chart"
+        android:title="Graphs"
+        android:icon="@mipmap/chart_icon_colored"
+        app:showAsAction="always|withText"/>
+    <item
         android:id="@+id/lobby"
         android:title="Lobby"
         android:icon="@mipmap/lobby_icon"

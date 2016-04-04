@@ -13,7 +13,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -38,7 +38,6 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
-import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -107,6 +106,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private ListView invitedList;
     private Button rsvp;
     private Button share;
+    private ImageButton clearFragment;
+    private RelativeLayout fragContainer;
     private GoogleMap map;
     private ShareDialog shareDialog;
 
@@ -114,6 +115,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private checkUpdates updateRefresh = new checkUpdates();
     private Intent notificationIntent;
     private static final int notifyID = 111;
+
+    private ResultGraphFragment frag;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -133,6 +136,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             case R.id.lobby:
                 updateRefresh.cancel(true);
                 startActivity(lobbyIntent);
+                return true;
+            case R.id.chart:
+                getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in,
+                        android.R.anim.fade_out).show(frag).commit();
+                fragContainer.setVisibility(View.VISIBLE);
+                enableDisableView(findViewById(R.id.event_main_container), false);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -168,6 +177,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
     private void initializeGlobals()
     {
+        frag = new ResultGraphFragment();
+
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
 
@@ -203,25 +214,49 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         invitedList = (ListView) findViewById(R.id.invitedList);
         rsvp = (Button) findViewById(R.id.rsvpButton);
         share = (Button) findViewById(R.id.shareButton);
+        clearFragment = (ImageButton) findViewById(R.id.clear_Fragment);
+        fragContainer = (RelativeLayout) findViewById(R.id.fragment_Conatiner);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+
+        clearFragment.setImageResource(R.mipmap.clear_icon);
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in,
+                android.R.anim.fade_out).hide(frag).commit();
+        fragContainer.setVisibility(View.GONE);
 
         shareDialog = new ShareDialog(this);
 
         updateRefresh.execute();
     }
 
+    public void enableDisableView(View view, boolean enabled) {
+        view.setEnabled(enabled);
+        if ( view instanceof ViewGroup ) {
+            ViewGroup group = (ViewGroup)view;
+
+            for ( int idx = 0 ; idx < group.getChildCount() ; idx++ ) {
+                enableDisableView(group.getChildAt(idx), enabled);
+            }
+        }
+    }
+
     private void initializeListeners() {
         rsvp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ResultGraphFragment frag = new ResultGraphFragment();
-                FragmentManager fragmentManager = null;
-                fragmentManager.beginTransaction().add(R.id.resultGraphFragmentContainer, frag).commit();
-
                 Toast toast = Toast.makeText(getApplicationContext(), "You have RSVP'ed!", Toast.LENGTH_SHORT);
                 toast.show();
                 rsvp.setVisibility(View.GONE);
                 new updateEvent().execute(eID);
+            }
+        });
+
+        clearFragment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in,
+                        android.R.anim.fade_out).hide(frag).commit();
+                fragContainer.setVisibility(View.GONE);
+                enableDisableView(findViewById(R.id.event_main_container), true);
             }
         });
 
