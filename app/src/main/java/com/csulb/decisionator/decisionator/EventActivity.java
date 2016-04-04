@@ -71,6 +71,7 @@ import java.util.TreeMap;
 
 public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
 
+    protected final static String WORD_CLOUD_DATA = "com.csulb.decisionator.WORD_CLOUD_DATA";
     private FriendAdapter friendAdapter;
 
     private Intent enterEvent;
@@ -87,6 +88,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String poolID;
     private String uID;
     private String uName;
+    private String strForCloud = "";
 
     private User currUser;
 
@@ -138,8 +140,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 startActivity(lobbyIntent);
                 return true;
             case R.id.chart:
-                getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in,
-                        android.R.anim.fade_out).show(frag).commit();
+
+                Bundle fragArgs = new Bundle();
+                fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+                ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
+                getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
                 fragContainer.setVisibility(View.VISIBLE);
                 enableDisableView(findViewById(R.id.event_main_container), false);
                 return true;
@@ -219,8 +224,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
         clearFragment.setImageResource(R.mipmap.clear_icon);
-        getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in,
-                android.R.anim.fade_out).hide(frag).commit();
+
+        Bundle fragArgs = new Bundle();
+        fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+        ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
+        getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
+
         fragContainer.setVisibility(View.GONE);
 
         shareDialog = new ShareDialog(this);
@@ -253,8 +262,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         clearFragment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getSupportFragmentManager().beginTransaction().setCustomAnimations(android.R.anim.fade_in,
-                        android.R.anim.fade_out).hide(frag).commit();
+
+                Bundle fragArgs = new Bundle();
+                fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+                ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
+                getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
                 fragContainer.setVisibility(View.GONE);
                 enableDisableView(findViewById(R.id.event_main_container), true);
             }
@@ -591,9 +603,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         }
     }
 
-    class populatePlaces extends AsyncTask<Void, Void, Void> {
+    class populatePlaces extends AsyncTask<Void, Void, String> {
         @Override
-        protected Void doInBackground(Void... params) {
+        protected String doInBackground(Void... params) {
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
@@ -610,11 +622,23 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                         User usr = allUsers.get(i);
                         if (item.getUserID().contentEquals(usr.getUserID())) {
                             Collections.addAll(placesCloud, item.getPlacesTags().split(","));
+                            strForCloud += item.getPlacesTags();
                         }
                     }
                 }
             }
-            return null;
+
+            return strForCloud;
+        }
+
+        @Override
+        protected void onPostExecute(String val)
+        {
+            Bundle fragArgs = new Bundle();
+            fragArgs.putString(WORD_CLOUD_DATA,val);
+            ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
+            getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
+
         }
     }
 
