@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.csulb.decisionator.decisionator" >
+    package="com.csulb.decisionator.decisionator">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -11,9 +11,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        >
-        <activity android:name=".FacebookLogin" >
+        android:theme="@style/AppTheme">
+        <activity android:name=".FacebookLogin">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,24 +22,23 @@
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id"/>
+            android:value="@string/facebook_app_id" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCpKblHKkLlan0H33WsA_yPgkDe4K6-C38"/>
+            android:value="AIzaSyCpKblHKkLlan0H33WsA_yPgkDe4K6-C38" />
 
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <activity android:name=".LobbyActivity" >
-        </activity>
+        <activity android:name=".LobbyActivity"></activity>
         <activity android:name=".EventCreationActivity" />
-        <activity android:name=".InviteFriendsActivity" >
-        </activity>
-        <activity android:name=".EventActivity" >
-        </activity>
-
+        <activity android:name=".InviteFriendsActivity"></activity>
+        <activity android:name=".EventActivity"></activity>
+        <activity
+            android:name=".NavActivity"
+            android:label="@string/title_activity_nav"></activity>
     </application>
 
 </manifest>
