@@ -21,6 +21,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -108,6 +109,7 @@ public class FeedActivity extends AppCompatActivity {
         {
             RelativeLayout feedContainer;
             ImageView profilePic;
+            TextView name;
             Button viewButton;
         }
 
@@ -119,13 +121,13 @@ public class FeedActivity extends AppCompatActivity {
             if (convertView == null) {
                 LayoutInflater vi = (LayoutInflater) getSystemService(
                         Context.LAYOUT_INFLATER_SERVICE);
-                convertView = vi.inflate(R.layout.list_item_user_info, null);
+                convertView = vi.inflate(R.layout.list_item_feed_info, null);
 
                 holder = new ViewHolder();
-                holder.feedContainer = (RelativeLayout) convertView.findViewById(R.id.friendContainer);
+                holder.feedContainer = (RelativeLayout) convertView.findViewById(R.id.feedContainer);
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
                 holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
-
+                holder.name = (TextView) convertView.findViewById(R.id.userName);
                 convertView.setTag(holder);
             }
             else {

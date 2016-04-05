@@ -1,15 +1,79 @@
 [
     {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\gps_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\gps_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\logout_icon.png",
+        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\logout_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\final_loc_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\final_loc_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\chart_icon_colored.png",
+        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\chart_icon_colored.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\rand_q_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\rand_q_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\chart_icon_colored.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\chart_icon_colored.png"
+    },
+    {
+        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\star_icon.png",
+        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\star_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\final_resolved_loc_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\final_resolved_loc_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\rsvp_icon.png",
+        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\rsvp_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\host_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\host_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\chart_icon_black.png",
+        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\chart_icon_black.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\rsvp_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\rsvp_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\logout_icon_white.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\logout_icon_white.png"
+    },
+    {
+        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\unread_icon.png",
+        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\unread_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\unread_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\unread_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\final_resolved_loc_icon.png",
+        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\final_resolved_loc_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\host_icon.png",
+        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\host_icon.png"
+    },
+    {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\entertainment_icon.png",
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\entertainment_icon.png"
     },
     {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\clear_icon.png",
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\clear_icon.png"
-    },
-    {
-        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\logout_icon.png",
-        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\logout_icon.png"
     },
     {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\gps_icon.png",
@@ -20,40 +84,44 @@
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\food_icon.png"
     },
     {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\refresh_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\refresh_icon.png"
+    },
+    {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\refresh_icon.png",
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\refresh_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\star_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\star_icon.png"
     },
     {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\rand_q_icon.png",
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\rand_q_icon.png"
     },
     {
-        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\chart_icon_colored.png",
-        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\chart_icon_colored.png"
-    },
-    {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\new_event_icon.png",
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\new_event_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\person_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\person_icon.png"
     },
     {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\lobby_icon.png",
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\lobby_icon.png"
     },
     {
-        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\star_icon.png",
-        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\star_icon.png"
-    },
-    {
-        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\rsvp_icon.png",
-        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\rsvp_icon.png"
-    },
-    {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\ic_launcher.png",
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\ic_launcher.png"
     },
     {
-        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\chart_icon_black.png",
-        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\chart_icon_black.png"
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\food_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\food_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\lobby_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\lobby_icon.png"
     },
     {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\person_icon.png",
@@ -64,19 +132,31 @@
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\final_loc_icon.png"
     },
     {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\new_event_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\new_event_icon.png"
+    },
+    {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\logout_icon_white.png",
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\logout_icon_white.png"
     },
     {
-        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\unread_icon.png",
-        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\unread_icon.png"
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\entertainment_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\entertainment_icon.png"
     },
     {
-        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\final_resolved_loc_icon.png",
-        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\final_resolved_loc_icon.png"
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\logout_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\logout_icon.png"
     },
     {
-        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\host_icon.png",
-        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\host_icon.png"
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\chart_icon_black.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\chart_icon_black.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\ic_launcher.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\ic_launcher.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xxxhdpi-v4\\clear_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\mipmap-xxxhdpi\\clear_icon.png"
     }
 ]

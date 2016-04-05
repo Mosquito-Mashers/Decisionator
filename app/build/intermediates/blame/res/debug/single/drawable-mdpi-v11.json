@@ -2,5 +2,9 @@
     {
         "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi-v11\\notification_icon.png",
         "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\drawable-mdpi-v11\\notification_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi-v11\\notification_icon.png",
+        "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\drawable-mdpi-v11\\notification_icon.png"
     }
 ]
