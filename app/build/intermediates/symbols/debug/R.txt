@@ -740,7 +740,7 @@ int id fragment_Conatiner 0x7f0c0070
 int id friendContainer 0x7f0c00a5
 int id friendList 0x7f0c0081
 int id goToEvent 0x7f0c009b
-int id goToFriendFeed 0x7f0c009e
+int id goToFriendFeed 0x7f0c00a0
 int id home 0x7f0c0004
 int id homeAsUp 0x7f0c000d
 int id hostName 0x7f0c0098
@@ -850,8 +850,8 @@ int id unknown 0x7f0c002e
 int id up 0x7f0c0008
 int id useLogo 0x7f0c0012
 int id userCheckbox 0x7f0c00a6
-int id userName 0x7f0c00a0
-int id userProfilePicture 0x7f0c009f
+int id userName 0x7f0c009f
+int id userProfilePicture 0x7f0c009e
 int id viewFeed 0x7f0c0085
 int id welcomeText 0x7f0c0082
 int id wide 0x7f0c0028

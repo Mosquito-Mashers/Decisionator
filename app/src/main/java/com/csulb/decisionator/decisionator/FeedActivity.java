@@ -51,10 +51,10 @@ public class FeedActivity extends AppCompatActivity {
     private CognitoCachingCredentialsProvider credentialsProvider;
 
     private ListView feedList;
-    //private Button viewButton;
+    private Button view;
     private FriendAdapter friendAdapter;
     private ArrayList<User> peepFriends;
-
+    private ArrayList<User> allUsers = new ArrayList<User>();
     private User currUser;
     private static final int notifyID = 111;
     private checkUpdates updateRefresh = new checkUpdates();
@@ -74,7 +74,7 @@ public class FeedActivity extends AppCompatActivity {
         poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
         uName = fromLobby.getStringExtra(FacebookLogin.USER_F_NAME);
         peepFriends = new ArrayList<User>();
-
+        feedList = (ListView) findViewById(R.id.feedList);
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
                 poolID, // Identity Pool ID
@@ -107,7 +107,8 @@ public class FeedActivity extends AppCompatActivity {
 
         private class ViewHolder
         {
-            RelativeLayout feedContainer;
+            //RelativeLayout feedContainer;
+
             ImageView profilePic;
             TextView name;
             Button viewButton;
@@ -124,7 +125,7 @@ public class FeedActivity extends AppCompatActivity {
                 convertView = vi.inflate(R.layout.list_item_feed_info, null);
 
                 holder = new ViewHolder();
-                holder.feedContainer = (RelativeLayout) convertView.findViewById(R.id.feedContainer);
+                //holder.feedContainer = (RelativeLayout) convertView.findViewById(R.id.feedContainer);
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
                 holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
                 holder.name = (TextView) convertView.findViewById(R.id.userName);

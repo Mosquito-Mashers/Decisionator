@@ -2286,7 +2286,7 @@ containing a value of this type.
         public static final int friendContainer=0x7f0c00a5;
         public static final int friendList=0x7f0c0081;
         public static final int goToEvent=0x7f0c009b;
-        public static final int goToFriendFeed=0x7f0c009e;
+        public static final int goToFriendFeed=0x7f0c00a0;
         public static final int home=0x7f0c0004;
         public static final int homeAsUp=0x7f0c000d;
         public static final int hostName=0x7f0c0098;
@@ -2396,8 +2396,8 @@ containing a value of this type.
         public static final int up=0x7f0c0008;
         public static final int useLogo=0x7f0c0012;
         public static final int userCheckbox=0x7f0c00a6;
-        public static final int userName=0x7f0c00a0;
-        public static final int userProfilePicture=0x7f0c009f;
+        public static final int userName=0x7f0c009f;
+        public static final int userProfilePicture=0x7f0c009e;
         public static final int viewFeed=0x7f0c0085;
         public static final int welcomeText=0x7f0c0082;
         public static final int wide=0x7f0c0028;
