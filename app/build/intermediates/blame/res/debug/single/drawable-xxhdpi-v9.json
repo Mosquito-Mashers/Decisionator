@@ -1,9 +1,5 @@
 [
     {
-        "merged": "C:\\Users\\Ron\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\drawable-xxhdpi-v9\\notification_icon.png",
-        "source": "C:\\Users\\Ron\\Decisionator\\app\\src\\main\\res\\drawable-xxhdpi-v9\\notification_icon.png"
-    },
-    {
         "merged": "C:\\Users\\Ronal\\Decisionator\\app\\build\\intermediates\\res\\merged\\debug\\drawable-xxhdpi-v9\\notification_icon.png",
         "source": "C:\\Users\\Ronal\\Decisionator\\app\\src\\main\\res\\drawable-xxhdpi-v9\\notification_icon.png"
     }

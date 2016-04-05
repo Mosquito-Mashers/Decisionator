@@ -209,7 +209,7 @@ public class FeedActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<User> res)
         {
-            friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_user_info,res);
+            friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_feed_info,res);
 
             feedList = (ListView) findViewById(R.id.feedList);
             feedList.setAdapter(friendAdapter);
