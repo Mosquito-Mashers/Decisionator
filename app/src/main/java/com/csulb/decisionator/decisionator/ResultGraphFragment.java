@@ -2,6 +2,7 @@ package com.csulb.decisionator.decisionator;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 public class ResultGraphFragment extends Fragment {
 
     private String data_for_cloud = "";
+    private SpannableString wordCloud;
 
     public static ResultGraphFragment newInstance(Bundle b) {
         ResultGraphFragment fragment = new ResultGraphFragment();
@@ -29,8 +31,12 @@ public class ResultGraphFragment extends Fragment {
         if(incoming != null) {
             data_for_cloud = getArguments().getString(EventActivity.WORD_CLOUD_DATA);
 
+            WordCloudGenerator cloudGen = new WordCloudGenerator(data_for_cloud,null);
+            cloudGen.createFrequencyMap();
+            wordCloud = cloudGen.getSpannableString();
 
-            box.setText(data_for_cloud);
+
+            box.setText(wordCloud);
         }
         // Inflate the layout for this fragment
         return view;
