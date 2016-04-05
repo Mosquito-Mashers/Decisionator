@@ -32,11 +32,12 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <activity android:name=".LobbyActivity"></activity>
+        <activity android:name=".LobbyActivity" />
         <activity android:name=".EventCreationActivity" />
-        <activity android:name=".InviteFriendsActivity"></activity>
-        <activity android:name=".EventActivity"></activity>
-        <activity android:name=".FeedActivity"></activity>
+        <activity android:name=".InviteFriendsActivity" />
+        <activity android:name=".EventActivity" />
+        <activity android:name=".FeedActivity" />
+        <activity android:name=".friendEventActivity"></activity>
     </application>
 
 </manifest>

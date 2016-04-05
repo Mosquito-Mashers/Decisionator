@@ -61,6 +61,7 @@ public class LobbyActivity extends AppCompatActivity {
     private Intent logoutIntent;
     private Intent createEventIntent;
     private Intent notificationIntent;
+    private Intent viewFeedIntent;
 
     private TextView welcomeMessage;
     private Button createEvent;
@@ -68,6 +69,7 @@ public class LobbyActivity extends AppCompatActivity {
     private ProgressBar feedProg;
     private EventAdapter eventAdapter;
     private ListView eventList;
+    private Button viewFriendFeed;
     private checkUpdates updateRefresh = new checkUpdates();
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
@@ -116,6 +118,7 @@ public class LobbyActivity extends AppCompatActivity {
         loginSuccess = getIntent();
         createEventIntent = new Intent(this, EventCreationActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
+        viewFeedIntent = new Intent(this, FeedActivity.class);
         events = new ArrayList<Event>();
 
         //GUI assignments
@@ -123,7 +126,7 @@ public class LobbyActivity extends AppCompatActivity {
         createEvent = (Button) findViewById(R.id.createEvent);
         refreshEvents = (ImageButton) findViewById(R.id.refreshEvents);
         feedProg = (ProgressBar) findViewById(R.id.feedLoading);
-
+        viewFriendFeed = (Button) findViewById(R.id.viewFeed);
         //Global string values
         uName = loginSuccess.getStringExtra(FacebookLogin.USER_F_NAME);
         uID = loginSuccess.getStringExtra(FacebookLogin.USER_ID);
@@ -163,6 +166,13 @@ public class LobbyActivity extends AppCompatActivity {
             public void onClick(View v) {
                 feedProg.setVisibility(View.VISIBLE);
                 new getEvents().execute();
+            }
+        });
+
+        viewFriendFeed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(viewFeedIntent);
             }
         });
 

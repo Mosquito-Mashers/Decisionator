@@ -106,9 +106,9 @@ public class FeedActivity extends AppCompatActivity {
 
         private class ViewHolder
         {
-            RelativeLayout friendContainer;
+            RelativeLayout feedContainer;
             ImageView profilePic;
-            CheckBox name;
+            Button viewButton;
         }
 
         @Override
@@ -122,31 +122,24 @@ public class FeedActivity extends AppCompatActivity {
                 convertView = vi.inflate(R.layout.list_item_user_info, null);
 
                 holder = new ViewHolder();
-                holder.friendContainer = (RelativeLayout) convertView.findViewById(R.id.friendContainer);
+                holder.feedContainer = (RelativeLayout) convertView.findViewById(R.id.friendContainer);
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
-                holder.name = (CheckBox) convertView.findViewById(R.id.userCheckbox);
+                holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
 
                 convertView.setTag(holder);
             }
             else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            holder.friendContainer.setOnClickListener(new View.OnClickListener() {
+            //holder.feedContainer.setOnClickListener(new View.OnClickListener()
+            holder.viewButton.setOnClickListener(new View.OnClickListener()  {
                 @Override
                 public void onClick(View v) {
-                    RelativeLayout rtl = (RelativeLayout) v;
-                    CheckBox cb = (CheckBox) rtl.getChildAt(0);
-                    User user = friends.get(position);
-
-                    cb.performClick();
-                    if(peepFriends.contains(user))
-                    {
-                        peepFriends.remove(user);
-                    }
-                    else
-                    {
-                        peepFriends.add(user);
-                    }
+                    Intent toFriendFeed = new Intent(getApplicationContext(), friendEventActivity.class);
+                    toFriendFeed.putExtra(FacebookLogin.POOL_ID, poolID);
+                    toFriendFeed.putExtra(FacebookLogin.USER_ID, uID);
+                    toFriendFeed.putExtra(FacebookLogin.USER_F_NAME, uName);
+                    startActivity(toFriendFeed);
                 }
             });
 
@@ -159,7 +152,7 @@ public class FeedActivity extends AppCompatActivity {
             {
                 new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
             }
-            holder.name.setText(user.getfName() + " " + user.getlName());
+            holder.viewButton.setText(user.getfName() + " " + user.getlName());
 
             return convertView;
         }
