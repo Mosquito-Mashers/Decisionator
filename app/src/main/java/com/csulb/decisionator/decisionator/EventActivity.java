@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -89,6 +90,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String uID;
     private String uName;
     private String strForCloud = "";
+    private String globalCloud;
 
     private User currUser;
 
@@ -104,6 +106,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
     private ArrayList<String> invited = new ArrayList<String>();
     private ArrayList<String> rsvped = new ArrayList<String>();
+
+    private SpannableString wordCloud;
 
     private ListView invitedList;
     private Button rsvp;
@@ -636,6 +640,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         {
             Bundle fragArgs = new Bundle();
             fragArgs.putString(WORD_CLOUD_DATA,val);
+            globalCloud = val;
             ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
 
