@@ -17,10 +17,11 @@ public class WordCloudGenerator
 {
 
     private String rawText;
-    TreeMap<String,Integer> frequencyMap;
-    ArrayList<String> possibleChoices;
-    ArrayList<String> stopWordsList;
-    SpannableString cloudString;
+    private TreeMap<String,Integer> frequencyMap;
+    private Map sortedMap;
+    private ArrayList<String> possibleChoices;
+    private ArrayList<String> stopWordsList;
+    private SpannableString cloudString;
 
     /**
      * Constructors
@@ -232,6 +233,14 @@ public class WordCloudGenerator
         this.frequencyMap = frequencyMap;
     }
 
+    public Map getSortedMap() {
+        return sortedMap;
+    }
+
+    public void setSortedMap(Map sortedMap) {
+        this.sortedMap = sortedMap;
+    }
+
     public ArrayList<String> getPossibleChoices() {
         return possibleChoices;
     }
@@ -309,7 +318,7 @@ public class WordCloudGenerator
 
         //this.setFrequencyMap(this.sortByComparator(frequencyMap));
         // Calling the method sortByvalues
-        Map sortedMap = sortByValues(frequencyMap);
+        sortedMap = sortByValues(frequencyMap);
         Set set = sortedMap.entrySet();
 
         // Get an iterator
