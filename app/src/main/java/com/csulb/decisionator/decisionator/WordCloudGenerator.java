@@ -336,25 +336,6 @@ public class WordCloudGenerator
             cloudString.setSpan(new RelativeSizeSpan(size), currPointer, currPointer + len, 0);
             currPointer += len+1;
         }
-
-        maxSize = frequencyMap.firstEntry().getValue();
-        minSize = frequencyMap.lastEntry().getValue();
-
-/*
-        for(k = 0; k < frequencyMap.size(); k++)
-        {
-            tempSpan += frequencyMap.keySet().toArray()[k]+" ";
-        }
-        cloudString = new SpannableString(tempSpan);
-        for(k = 0; k < frequencyMap.size(); k++)
-        {
-            int len = frequencyMap.keySet().toArray()[k].toString().length();
-            int size = Integer.parseInt(frequencyMap.values().toArray()[k].toString());
-            cloudString.setSpan(new RelativeSizeSpan(size),currPointer,currPointer+len,0);
-            currPointer += size+1;
-        }
-        */
-
         return cloudString;
     }
 

@@ -3,6 +3,7 @@ package com.csulb.decisionator.decisionator;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.SpannableString;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ public class ResultGraphFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_result_graph, container, false);
         Bundle incoming = getArguments();
         TextView box = (TextView) view.findViewById(R.id.word_cloud);
+        box.setMovementMethod(new ScrollingMovementMethod());
         box.setText("SWAG");
         if(incoming != null) {
             data_for_cloud = getArguments().getString(EventActivity.WORD_CLOUD_DATA);
