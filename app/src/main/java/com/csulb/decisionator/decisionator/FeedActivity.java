@@ -40,7 +40,7 @@ public class FeedActivity extends AppCompatActivity {
     private Intent enterFriendFeed;
     private Intent lobbyIntent;
     private Intent fromLobby;
-    private Intent toFriendFeedIntent;
+    private Intent toFriendFeed;
 
     private String eID;
     private String uID;
@@ -71,7 +71,7 @@ public class FeedActivity extends AppCompatActivity {
     private void initializeGlobals() {
         fromLobby = getIntent();
         lobbyIntent = new Intent(this, LobbyActivity.class);
-        toFriendFeedIntent = new Intent(this, friendEventActivity.class);
+        toFriendFeed = new Intent(this, friendEventActivity.class);
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
         poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
         uName = fromLobby.getStringExtra(FacebookLogin.USER_F_NAME);
@@ -88,9 +88,9 @@ public class FeedActivity extends AppCompatActivity {
         lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uName);
-        toFriendFeedIntent.putExtra(FacebookLogin.POOL_ID, poolID);
-        toFriendFeedIntent.putExtra(FacebookLogin.USER_ID, friendID);
-        toFriendFeedIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+        toFriendFeed.putExtra(FacebookLogin.POOL_ID, poolID);
+        toFriendFeed.putExtra(FacebookLogin.USER_ID, uID);
+        toFriendFeed.putExtra(FacebookLogin.USER_F_NAME, uName);
 
         //viewButton = (Button) findViewById(R.id.viewButton);
         new getAllFriends().execute();
@@ -145,12 +145,11 @@ public class FeedActivity extends AppCompatActivity {
             User user = friends.get(position);
             user.getUserID();
             holder.name.setText(user.getfName()+ " "+ user.getlName());
-
-            toFriendFeedIntent.putExtra(user.getUserID(), friendID);
+            toFriendFeed.putExtra(user.getUserID(), friendID);
             holder.viewButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(toFriendFeedIntent);
+                    startActivity(toFriendFeed);
                 }
             });
             if(user.getProfilePic() == null) {
