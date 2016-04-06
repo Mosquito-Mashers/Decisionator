@@ -52,6 +52,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Start a new Event"/>
+                <Button
+                    android:id="@+id/viewFeed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="View Friends Events"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
