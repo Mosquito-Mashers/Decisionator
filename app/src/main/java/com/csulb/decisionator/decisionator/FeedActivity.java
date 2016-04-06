@@ -37,10 +37,9 @@ import java.util.Map;
 
 public class FeedActivity extends AppCompatActivity {
 
-    private Intent enterFeed;
+    private Intent enterFriendFeed;
     private Intent lobbyIntent;
     private Intent fromLobby;
-    private Intent friendEvent;
 
     private String eID;
     private String uID;
@@ -142,6 +141,7 @@ public class FeedActivity extends AppCompatActivity {
                     toFriendFeed.putExtra(FacebookLogin.POOL_ID, poolID);
                     toFriendFeed.putExtra(FacebookLogin.USER_ID, uID);
                     toFriendFeed.putExtra(FacebookLogin.USER_F_NAME, uName);
+                    //toFriendFeed.putExtra(User.userID, friendID);
                     startActivity(toFriendFeed);
                 }
             });

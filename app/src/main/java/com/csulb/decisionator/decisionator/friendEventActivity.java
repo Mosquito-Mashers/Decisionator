@@ -8,7 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 public class friendEventActivity extends AppCompatActivity {
 
     private Intent fromFeedActivity;
-    private Intent lobbyIntent;
+    private Intent friendViewIntent;
+
 
 
     @Override
