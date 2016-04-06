@@ -175,7 +175,7 @@ public class LobbyActivity extends AppCompatActivity {
                 startActivity(viewFeedIntent);
             }
         });
-        prepareIntent(viewFeedIntent, intentPairs);
+        //prepareIntent(viewFeedIntent, intentPairs);
         prepareIntent(createEventIntent, intentPairs);
     }
 

@@ -9,6 +9,9 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
  */
 @DynamoDBTable(tableName = "Users")
 public class User {
+
+    private String friendID;
+    private String friendName;
     private String userID;
     private String fName;
     private String lName;
@@ -16,6 +19,21 @@ public class User {
     private String profilePic;
     private double latitude;
     private double longitude;
+
+
+    @DynamoDBHashKey(attributeName = "friendID")
+    public String getFriendID() {
+        return friendID;
+    }
+
+    public void setFriendID(String friendID) {
+        this.friendID = friendID;
+    }
+
+    @DynamoDBAttribute(attributeName = "friendName")
+    public String getFriendName() {
+        return friendName;
+    }
 
     @DynamoDBHashKey(attributeName = "userID")
     public String getUserID() {

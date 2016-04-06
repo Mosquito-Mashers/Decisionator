@@ -36,17 +36,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FeedActivity extends AppCompatActivity {
+    protected final static String FRIEND_ID = "com.csulb.decisionator.FRIEND_ID";
+    protected final static String FRIEND_F_NAME = "com.csulb.decisionator.FRIEND_F_NAME";
 
-    private Intent enterFriendFeed;
     private Intent lobbyIntent;
     private Intent fromLobby;
-    private Intent toFriendFeed;
+    private Intent toFriendFeedIntent;
 
     private String eID;
     private String uID;
     private String uName;
     private String poolID;
-    private String friendID;
+    private String fID;
+    private String friendName;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
     private Context context;
     private CognitoCachingCredentialsProvider credentialsProvider;
@@ -58,7 +60,7 @@ public class FeedActivity extends AppCompatActivity {
     private ArrayList<User> allUsers = new ArrayList<User>();
     private User currUser;
     private static final int notifyID = 111;
-    private checkUpdates updateRefresh = new checkUpdates();
+   // private checkUpdates updateRefresh = new checkUpdates();
     private Intent notificationIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +73,7 @@ public class FeedActivity extends AppCompatActivity {
     private void initializeGlobals() {
         fromLobby = getIntent();
         lobbyIntent = new Intent(this, LobbyActivity.class);
-        toFriendFeed = new Intent(this, friendEventActivity.class);
+        toFriendFeedIntent = new Intent(this, friendEventActivity.class);
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
         poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
         uName = fromLobby.getStringExtra(FacebookLogin.USER_F_NAME);
@@ -88,13 +90,13 @@ public class FeedActivity extends AppCompatActivity {
         lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uName);
-        toFriendFeed.putExtra(FacebookLogin.POOL_ID, poolID);
-        toFriendFeed.putExtra(FacebookLogin.USER_ID, uID);
-        toFriendFeed.putExtra(FacebookLogin.USER_F_NAME, uName);
+        toFriendFeedIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        toFriendFeedIntent.putExtra(FacebookLogin.USER_ID, uID);
+        toFriendFeedIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
         //viewButton = (Button) findViewById(R.id.viewButton);
         new getAllFriends().execute();
-        updateRefresh.execute();
+
     }
 
     private void initializeListenters() {
@@ -144,12 +146,13 @@ public class FeedActivity extends AppCompatActivity {
 
             User user = friends.get(position);
             user.getUserID();
-            holder.name.setText(user.getfName()+ " "+ user.getlName());
-            toFriendFeed.putExtra(user.getUserID(), friendID);
+            holder.name.setText(user.getfName() + " " + user.getlName());
+            toFriendFeedIntent.putExtra(user.getFriendID(), fID);
+            toFriendFeedIntent.putExtra(user.getFriendName(), friendName);
             holder.viewButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(toFriendFeed);
+                    startActivity(toFriendFeedIntent);
                 }
             });
             if(user.getProfilePic() == null) {
@@ -218,134 +221,6 @@ public class FeedActivity extends AppCompatActivity {
 
             feedList = (ListView) findViewById(R.id.feedList);
             feedList.setAdapter(friendAdapter);
-        }
-    }
-    class checkUpdates extends AsyncTask<Void, Void, PaginatedScanList<Event>> {
-
-        private boolean isRunning;
-
-        @Override
-        protected void onPreExecute()
-        {
-            isRunning = true;
-        }
-
-        @Override
-        protected PaginatedScanList<Event> doInBackground(Void... params) {
-/*
-            try{
-                Thread.sleep(15000); //sleep for 15 seconds
-            }
-            catch(InterruptedException e){
-                e.getMessage();
-            }
-            */
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-            PaginatedScanList<Event> result = mapper.scan(Event.class, scanExpression);
-
-            notificationIntent = new Intent(getApplicationContext(), LobbyActivity.class);
-            notificationIntent.putExtra(FacebookLogin.POOL_ID, poolID);
-            notificationIntent.putExtra(FacebookLogin.USER_ID, uID);
-            notificationIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
-
-            if (isCancelled()) return null;
-
-            if (result != null) {
-                return result;
-            } else {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(PaginatedScanList<Event> res) {
-            isRunning = false;
-            PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            Notification nb =
-                    new Notification.Builder(getApplicationContext())
-                            .setSmallIcon(R.drawable.notification_icon)
-                            .setContentTitle("Decisionator")
-                            .setContentText("You have new events on Decisionator!")
-                            .setAutoCancel(true)
-                            .setContentIntent(pendIntent).build();
-
-            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-            //nm.notify(notifyID, nb);
-
-            //execute every 30s
-
-            int k;
-            int m;
-            int j;
-            String[] attendees;
-            String[] viewed;
-            boolean notViewed = false;
-            boolean isAttendee = false;
-            if (res != null) {
-                for (k = 0; k < res.size(); k++) {
-
-                    if(notViewed)
-                    {
-                        break;
-                    }
-                    Event item = res.get(k);
-                    if(item.getViewedList() != null)
-                    {
-                        viewed = item.getViewedList().split(",");
-                    }
-                    else
-                    {
-                        viewed = null;
-                    }
-
-                    if(item.getAttendees() != null)
-                    {
-                        attendees = item.getAttendees().split(",");
-                    }
-                    else
-                    {
-                        attendees = null;
-                    }
-
-
-                    if (viewed != null && attendees != null) {
-                        for (m = 0; m < attendees.length; m++) {
-                            if (uID.contentEquals(attendees[m])) {
-
-                                isAttendee = true;
-                                notViewed = true;
-                                break;
-                            }
-                        }
-
-                        for (j = 0; j < viewed.length; j++) {
-                            if (uID.contentEquals(viewed[j]) && isAttendee) {
-
-                                notViewed = false;
-                                break;
-                            }
-                        }
-                    } else if (viewed == null && attendees != null) {
-                        for (m = 0; m < attendees.length; m++) {
-                            if (uID.contentEquals(attendees[m])) {
-
-                                notViewed = true;
-                                break;
-                                //Send notification
-                            }
-                        }
-                    }
-                }
-
-                if (notViewed) {
-                    nm.notify(notifyID, nb);
-                    return;
-                }
-            }
         }
     }
 
