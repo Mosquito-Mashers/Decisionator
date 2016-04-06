@@ -112,6 +112,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private ListView invitedList;
     private Button rsvp;
     private Button share;
+    private Button joinEvent;
     private ImageButton clearFragment;
     private RelativeLayout fragContainer;
     private GoogleMap map;
@@ -223,6 +224,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         invitedList = (ListView) findViewById(R.id.invitedList);
         rsvp = (Button) findViewById(R.id.rsvpButton);
         share = (Button) findViewById(R.id.shareButton);
+        joinEvent = (Button) findViewById(R.id.joinEvent);
         clearFragment = (ImageButton) findViewById(R.id.clear_Fragment);
         fragContainer = (RelativeLayout) findViewById(R.id.fragment_Conatiner);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
