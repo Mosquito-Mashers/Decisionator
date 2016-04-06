@@ -221,48 +221,8 @@ public class WordCloudGenerator
         return rawText;
     }
 
-    public void setRawText(String rawText) {
-        this.rawText = rawText;
-    }
-
-    public TreeMap<String, Integer> getFrequencyMap() {
-        return frequencyMap;
-    }
-
-    public void setFrequencyMap(TreeMap<String, Integer> frequencyMap) {
-        this.frequencyMap = frequencyMap;
-    }
-
     public Map getSortedMap() {
         return sortedMap;
-    }
-
-    public void setSortedMap(Map sortedMap) {
-        this.sortedMap = sortedMap;
-    }
-
-    public ArrayList<String> getPossibleChoices() {
-        return possibleChoices;
-    }
-
-    public void setPossibleChoices(ArrayList<String> possibleChoices) {
-        this.possibleChoices = possibleChoices;
-    }
-
-    public ArrayList<String> getStopWordsList() {
-        return stopWordsList;
-    }
-
-    public void setStopWordsList(ArrayList<String> stopWordsList) {
-        this.stopWordsList = stopWordsList;
-    }
-
-    public SpannableString getCloudString() {
-        return cloudString;
-    }
-
-    public void setCloudString(SpannableString cloudString) {
-        this.cloudString = cloudString;
     }
 
     /**
