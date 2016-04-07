@@ -9,6 +9,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -46,6 +49,8 @@ public class UsersHistory extends AppCompatActivity {
     private ProgressBar historyFeedProg;
     private Intent fromLobby;
     private Intent notificationIntent;
+    private Intent lobbyIntent;
+    private Intent logoutIntent;
     private EventAdapter eventAdapter;
     private checkUpdates updateRefresh = new checkUpdates();
 
@@ -56,6 +61,30 @@ public class UsersHistory extends AppCompatActivity {
     private ArrayList<Event> events = new ArrayList<Event>();
     private ArrayList<User> users = new ArrayList<User>();
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        MenuItem itemChart = menu.findItem(R.id.chart);
+        itemChart.setVisible(false);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+            case R.id.lobby:
+                startActivity(lobbyIntent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +98,8 @@ public class UsersHistory extends AppCompatActivity {
     private void initializeGlobals() {
 
         fromLobby = getIntent();
+        lobbyIntent = new Intent(this, LobbyActivity.class);
+        logoutIntent = new Intent(this, FacebookLogin.class);
 
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
         poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
@@ -81,6 +112,10 @@ public class UsersHistory extends AppCompatActivity {
         welcomeText = (TextView) findViewById(R.id.test);
         historyFeedProg = (ProgressBar) findViewById(R.id.historyFeedProg);
         historyFeedProg.setVisibility(View.VISIBLE);
+
+        lobbyIntent.putExtra(FacebookLogin.USER_ID, uID);
+        lobbyIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        lobbyIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
         welcomeText.setText("Welcome " + uName + "!");
         new getAllUsers().execute();
