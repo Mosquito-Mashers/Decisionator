@@ -387,8 +387,8 @@ public class LobbyActivity extends AppCompatActivity {
 
             int k;
             int m;
-            int count = 0;
-            for (k = 0; count < 5; k++) {
+
+            for (k = 0; k < result.size(); k++) {
                 Event item = result.get(k);
                 if (item.getAttendees() != null) {
 
@@ -396,14 +396,12 @@ public class LobbyActivity extends AppCompatActivity {
                     for (m = 0; m < attens.length; m++) {
                         if (attens[m].contentEquals(uID)) {
                             temp.add(item);
-                            count++;
                             break;
                         }
                     }
 
                     if (item.getHostID().contentEquals(uID)) {
                         temp.add(item);
-                        count++;
                     }
                 }
             }
@@ -412,7 +410,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ArrayList<Event> res) {
-            ArrayList<Event> beforeRes = res;
+            ArrayList<Event> recentList = res;
 
             Collections.sort(res, new Comparator<Event>() {
                 @Override
@@ -433,7 +431,15 @@ public class LobbyActivity extends AppCompatActivity {
                     return result;
                 }
             });
-            eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, res);
+
+            for(int k = 0; k < 10; k++)
+            {
+                if(res.get(k) != null) {
+                    recentList.add(res.get(k));
+                }
+            }
+
+            eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, recentList);
             eventList = (ListView) findViewById(R.id.eventList);
             eventList.setAdapter(eventAdapter);
             SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(eventList, new SwipeDismissListViewTouchListener.OnDismissCallback() {
