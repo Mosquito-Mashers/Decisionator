@@ -1,9 +1,5 @@
 package com.csulb.decisionator.decisionator;
 
-import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,10 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -145,13 +139,18 @@ public class FeedActivity extends AppCompatActivity {
             }
 
             User user = friends.get(position);
-            user.getUserID();
+
+
+            final String usersID = user.getUserID();
+            final String usersFirstName = user.getfName();
             holder.name.setText(user.getfName() + " " + user.getlName());
-            toFriendFeedIntent.putExtra(FRIEND_ID, user.getUserID());
-            toFriendFeedIntent.putExtra(FRIEND_F_NAME, user.getfName());
+
             holder.viewButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    toFriendFeedIntent.putExtra(FRIEND_ID, usersID);
+                    toFriendFeedIntent.putExtra(FRIEND_F_NAME, usersFirstName);
+
                     startActivity(toFriendFeedIntent);
                 }
             });
