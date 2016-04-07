@@ -310,13 +310,13 @@ public class friendEventActivity extends AppCompatActivity {
 
                     String[] attens = item.getAttendees().split(",");
                     for (m = 0; m < attens.length; m++) {
-                        if (attens[m].contentEquals(uID)) {
+                        if (attens[m].contentEquals(fID)) {
                             temp.add(item);
                             break;
                         }
                     }
 
-                    if (item.getHostID().contentEquals(uID)) {
+                    if (item.getHostID().contentEquals(fID)) {
                         temp.add(item);
                     }
                 }
