@@ -19,6 +19,12 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:layout_weight="3">
+            <Button
+                android:id="@+id/joinEvent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Join this event!"
+                android:visibility="gone"/>
             <fragment
                 android:id="@+id/map"
                 android:layout_width="match_parent"
@@ -72,7 +78,8 @@
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true">
+        android:layout_centerVertical="true"
+        tools:layout="@layout/fragment_result_graph">
     </fragment>
     </RelativeLayout>
 
