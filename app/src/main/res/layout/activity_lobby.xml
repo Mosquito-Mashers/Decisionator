@@ -39,6 +39,16 @@
                             android:background="@color/transparent"
                             android:textSize="10dp"
                             android:text="Refresh"/>
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/history"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignBottom="@+id/refreshEvents"
+                        android:src="@drawable/abc_btn_check_to_on_mtrl_015" />
                 </RelativeLayout>
             </LinearLayout>
             <LinearLayout

@@ -40,6 +40,9 @@
         </activity>
         <activity android:name=".EventActivity" >
         </activity>
+        <activity android:name=".UsersHistory" >
+        </activity>
+        
 
     </application>
 

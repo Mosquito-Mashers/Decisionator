@@ -61,6 +61,7 @@ public class LobbyActivity extends AppCompatActivity {
     private Intent logoutIntent;
     private Intent createEventIntent;
     private Intent notificationIntent;
+    private Intent createUsersHistoryIntent;
 
     private TextView welcomeMessage;
     private Button createEvent;
@@ -68,6 +69,7 @@ public class LobbyActivity extends AppCompatActivity {
     private ProgressBar feedProg;
     private EventAdapter eventAdapter;
     private ListView eventList;
+    private  ImageButton usersHistory;
     private checkUpdates updateRefresh = new checkUpdates();
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
@@ -117,12 +119,14 @@ public class LobbyActivity extends AppCompatActivity {
         createEventIntent = new Intent(this, EventCreationActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
         events = new ArrayList<Event>();
+        createUsersHistoryIntent = new Intent(this, UsersHistory.class);
 
         //GUI assignments
         welcomeMessage = (TextView) findViewById(R.id.welcomeText);
         createEvent = (Button) findViewById(R.id.createEvent);
         refreshEvents = (ImageButton) findViewById(R.id.refreshEvents);
         feedProg = (ProgressBar) findViewById(R.id.feedLoading);
+        usersHistory = (ImageButton) findViewById(R.id.history);
 
         //Global string values
         uName = loginSuccess.getStringExtra(FacebookLogin.USER_F_NAME);
@@ -163,6 +167,14 @@ public class LobbyActivity extends AppCompatActivity {
             public void onClick(View v) {
                 feedProg.setVisibility(View.VISIBLE);
                 new getEvents().execute();
+            }
+        });
+
+        usersHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateRefresh.cancel(true);
+                startActivity(createUsersHistoryIntent);
             }
         });
 
@@ -356,7 +368,8 @@ public class LobbyActivity extends AppCompatActivity {
 
             int k;
             int m;
-            for (k = 0; k < result.size(); k++) {
+            int count = 0;
+            for (k = 0; count < 5; k++) {
                 Event item = result.get(k);
                 if (item.getAttendees() != null) {
 
@@ -364,12 +377,14 @@ public class LobbyActivity extends AppCompatActivity {
                     for (m = 0; m < attens.length; m++) {
                         if (attens[m].contentEquals(uID)) {
                             temp.add(item);
+                            count++;
                             break;
                         }
                     }
 
                     if (item.getHostID().contentEquals(uID)) {
                         temp.add(item);
+                        count++;
                     }
                 }
             }
