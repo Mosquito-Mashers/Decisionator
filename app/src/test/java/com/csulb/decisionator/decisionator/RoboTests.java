@@ -1,29 +1,23 @@
 package com.csulb.decisionator.decisionator;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
-import com.facebook.Profile;
-import com.facebook.login.widget.LoginButton;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
-import org.robolectric.internal.Shadow;
-import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowApplication;
 
 import java.util.HashMap;
@@ -116,4 +110,48 @@ public class RoboTests extends TestCase{
         assertTrue(true);
     }
 
+    @Test
+    public void testEventCreate(){
+        ShadowApplication shadAct = ShadowApplication.getInstance().getShadowApplication();
+        Intent intent = new Intent(shadAct.getApplicationContext(), EventCreationActivity.class);
+        intent.putExtra(FacebookLogin.USER_F_NAME, "Russell");
+        intent.putExtra(FacebookLogin.USER_ID, "1253227638023946");
+        intent.putExtra(FacebookLogin.POOL_ID, poolID);
+        EventCreationActivity evCreatAct = Robolectric.buildActivity(EventCreationActivity.class).withIntent(intent).create().get();
+
+        RadioButton locationBased = (RadioButton) evCreatAct.findViewById(R.id.radioLocation);
+        RadioButton foodBased = (RadioButton) evCreatAct.findViewById(R.id.radioFood);
+        RadioButton entertainmentBased = (RadioButton) evCreatAct.findViewById(R.id.radioEntertainment);
+
+
+        locationBased.performClick();
+
+        TextView helperText = (TextView) evCreatAct.findViewById(R.id.topicPredicate);
+
+        String text = helperText.getText().toString();
+
+        assertEquals(text, "Lets go to a...");
+        ////////////////
+        foodBased.performClick();
+
+        text = helperText.getText().toString();
+
+        assertEquals(text, "I'm feeling...");
+        /////////////////
+        entertainmentBased.performClick();
+
+        text = helperText.getText().toString();
+
+        assertEquals(text, "Lets go to a...");
+
+        EditText topic = (EditText) evCreatAct.findViewById(R.id.eventTopic);
+
+        topic.performClick();
+        evCreatAct.hideKeyboard();
+        topic.setText("Thai Restaurant");
+
+        Button invite = (Button) evCreatAct.findViewById(R.id.inviteFriendsBtn);
+
+        invite.performClick();
+    }
 }
