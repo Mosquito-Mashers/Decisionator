@@ -41,8 +41,8 @@ public class UsersHistory extends AppCompatActivity {
     private String poolID;
     private String uName;
     private CognitoCachingCredentialsProvider credentialsProvider;
-    private TextView test;
-    private ListView list;
+    private TextView welcomeText;
+    private ListView historyList;
     private ProgressBar historyFeedProg;
     private Intent fromLobby;
     private Intent notificationIntent;
@@ -54,6 +54,7 @@ public class UsersHistory extends AppCompatActivity {
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
     private ArrayList<Event> events = new ArrayList<Event>();
+    private ArrayList<User> users = new ArrayList<User>();
 
 
     @Override
@@ -77,11 +78,12 @@ public class UsersHistory extends AppCompatActivity {
                 "us-east-1:a74e3f8c-6c2b-40b6-89d5-46d4f870a6f2", // Identity Pool ID
                 Regions.US_EAST_1           /* Region for your identity pool--US_EAST_1 or EU_WEST_1*/
         );
-        test = (TextView) findViewById(R.id.test);
+        welcomeText = (TextView) findViewById(R.id.test);
         historyFeedProg = (ProgressBar) findViewById(R.id.historyFeedProg);
         historyFeedProg.setVisibility(View.VISIBLE);
 
-        test.setText("Welcome");
+        welcomeText.setText("Welcome " + uName + "!");
+        new getAllUsers().execute();
         new getEvents().execute();
     }
 
@@ -142,6 +144,99 @@ public class UsersHistory extends AppCompatActivity {
             final Event event = events.get(position);
             holder.newEvent.setVisibility(View.GONE);
             holder.newEvText.setVisibility(View.GONE);
+
+            if (event.getViewedList() == null) {
+                holder.newEvent.setVisibility(View.VISIBLE);
+                holder.newEvText.setVisibility(View.VISIBLE);
+                holder.newEvent.setImageResource(R.mipmap.new_event_icon);
+                holder.newEvText.setText("NEW!");
+            } else {
+
+                String viewed[] = event.getViewedList().split(",");
+                boolean alreadyViewed = false;
+                for (int k = 0; k < viewed.length; k++) {
+
+                    if (viewed[k].contentEquals(uID)) {
+                        alreadyViewed = true;
+                        break;
+                    }
+                }
+                if (!alreadyViewed) {
+                    holder.newEvent.setVisibility(View.VISIBLE);
+                    holder.newEvText.setVisibility(View.VISIBLE);
+                    holder.newEvent.setImageResource(R.mipmap.new_event_icon);
+                    holder.newEvText.setText("NEW!");
+                }
+            }
+            holder.eventButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new updateViewedList().execute(event.getEventID());
+                    Intent gotoEvent = new Intent(getApplicationContext(), EventActivity.class);
+
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_ID, event.getEventID());
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_TOPIC, event.getTopic());
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_INVITES, event.getAttendees());
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_HOST_NAME, event.getHostName());
+                    gotoEvent.putExtra(EventCreationActivity.EVENT_CATEGORY, event.getCategory());
+                    gotoEvent.putExtra(FacebookLogin.POOL_ID, poolID);
+                    gotoEvent.putExtra(FacebookLogin.USER_ID, uID);
+                    gotoEvent.putExtra(FacebookLogin.USER_F_NAME, uName);
+                    updateRefresh.cancel(true);
+                    startActivity(gotoEvent);
+                }
+            });
+
+            String cat = event.getCategory();
+
+            holder.eventTopic.setText("The topic is: " + event.getTopic());
+
+            String attenList[] = event.getAttendees().split(",");
+            String attenName = "";
+            int count = 0;
+
+            for (int m = 0; m < users.size(); m++) {
+                for (int j = 0; j < attenList.length; j++) {
+                    if (users.get(m).getUserID().contentEquals(attenList[j])) {
+                        if (count < 3) {
+                            if (count != 2) {
+                                attenName += users.get(m).getfName() + " " + users.get(m).getlName() + ", ";
+                            } else {
+                                attenName += users.get(m).getfName() + " " + users.get(m).getlName() + " ";
+                            }
+                        }
+                        count++;
+                    }
+                }
+            }
+
+            if (count > 3) {
+                attenName += "+ " + (count - 2) + " more";
+            }
+            if (count == 0) {
+                attenName = "No one";
+            }
+            holder.attendeeList.setText(attenName);
+
+            holder.hostName.setText(event.getHostName());
+
+            if (cat == null) {
+                holder.eventPic.setImageResource(R.mipmap.gps_icon);
+            } else {
+                cat = cat.toLowerCase();
+
+                if (cat.contains("location")) {
+                    holder.eventPic.setImageResource(R.mipmap.gps_icon);
+                } else if (cat.contains("food")) {
+                    holder.eventPic.setImageResource(R.mipmap.food_icon);
+                } else if (cat.contains("entertainment")) {
+                    holder.eventPic.setImageResource(R.mipmap.entertainment_icon);
+                } else if (cat.contains("random")) {
+                    holder.eventPic.setImageResource(R.mipmap.rand_q_icon);
+                } else {
+                    holder.eventPic.setImageResource(R.mipmap.gps_icon);
+                }
+            }
 
             holder.eventTopic.setTag(event);
 
@@ -205,9 +300,9 @@ public class UsersHistory extends AppCompatActivity {
                 }
             });
             eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, res);
-            list = (ListView) findViewById(R.id.list);
-            list.setAdapter(eventAdapter);
-            SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(list, new SwipeDismissListViewTouchListener.OnDismissCallback() {
+            historyList = (ListView) findViewById(R.id.list);
+            historyList.setAdapter(eventAdapter);
+            SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(historyList, new SwipeDismissListViewTouchListener.OnDismissCallback() {
                 @Override
                 public void onDismiss(ListView listView, int[] reverseSortedPositions) {
                     for (int position : reverseSortedPositions) {
@@ -217,15 +312,15 @@ public class UsersHistory extends AppCompatActivity {
                 }
             });
 
-            list.setOnTouchListener(touchListener);
+            historyList.setOnTouchListener(touchListener);
             historyFeedProg.setVisibility(View.GONE);
 
             updateRefresh = new checkUpdates();
 
             updateRefresh.execute();
 
-            list = (ListView) findViewById(R.id.list);
-            list.setAdapter(eventAdapter);
+            historyList = (ListView) findViewById(R.id.list);
+            historyList.setAdapter(eventAdapter);
         }
 
     }
@@ -356,6 +451,60 @@ public class UsersHistory extends AppCompatActivity {
                     return;
                 }
             }
+        }
+    }
+
+    class updateViewedList extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            Event result = mapper.load(Event.class, params[0]);
+            Event temp;
+            String[] existingViews;
+            int k;
+            boolean existsInList = false;
+
+            if (result != null) {
+                temp = result;
+                if (result.getViewedList() == null) {
+                    temp.setViewedList(uID + ",");
+                } else {
+                    existingViews = temp.getViewedList().split(",");
+                    for (k = 0; k < existingViews.length; k++) {
+                        if (existingViews[k].contentEquals(uID)) {
+                            existsInList = true;
+                            break;
+                        }
+                    }
+                    if (!existsInList) {
+                        temp.setViewedList(temp.getViewedList() + uID + ",");
+                    }
+                }
+                mapper.save(temp);
+            }
+            return null;
+        }
+    }
+
+    class getAllUsers extends AsyncTask<Void, Void, PaginatedScanList<User>> {
+
+        @Override
+        protected PaginatedScanList<User> doInBackground(Void... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<User> result = mapper.scan(User.class, scanExpression);
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(PaginatedScanList<User> res) {
+            users.addAll(res);
         }
     }
 
