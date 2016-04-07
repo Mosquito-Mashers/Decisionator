@@ -229,6 +229,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         fragContainer = (RelativeLayout) findViewById(R.id.fragment_Conatiner);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
+
+
         clearFragment.setImageResource(R.mipmap.clear_icon);
 
         Bundle fragArgs = new Bundle();
@@ -297,16 +299,26 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                String start = currUser.getLatitude()+","+currUser.getLongitude();
-                String end = finalLoc.latitude+","+finalLoc.longitude;
-                String uri = "https://www.google.com/maps/dir/"+start+"/"+end+"/";
+                String start = currUser.getLatitude() + "," + currUser.getLongitude();
+                String end = finalLoc.latitude + "," + finalLoc.longitude;
+                String uri = "https://www.google.com/maps/dir/" + start + "/" + end + "/";
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
 
-                if(marker.getSnippet() != null && marker.getSnippet().contentEquals("Tap for directions!"))
-                {
+                if (marker.getSnippet() != null && marker.getSnippet().contentEquals("Tap for directions!")) {
                     updateRefresh.cancel(true);
                     startActivity(browserIntent);
                 }
+            }
+        });
+
+        joinEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Event temp = currEvent;
+                temp.setAttendees( temp.getAttendees() + ","+uID);
+
+                new addUserToEvent().execute(temp);
+
             }
         });
     }
@@ -700,6 +712,19 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         protected void onPostExecute(ArrayList<User> res)
         {
             friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_user_display,res);
+            boolean partOfEvent = false;
+            for(int k = 0; k < allUsers.size(); k++)
+            {
+                if(allUsers.get(k).getUserID().contentEquals(uID))
+                {
+                    partOfEvent = true;
+                    break;
+                }
+            }
+            if(!partOfEvent)
+            {
+                joinEvent.setVisibility(View.VISIBLE);
+            }
 
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
@@ -873,6 +898,30 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             }
         }
         return objs;
+    }
+
+    class addUserToEvent extends AsyncTask<Event,Void,Void>
+    {
+
+        @Override
+        protected Void doInBackground(Event... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            Event dbEvent = mapper.load(Event.class,eID);
+
+            dbEvent.setAttendees(params[0].getAttendees());
+
+            mapper.save(dbEvent);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void var)
+        {
+            new getAllFriends().execute();
+        }
     }
 
     class checkUpdates extends AsyncTask<Void, Void, PaginatedScanList<Event>> {
