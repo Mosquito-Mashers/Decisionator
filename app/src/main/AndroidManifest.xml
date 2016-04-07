@@ -40,6 +40,8 @@
         </activity>
         <activity android:name=".EventActivity" >
         </activity>
+        <activity android:name=".FeedActivity"/>
+        <activity android:name=".friendEventActivity"/>
 
     </application>
 
