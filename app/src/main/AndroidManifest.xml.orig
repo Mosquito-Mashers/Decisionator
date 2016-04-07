@@ -40,12 +40,14 @@
         </activity>
         <activity android:name=".EventActivity" >
         </activity>
+<<<<<<< HEAD
         <activity android:name=".UsersHistory" >
         </activity>
+        
+=======
         <activity android:name=".FeedActivity"/>
         <activity android:name=".friendEventActivity"/>
-
-        
+>>>>>>> 9e55b8db02640cdac2e392d44216c738ff2afb7f
 
     </application>
 
