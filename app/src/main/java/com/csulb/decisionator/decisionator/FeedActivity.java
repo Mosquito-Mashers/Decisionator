@@ -147,8 +147,8 @@ public class FeedActivity extends AppCompatActivity {
             User user = friends.get(position);
             user.getUserID();
             holder.name.setText(user.getfName() + " " + user.getlName());
-            toFriendFeedIntent.putExtra(user.getFriendID(), fID);
-            toFriendFeedIntent.putExtra(user.getFriendName(), friendName);
+            toFriendFeedIntent.putExtra(FRIEND_ID, user.getUserID());
+            toFriendFeedIntent.putExtra(FRIEND_F_NAME, user.getfName());
             holder.viewButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

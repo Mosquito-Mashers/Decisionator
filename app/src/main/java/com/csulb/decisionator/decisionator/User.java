@@ -21,20 +21,6 @@ public class User {
     private double longitude;
 
 
-    @DynamoDBHashKey(attributeName = "friendID")
-    public String getFriendID() {
-        return friendID;
-    }
-
-    public void setFriendID(String friendID) {
-        this.friendID = friendID;
-    }
-
-    @DynamoDBAttribute(attributeName = "friendName")
-    public String getFriendName() {
-        return friendName;
-    }
-
     @DynamoDBHashKey(attributeName = "userID")
     public String getUserID() {
         return userID;

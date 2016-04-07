@@ -142,6 +142,9 @@ public class LobbyActivity extends AppCompatActivity {
         intentPairs.put(FacebookLogin.POOL_ID, poolID);
         intentPairs.put(FacebookLogin.USER_ID, uID);
         intentPairs.put(FacebookLogin.USER_F_NAME, uName);
+        viewFeedIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        viewFeedIntent.putExtra(FacebookLogin.USER_ID, uID);
+        viewFeedIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
         //GUI Update based on intent
         welcomeString = welcomeMessage.getText() + " " + uName + "!";
@@ -175,7 +178,7 @@ public class LobbyActivity extends AppCompatActivity {
                 startActivity(viewFeedIntent);
             }
         });
-        //prepareIntent(viewFeedIntent, intentPairs);
+        prepareIntent(viewFeedIntent, intentPairs);
         prepareIntent(createEventIntent, intentPairs);
     }
 

@@ -107,12 +107,12 @@ public class friendEventActivity extends AppCompatActivity {
         welcomeMessage = (TextView) findViewById(R.id.welcomeText);
         feedProg = (ProgressBar) findViewById(R.id.feedLoading);
 
-
+        fID = fromFeedActivity.getStringExtra(FeedActivity.FRIEND_ID);
+        friendName = fromFeedActivity.getStringExtra(FeedActivity.FRIEND_F_NAME);
         uID = fromFeedActivity.getStringExtra(FacebookLogin.USER_ID);
         poolID = fromFeedActivity.getStringExtra(FacebookLogin.POOL_ID);
         uName = fromFeedActivity.getStringExtra(FacebookLogin.USER_F_NAME);
-        fID = fromFeedActivity.getStringExtra(FeedActivity.FRIEND_ID);
-        friendName = fromFeedActivity.getStringExtra(FeedActivity.FRIEND_F_NAME);
+
 
         lobbyIntent.putExtra(FacebookLogin.USER_ID, uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID, poolID);
