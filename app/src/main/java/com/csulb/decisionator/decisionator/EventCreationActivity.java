@@ -251,7 +251,7 @@ public class EventCreationActivity extends AppCompatActivity {
         }
     }
 
-    private void hideKeyboard() {
+    public void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(eventTopic.getWindowToken(), 0);
     }

@@ -61,8 +61,11 @@ public class LobbyActivity extends AppCompatActivity {
     private Intent logoutIntent;
     private Intent createEventIntent;
     private Intent notificationIntent;
-    private Intent viewFeedIntent;
+<<<<<<< HEAD
     private Intent createUsersHistoryIntent;
+=======
+    private Intent viewFeedIntent;
+>>>>>>> 9e55b8db02640cdac2e392d44216c738ff2afb7f
 
     private TextView welcomeMessage;
     private Button createEvent;
@@ -70,8 +73,11 @@ public class LobbyActivity extends AppCompatActivity {
     private ProgressBar feedProg;
     private EventAdapter eventAdapter;
     private ListView eventList;
-    private Button viewFriendFeed;
+<<<<<<< HEAD
     private  ImageButton usersHistory;
+=======
+    private Button viewFriendFeed;
+>>>>>>> 9e55b8db02640cdac2e392d44216c738ff2afb7f
     private checkUpdates updateRefresh = new checkUpdates();
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
@@ -129,10 +135,12 @@ public class LobbyActivity extends AppCompatActivity {
         createEvent = (Button) findViewById(R.id.createEvent);
         refreshEvents = (ImageButton) findViewById(R.id.refreshEvents);
         feedProg = (ProgressBar) findViewById(R.id.feedLoading);
-
-        viewFriendFeed = (Button) findViewById(R.id.viewFeed);
+<<<<<<< HEAD
         usersHistory = (ImageButton) findViewById(R.id.history);
 
+=======
+        viewFriendFeed = (Button) findViewById(R.id.viewFeed);
+>>>>>>> 9e55b8db02640cdac2e392d44216c738ff2afb7f
         //Global string values
         uName = loginSuccess.getStringExtra(FacebookLogin.USER_F_NAME);
         uID = loginSuccess.getStringExtra(FacebookLogin.USER_ID);
@@ -151,10 +159,6 @@ public class LobbyActivity extends AppCompatActivity {
         viewFeedIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         viewFeedIntent.putExtra(FacebookLogin.USER_ID, uID);
         viewFeedIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
-
-        createUsersHistoryIntent.putExtra(FacebookLogin.POOL_ID, poolID);
-        createUsersHistoryIntent.putExtra(FacebookLogin.USER_ID, uID);
-        createUsersHistoryIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
         //GUI Update based on intent
         welcomeString = welcomeMessage.getText() + " " + uName + "!";
@@ -182,13 +186,7 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
-        viewFriendFeed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(viewFeedIntent);
-            }
-        });
-        prepareIntent(viewFeedIntent, intentPairs);
+<<<<<<< HEAD
         usersHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -197,6 +195,15 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
+=======
+        viewFriendFeed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(viewFeedIntent);
+            }
+        });
+        prepareIntent(viewFeedIntent, intentPairs);
+>>>>>>> 9e55b8db02640cdac2e392d44216c738ff2afb7f
         prepareIntent(createEventIntent, intentPairs);
     }
 
