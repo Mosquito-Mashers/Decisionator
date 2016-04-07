@@ -117,7 +117,7 @@ public class UsersHistory extends AppCompatActivity {
         lobbyIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
-        welcomeText.setText("Welcome " + uName + "!");
+        welcomeText.setText(uName+"'s event History");
         new getAllUsers().execute();
         new getEvents().execute();
     }
