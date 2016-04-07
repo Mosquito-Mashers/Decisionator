@@ -317,6 +317,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 Event temp = currEvent;
                 temp.setAttendees( temp.getAttendees() + ","+uID);
 
+                joinEvent.setVisibility(View.GONE);
                 new addUserToEvent().execute(temp);
 
             }
@@ -908,7 +909,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
-            Event dbEvent = mapper.load(Event.class,eID);
+            Event dbEvent = mapper.load(Event.class,params[0].getEventID());
 
             dbEvent.setAttendees(params[0].getAttendees());
 
@@ -920,7 +921,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         @Override
         protected void onPostExecute(Void var)
         {
-            new getAllFriends().execute();
+            allUsers.clear();
+            new getAllFriends().execute(eID);
         }
     }
 
