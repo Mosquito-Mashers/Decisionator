@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -34,6 +37,7 @@ public class FeedActivity extends AppCompatActivity {
     protected final static String FRIEND_F_NAME = "com.csulb.decisionator.FRIEND_F_NAME";
 
     private Intent lobbyIntent;
+    private Intent logoutIntent;
     private Intent fromLobby;
     private Intent toFriendFeedIntent;
 
@@ -56,6 +60,34 @@ public class FeedActivity extends AppCompatActivity {
     private static final int notifyID = 111;
    // private checkUpdates updateRefresh = new checkUpdates();
     private Intent notificationIntent;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        MenuItem itemChart = menu.findItem(R.id.chart);
+        itemChart.setVisible(false);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+            case R.id.lobby:
+                startActivity(lobbyIntent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +98,7 @@ public class FeedActivity extends AppCompatActivity {
 
     private void initializeGlobals() {
         fromLobby = getIntent();
+        logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
         toFriendFeedIntent = new Intent(this, friendEventActivity.class);
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);

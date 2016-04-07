@@ -67,8 +67,6 @@ public class friendEventActivity extends AppCompatActivity {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.actionbar_resources, menu);
-        MenuItem item = menu.findItem(R.id.lobby);
-        item.setVisible(false);
         MenuItem itemChart = menu.findItem(R.id.chart);
         itemChart.setVisible(false);
         return super.onCreateOptionsMenu(menu);
@@ -78,14 +76,16 @@ public class friendEventActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.logout:
-                //updateRefresh.cancel(true);
                 startActivity(logoutIntent);
                 return true;
-
+            case R.id.lobby:
+                startActivity(lobbyIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
