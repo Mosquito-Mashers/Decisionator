@@ -410,7 +410,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ArrayList<Event> res) {
-            ArrayList<Event> recentList = res;
+            ArrayList<Event> recentList = new ArrayList<Event>();
 
             Collections.sort(res, new Comparator<Event>() {
                 @Override
@@ -432,7 +432,7 @@ public class LobbyActivity extends AppCompatActivity {
                 }
             });
 
-            for(int k = 0; k < 10; k++)
+            for(int k = 0; k < 7; k++)
             {
                 if(res.get(k) != null) {
                     recentList.add(res.get(k));
