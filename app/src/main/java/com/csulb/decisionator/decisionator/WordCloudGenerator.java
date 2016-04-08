@@ -63,6 +63,7 @@ public class WordCloudGenerator
         stopWordsList.add("both");
         stopWordsList.add("but");
         stopWordsList.add("by");
+        stopWordsList.add("california");
         stopWordsList.add("can't");
         stopWordsList.add("cannot");
         stopWordsList.add("could");
@@ -150,6 +151,7 @@ public class WordCloudGenerator
         stopWordsList.add("so");
         stopWordsList.add("some");
         stopWordsList.add("such");
+        stopWordsList.add("university");
         stopWordsList.add("than");
         stopWordsList.add("that");
         stopWordsList.add("that's");
