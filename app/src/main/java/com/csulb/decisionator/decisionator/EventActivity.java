@@ -60,9 +60,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -315,7 +317,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
                 Event temp = currEvent;
-                temp.setAttendees( temp.getAttendees() + ","+uID);
+                temp.setAttendees(temp.getAttendees() + "," + uID);
 
                 joinEvent.setVisibility(View.GONE);
                 new addUserToEvent().execute(temp);
@@ -823,6 +825,17 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
     public String makeFinalDecision(ArrayList<String> choices)
     {
+        WordCloudGenerator gen = new WordCloudGenerator(strForCloud,choices);
+        String cleaned = gen.removeStopWords(strForCloud);
+        String trimmed[] = gen.splitAndTrimText();
+        ArrayList<String> cloudItems = new ArrayList<String>();
+        cloudItems.addAll(Arrays.asList(trimmed));
+
+        Decisionate terminator = new Decisionate(cloudItems,choices,"null",0,0);
+        HashMap<String,Integer> sortedPlaces = terminator.accumulatePoints();
+
+
+
         String choice = "Could not find a location!";
 
         int k;
