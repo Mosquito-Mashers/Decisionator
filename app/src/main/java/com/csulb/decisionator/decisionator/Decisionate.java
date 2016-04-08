@@ -45,7 +45,7 @@ public class Decisionate
             {
                 for(m = 0; m < cloudData.size(); m++)
                 {
-                    if(wordsInVenue[j].contentEquals(cloudData.get(m)))
+                    if(wordsInVenue[j].toLowerCase().contentEquals(cloudData.get(m)))
                     {
                         runningTotal++;
                     }
@@ -80,7 +80,7 @@ public class Decisionate
                 if (comp1.equals(comp2)){
                     passedMap.remove(key);
                     mapKeys.remove(key);
-                    sortedMap.put((String)key, (Double)val);
+                    sortedMap.put((String)key, (Integer)val);
                     break;
                 }
 
