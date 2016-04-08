@@ -1,5 +1,6 @@
 package com.csulb.decisionator.decisionator;
 
+import android.content.Intent;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 
@@ -275,6 +276,21 @@ public class WordCloudGenerator
         int minSize;
         int currPointer = 0;
         String tempSpan = "";
+
+        TreeMap<String,Integer> tempMap = new TreeMap<String, Integer>();
+
+        Iterator findImportant = frequencyMap.entrySet().iterator();
+
+        while( findImportant.hasNext())
+        {
+            Map.Entry me = (Map.Entry)findImportant.next();
+            if((int)me.getValue() > 1 )
+            {
+                tempMap.put((String)me.getKey(),(int)me.getValue());
+            }
+        }
+
+        frequencyMap = tempMap;
 
         //this.setFrequencyMap(this.sortByComparator(frequencyMap));
         // Calling the method sortByvalues

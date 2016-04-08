@@ -124,7 +124,7 @@ public class friendEventActivity extends AppCompatActivity {
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
         //GUI Update based on intent
-        welcomeString = welcomeMessage.getText() + " " + friendName + "'s feed!";
+        welcomeString = welcomeMessage.getText() + " to " + friendName + "'s feed!";
         welcomeMessage.setText(welcomeString);
         new getAllUsers().execute();
         //new getLastLogin().execute(uID);
