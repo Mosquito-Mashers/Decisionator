@@ -47,6 +47,7 @@ public class WordCloudGenerator
         stopWordsList.add("all");
         stopWordsList.add("am");
         stopWordsList.add("an");
+        stopWordsList.add("anaheim");
         stopWordsList.add("and");
         stopWordsList.add("any");
         stopWordsList.add("are");
@@ -143,6 +144,7 @@ public class WordCloudGenerator
         stopWordsList.add("over");
         stopWordsList.add("own");
         stopWordsList.add("same");
+        stopWordsList.add("seattle");
         stopWordsList.add("shan't");
         stopWordsList.add("she");
         stopWordsList.add("she'd");
@@ -179,6 +181,7 @@ public class WordCloudGenerator
         stopWordsList.add("under");
         stopWordsList.add("until");
         stopWordsList.add("up");
+        stopWordsList.add("ventura");
         stopWordsList.add("very");
         stopWordsList.add("was");
         stopWordsList.add("wasn't");
@@ -322,6 +325,43 @@ public class WordCloudGenerator
 
             int len = me.getKey().toString().length();
             int size = Integer.parseInt(me.getValue().toString());
+            cloudString.setSpan(new RelativeSizeSpan(size), currPointer, currPointer + len, 0);
+            currPointer += len+1;
+        }
+        return cloudString;
+    }
+
+
+    public SpannableString getSpannableString(Map<String,Integer> venueMap)
+    {
+        int k;
+        int maxSize;
+        int minSize;
+        int currPointer = 0;
+        String tempSpan = "";
+
+        Iterator m = venueMap.entrySet().iterator();
+        while(m.hasNext()) {
+            Map.Entry me = (Map.Entry)m.next();
+            tempSpan += me.getKey()+" ";
+        }
+
+        cloudString = new SpannableString(tempSpan);
+        // Get an iterator
+        Iterator i = venueMap.entrySet().iterator();
+
+        // Display elements
+        while(i.hasNext()) {
+            Map.Entry me = (Map.Entry) i.next();
+            System.out.print(me.getKey() + ": ");
+            System.out.println(me.getValue());
+
+            int len = me.getKey().toString().length();
+            int size = Integer.parseInt(me.getValue().toString());
+            if(size < 1)
+            {
+                size = 2;
+            }
             cloudString.setSpan(new RelativeSizeSpan(size), currPointer, currPointer + len, 0);
             currPointer += len+1;
         }

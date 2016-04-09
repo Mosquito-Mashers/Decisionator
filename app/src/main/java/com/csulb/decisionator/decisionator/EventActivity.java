@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -75,6 +76,7 @@ import java.util.TreeMap;
 public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
 
     protected final static String WORD_CLOUD_DATA = "com.csulb.decisionator.WORD_CLOUD_DATA";
+    protected final static String TOP_VENUE_DATA = "com.csulb.decisionator.TOP_VENUE_DATA";
     private FriendAdapter friendAdapter;
 
     private Intent enterEvent;
@@ -92,6 +94,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String uID;
     private String uName;
     private String strForCloud = "";
+    private String topVenues = "";
     private String globalCloud;
 
     private User currUser;
@@ -150,6 +153,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
                 Bundle fragArgs = new Bundle();
                 fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+                fragArgs.putString(TOP_VENUE_DATA, topVenues);
                 ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
                 getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
                 fragContainer.setVisibility(View.VISIBLE);
@@ -237,6 +241,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         Bundle fragArgs = new Bundle();
         fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+        fragArgs.putString(TOP_VENUE_DATA, topVenues);
         ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
         getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
 
@@ -275,6 +280,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
                 Bundle fragArgs = new Bundle();
                 fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+                fragArgs.putString(TOP_VENUE_DATA, topVenues);
                 ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
                 getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
                 fragContainer.setVisibility(View.GONE);
@@ -839,6 +845,17 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         if(decisionatedWeight > 1)
         {
+            Iterator mapIter = sortedPlaces.entrySet().iterator();
+            int k = 0;
+            while(mapIter.hasNext() && k < 5)
+            {
+                Map.Entry<String, Integer> me = (Map.Entry<String,Integer>)mapIter.next();
+                String place = me.getKey();
+                int weight = me.getValue();
+                topVenues += place + "," + weight + "|";
+                k++;
+            }
+
             return decisionatedChoice;
         }
         String choice = "Could not find a location!";
