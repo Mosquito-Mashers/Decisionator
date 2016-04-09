@@ -834,8 +834,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         Decisionate terminator = new Decisionate(cloudItems,choices,"null",0,0);
         Map<String,Integer> sortedPlaces = terminator.accumulatePoints();
 
-        sortedPlaces.entrySet().iterator().next();
+        String decisionatedChoice = sortedPlaces.entrySet().iterator().next().getKey();
+        int decisionatedWeight = sortedPlaces.entrySet().iterator().next().getValue();
 
+        if(decisionatedWeight > 1)
+        {
+            return decisionatedChoice;
+        }
         String choice = "Could not find a location!";
 
         int k;
