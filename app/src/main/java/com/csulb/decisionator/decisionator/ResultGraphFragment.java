@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +39,7 @@ public class ResultGraphFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_result_graph, container, false);
         Bundle incoming = getArguments();
         TextView box = (TextView) view.findViewById(R.id.word_cloud);
+        TextView description = (TextView) view.findViewById(R.id.cloud_description);
         box.setMovementMethod(new ScrollingMovementMethod());
         if(incoming != null) {
             data_for_cloud = getArguments().getString(EventActivity.WORD_CLOUD_DATA);
@@ -57,7 +60,6 @@ public class ResultGraphFragment extends Fragment {
                 cloudGen.createFrequencyMap();
                 wordCloud = cloudGen.getSpannableString();
             }
-
 
             box.setText(wordCloud);
         }
