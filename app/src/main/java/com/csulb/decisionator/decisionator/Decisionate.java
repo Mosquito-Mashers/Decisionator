@@ -62,8 +62,8 @@ public class Decisionate
     public LinkedHashMap sortHashMapByValuesD(HashMap passedMap) {
         List mapKeys = new ArrayList(passedMap.keySet());
         List mapValues = new ArrayList(passedMap.values());
-        Collections.sort(mapValues);
-        Collections.sort(mapKeys);
+        Collections.sort(mapValues,Collections.reverseOrder());
+        Collections.sort(mapKeys,Collections.reverseOrder());
 
         LinkedHashMap sortedMap = new LinkedHashMap();
 
@@ -77,7 +77,7 @@ public class Decisionate
                 String comp1 = passedMap.get(key).toString();
                 String comp2 = val.toString();
 
-                if (comp1.equals(comp2)){
+                if (comp2.equals(comp1)){
                     passedMap.remove(key);
                     mapKeys.remove(key);
                     sortedMap.put((String)key, (Integer)val);

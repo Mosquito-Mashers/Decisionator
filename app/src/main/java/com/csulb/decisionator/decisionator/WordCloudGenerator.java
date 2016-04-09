@@ -54,6 +54,7 @@ public class WordCloudGenerator
         stopWordsList.add("as");
         stopWordsList.add("at");
         stopWordsList.add("be");
+        stopWordsList.add("beach");
         stopWordsList.add("because");
         stopWordsList.add("been");
         stopWordsList.add("before");
@@ -118,6 +119,7 @@ public class WordCloudGenerator
         stopWordsList.add("its");
         stopWordsList.add("itself");
         stopWordsList.add("let's");
+        stopWordsList.add("long");
         stopWordsList.add("me");
         stopWordsList.add("more");
         stopWordsList.add("most");
