@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -49,7 +50,6 @@ public class LobbyActivity extends AppCompatActivity {
     private String lastLogin;
 
 
-
     private String poolID;
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
     private CognitoCachingCredentialsProvider credentialsProvider;
@@ -71,7 +71,7 @@ public class LobbyActivity extends AppCompatActivity {
     private EventAdapter eventAdapter;
     private ListView eventList;
     private Button viewFriendFeed;
-    private  ImageButton usersHistory;
+    private ImageButton usersHistory;
     private checkUpdates updateRefresh = new checkUpdates();
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
@@ -111,8 +111,6 @@ public class LobbyActivity extends AppCompatActivity {
         initializeGlobals();
 
         initializeListeners();
-
-
     }
 
     private void initializeGlobals() {
@@ -162,6 +160,7 @@ public class LobbyActivity extends AppCompatActivity {
         new getAllUsers().execute();
         new getLastLogin().execute(uID);
         new getEvents().execute();
+        //new waitAndRemoveView().execute();
         //new checkUpdates().execute();
     }
 
@@ -215,6 +214,29 @@ public class LobbyActivity extends AppCompatActivity {
 
     public void setPoolID(String poolID) {
         this.poolID = poolID;
+    }
+
+    public void waitAndRemoveView(){
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    synchronized (this) {
+                        wait(3000);
+                    }
+                } catch (InterruptedException ex) {
+                }
+            }
+        };
+
+        thread.start();
+        try {
+            thread.join();
+            RelativeLayout rltl = (RelativeLayout) findViewById(R.id.welcomeContainer);
+            rltl.getLayoutParams().height = 50;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private class EventAdapter extends ArrayAdapter<Event> {
@@ -387,8 +409,8 @@ public class LobbyActivity extends AppCompatActivity {
 
             int k;
             int m;
-            int count = 0;
-            for (k = 0; count < 5; k++) {
+
+            for (k = 0; k < result.size(); k++) {
                 Event item = result.get(k);
                 if (item.getAttendees() != null) {
 
@@ -396,14 +418,12 @@ public class LobbyActivity extends AppCompatActivity {
                     for (m = 0; m < attens.length; m++) {
                         if (attens[m].contentEquals(uID)) {
                             temp.add(item);
-                            count++;
                             break;
                         }
                     }
 
                     if (item.getHostID().contentEquals(uID)) {
                         temp.add(item);
-                        count++;
                     }
                 }
             }
@@ -412,7 +432,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ArrayList<Event> res) {
-            ArrayList<Event> beforeRes = res;
+            ArrayList<Event> recentList = new ArrayList<Event>();
 
             Collections.sort(res, new Comparator<Event>() {
                 @Override
@@ -433,7 +453,15 @@ public class LobbyActivity extends AppCompatActivity {
                     return result;
                 }
             });
-            eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, res);
+
+            for(int k = 0; k < 7; k++)
+            {
+                if(res.get(k) != null) {
+                    recentList.add(res.get(k));
+                }
+            }
+
+            eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, recentList);
             eventList = (ListView) findViewById(R.id.eventList);
             eventList.setAdapter(eventAdapter);
             SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(eventList, new SwipeDismissListViewTouchListener.OnDismissCallback() {
@@ -490,6 +518,37 @@ public class LobbyActivity extends AppCompatActivity {
         }
     }
 
+
+    class waitAndRemoveView extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            Thread thread=  new Thread(){
+                @Override
+                public void run(){
+                    try {
+                        synchronized(this){
+                            wait(3000);
+                        }
+                    }
+                    catch(InterruptedException ex){
+                    }
+                }
+            };
+
+            thread.start();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v)
+        {
+            //RelativeLayout rltl = (RelativeLayout) findViewById(R.id.welcomeContainer);
+            welcomeMessage.setVisibility(View.GONE);
+
+        }
+    }
     class updateViewedList extends AsyncTask<String, Void, Void> {
 
         @Override
