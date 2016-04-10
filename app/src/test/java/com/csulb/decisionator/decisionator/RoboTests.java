@@ -119,6 +119,9 @@ public class RoboTests extends TestCase{
         intent.putExtra(FacebookLogin.USER_ID, "1253227638023946");
         intent.putExtra(FacebookLogin.USER_F_NAME, "Russell");
         intent.putExtra(EventCreationActivity.EVENT_ID, "test12345");
+
+        intent.putExtra(FeedActivity.FRIEND_ID, "1253227638023946");
+        intent.putExtra(FeedActivity.FRIEND_F_NAME, "Russell");
         friendEventActivity inviteAct = Robolectric.buildActivity(friendEventActivity.class).withIntent(intent).create().visible().get();
     }
 
