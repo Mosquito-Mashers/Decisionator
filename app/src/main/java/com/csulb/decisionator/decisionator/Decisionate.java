@@ -18,8 +18,6 @@ public class Decisionate
     private double finalLat;
     private double finalLon;
 
-    public Decisionate(){}
-
     public Decisionate(ArrayList<String> cloudItems, ArrayList<String> possiblePlaces, String finalDec, double lat, double lon)
     {
         cloudData = cloudItems;
