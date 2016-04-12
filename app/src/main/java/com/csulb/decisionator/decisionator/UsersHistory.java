@@ -45,7 +45,7 @@ public class UsersHistory extends AppCompatActivity {
     private String uName;
     private CognitoCachingCredentialsProvider credentialsProvider;
     private TextView welcomeText;
-    private ListView historyList;
+    public ListView historyList;
     private ProgressBar historyFeedProg;
     private Intent fromLobby;
     private Intent notificationIntent;
@@ -95,7 +95,7 @@ public class UsersHistory extends AppCompatActivity {
 
     }
 
-    private void initializeGlobals() {
+    public void initializeGlobals() {
 
         fromLobby = getIntent();
         lobbyIntent = new Intent(this, LobbyActivity.class);
