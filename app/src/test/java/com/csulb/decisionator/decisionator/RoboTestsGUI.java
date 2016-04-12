@@ -24,11 +24,13 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.internal.Shadow;
+import org.robolectric.internal.ShadowExtractor;
 import org.robolectric.shadows.ShadowAbsListView;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowListView;
 import org.robolectric.shadows.ShadowLog;
+import org.robolectric.shadows.ShadowLooper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -109,7 +111,7 @@ public class RoboTestsGUI extends TestCase {
         hist.initializeGlobals();
         ListView items = (ListView) hist.findViewById(R.id.list);
         assertNotNull(items);
-        ShadowListView lists = Shadows.shadowOf(items);
+        ShadowListView lists = (ShadowListView)ShadowExtractor.extract(items);
         lists.populateItems();
         //Tests to see if the list is not empty
         assertTrue("pass", items.getCount() > 0);

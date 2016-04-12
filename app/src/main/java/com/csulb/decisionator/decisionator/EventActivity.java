@@ -63,8 +63,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -73,6 +75,7 @@ import java.util.TreeMap;
 public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
 
     protected final static String WORD_CLOUD_DATA = "com.csulb.decisionator.WORD_CLOUD_DATA";
+    protected final static String TOP_VENUE_DATA = "com.csulb.decisionator.TOP_VENUE_DATA";
     private FriendAdapter friendAdapter;
 
     private Intent enterEvent;
@@ -90,6 +93,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String uID;
     private String uName;
     private String strForCloud = "";
+    private String topVenues = "";
     private String globalCloud;
 
     private User currUser;
@@ -148,6 +152,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
                 Bundle fragArgs = new Bundle();
                 fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+                fragArgs.putString(TOP_VENUE_DATA, topVenues);
                 ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
                 getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
                 fragContainer.setVisibility(View.VISIBLE);
@@ -235,6 +240,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         Bundle fragArgs = new Bundle();
         fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+        fragArgs.putString(TOP_VENUE_DATA, topVenues);
         ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
         getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
 
@@ -273,6 +279,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
                 Bundle fragArgs = new Bundle();
                 fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
+                fragArgs.putString(TOP_VENUE_DATA, topVenues);
                 ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
                 getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
                 fragContainer.setVisibility(View.GONE);
@@ -315,7 +322,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             @Override
             public void onClick(View v) {
                 Event temp = currEvent;
-                temp.setAttendees( temp.getAttendees() + ","+uID);
+                temp.setAttendees(temp.getAttendees() + "," + uID);
 
                 joinEvent.setVisibility(View.GONE);
                 new addUserToEvent().execute(temp);
@@ -799,7 +806,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     e.printStackTrace();
                 }
 
-                makeFinalDecision(resultingPlaces);
+                //makeFinalDecision(resultingPlaces);
                 if(finalLoc.latitude == 0 || finalLoc.longitude == 0)
                 {
                     finalLoc = new LatLng(33.78705292, -118.1564652);
@@ -823,6 +830,33 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
     public String makeFinalDecision(ArrayList<String> choices)
     {
+        WordCloudGenerator gen = new WordCloudGenerator(strForCloud,choices);
+        String cleaned = gen.removeStopWords(strForCloud);
+        String trimmed[] = gen.splitAndTrimText();
+        ArrayList<String> cloudItems = new ArrayList<String>();
+        cloudItems.addAll(Arrays.asList(trimmed));
+
+        Decisionate terminator = new Decisionate(cloudItems,choices,"null",0,0);
+        Map<String,Integer> sortedPlaces = terminator.accumulatePoints();
+
+        String decisionatedChoice = sortedPlaces.entrySet().iterator().next().getKey();
+        int decisionatedWeight = sortedPlaces.entrySet().iterator().next().getValue();
+
+        if(decisionatedWeight > 1)
+        {
+            Iterator mapIter = sortedPlaces.entrySet().iterator();
+            int k = 0;
+            while(mapIter.hasNext() && k < 5)
+            {
+                Map.Entry<String, Integer> me = (Map.Entry<String,Integer>)mapIter.next();
+                String place = me.getKey();
+                int weight = me.getValue();
+                topVenues += place.replace(","," ") + "," + weight + "|";
+                k++;
+            }
+
+            return decisionatedChoice;
+        }
         String choice = "Could not find a location!";
 
         int k;

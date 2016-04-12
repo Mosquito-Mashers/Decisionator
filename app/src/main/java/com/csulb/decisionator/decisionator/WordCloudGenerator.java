@@ -1,5 +1,6 @@
 package com.csulb.decisionator.decisionator;
 
+import android.content.Intent;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 
@@ -46,6 +47,7 @@ public class WordCloudGenerator
         stopWordsList.add("all");
         stopWordsList.add("am");
         stopWordsList.add("an");
+        stopWordsList.add("anaheim");
         stopWordsList.add("and");
         stopWordsList.add("any");
         stopWordsList.add("are");
@@ -53,6 +55,7 @@ public class WordCloudGenerator
         stopWordsList.add("as");
         stopWordsList.add("at");
         stopWordsList.add("be");
+        stopWordsList.add("beach");
         stopWordsList.add("because");
         stopWordsList.add("been");
         stopWordsList.add("before");
@@ -62,6 +65,7 @@ public class WordCloudGenerator
         stopWordsList.add("both");
         stopWordsList.add("but");
         stopWordsList.add("by");
+        stopWordsList.add("california");
         stopWordsList.add("can't");
         stopWordsList.add("cannot");
         stopWordsList.add("could");
@@ -116,6 +120,7 @@ public class WordCloudGenerator
         stopWordsList.add("its");
         stopWordsList.add("itself");
         stopWordsList.add("let's");
+        stopWordsList.add("long");
         stopWordsList.add("me");
         stopWordsList.add("more");
         stopWordsList.add("most");
@@ -139,6 +144,7 @@ public class WordCloudGenerator
         stopWordsList.add("over");
         stopWordsList.add("own");
         stopWordsList.add("same");
+        stopWordsList.add("seattle");
         stopWordsList.add("shan't");
         stopWordsList.add("she");
         stopWordsList.add("she'd");
@@ -149,6 +155,7 @@ public class WordCloudGenerator
         stopWordsList.add("so");
         stopWordsList.add("some");
         stopWordsList.add("such");
+        stopWordsList.add("university");
         stopWordsList.add("than");
         stopWordsList.add("that");
         stopWordsList.add("that's");
@@ -174,6 +181,7 @@ public class WordCloudGenerator
         stopWordsList.add("under");
         stopWordsList.add("until");
         stopWordsList.add("up");
+        stopWordsList.add("ventura");
         stopWordsList.add("very");
         stopWordsList.add("was");
         stopWordsList.add("wasn't");
@@ -276,6 +284,21 @@ public class WordCloudGenerator
         int currPointer = 0;
         String tempSpan = "";
 
+        TreeMap<String,Integer> tempMap = new TreeMap<String, Integer>();
+
+        Iterator findImportant = frequencyMap.entrySet().iterator();
+
+        while( findImportant.hasNext())
+        {
+            Map.Entry me = (Map.Entry)findImportant.next();
+            if((int)me.getValue() > 1 )
+            {
+                tempMap.put((String)me.getKey(),(int)me.getValue());
+            }
+        }
+
+        frequencyMap = tempMap;
+
         //this.setFrequencyMap(this.sortByComparator(frequencyMap));
         // Calling the method sortByvalues
         sortedMap = sortByValues(frequencyMap);
@@ -302,6 +325,43 @@ public class WordCloudGenerator
 
             int len = me.getKey().toString().length();
             int size = Integer.parseInt(me.getValue().toString());
+            cloudString.setSpan(new RelativeSizeSpan(size), currPointer, currPointer + len, 0);
+            currPointer += len+1;
+        }
+        return cloudString;
+    }
+
+
+    public SpannableString getSpannableString(Map<String,Integer> venueMap)
+    {
+        int k;
+        int maxSize;
+        int minSize;
+        int currPointer = 0;
+        String tempSpan = "";
+
+        Iterator m = venueMap.entrySet().iterator();
+        while(m.hasNext()) {
+            Map.Entry me = (Map.Entry)m.next();
+            tempSpan += me.getKey()+" ";
+        }
+
+        cloudString = new SpannableString(tempSpan);
+        // Get an iterator
+        Iterator i = venueMap.entrySet().iterator();
+
+        // Display elements
+        while(i.hasNext()) {
+            Map.Entry me = (Map.Entry) i.next();
+            System.out.print(me.getKey() + ": ");
+            System.out.println(me.getValue());
+
+            int len = me.getKey().toString().length();
+            int size = Integer.parseInt(me.getValue().toString());
+            if(size < 1)
+            {
+                size = 2;
+            }
             cloudString.setSpan(new RelativeSizeSpan(size), currPointer, currPointer + len, 0);
             currPointer += len+1;
         }

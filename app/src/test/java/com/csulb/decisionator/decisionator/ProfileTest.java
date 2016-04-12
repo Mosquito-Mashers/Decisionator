@@ -35,10 +35,10 @@ public class ProfileTest extends TestCase {
         //pratice
         data.setUserID("jose-");
         String actual = "jose-1";
-        assertNotSame(data.getUserID(),actual);
+        assertNotSame(data.getUserID(), actual);
 
         data.setUserID("jose-1");
-        assertSame(data.getUserID(),actual);
+        assertSame(data.getUserID(), actual);
     }
 
     public void testVariousVariables() throws Exception {
@@ -72,8 +72,5 @@ public class ProfileTest extends TestCase {
         assertNotSame(data1.getLongitude(), data2.getLongitude());
 
     }
-
-
-
 }
 
