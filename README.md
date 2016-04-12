@@ -1,8 +1,10 @@
-# Decisionator
+# Decisionator 
+
 
 Test Coverage:[![codecov.io](https://codecov.io/github/Mosquito-Mashers/Decisionator/coverage.svg?branch=master)](https://codecov.io/github/Mosquito-Mashers/Decisionator?branch=master)
 Continuous Integration:![Build status](https://travis-ci.org/Mosquito-Mashers/Decisionator.svg)
 Stories to be claimed: [![Stories in Ready](https://badge.waffle.io/Mosquito-Mashers/Decisionator.png?label=ready&title=Ready)](https://waffle.io/Mosquito-Mashers/Decisionator)
+Repo Hits:[![ghit.me](https://ghit.me/badge.svg?repo=Mosquito-Mashers/decisionator)](https://ghit.me/repo/Mosquito-Mashers/decisionator)
 
 #### [Team Website](http://web.csulb.edu/~jcover/cecs492/index.html)
 
