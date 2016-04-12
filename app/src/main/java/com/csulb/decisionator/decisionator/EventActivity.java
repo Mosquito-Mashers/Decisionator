@@ -60,7 +60,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -807,7 +806,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     e.printStackTrace();
                 }
 
-                makeFinalDecision(resultingPlaces);
+                //makeFinalDecision(resultingPlaces);
                 if(finalLoc.latitude == 0 || finalLoc.longitude == 0)
                 {
                     finalLoc = new LatLng(33.78705292, -118.1564652);
@@ -852,7 +851,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 Map.Entry<String, Integer> me = (Map.Entry<String,Integer>)mapIter.next();
                 String place = me.getKey();
                 int weight = me.getValue();
-                topVenues += place + "," + weight + "|";
+                topVenues += place.replace(","," ") + "," + weight + "|";
                 k++;
             }
 
