@@ -86,7 +86,6 @@ public class friendEventActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -291,6 +290,7 @@ public class friendEventActivity extends AppCompatActivity {
             return convertView;
         }
     }
+
     class getEvents extends AsyncTask<Void, Void, ArrayList<Event>> {
 
         @Override
@@ -369,6 +369,7 @@ public class friendEventActivity extends AppCompatActivity {
 
         }
     }
+
     class getAllUsers extends AsyncTask<Void, Void, PaginatedScanList<User>> {
 
         @Override
@@ -387,6 +388,7 @@ public class friendEventActivity extends AppCompatActivity {
             users.addAll(res);
         }
     }
+
     class checkUpdates extends AsyncTask<Void, Void, PaginatedScanList<Event>> {
 
         private boolean isRunning;

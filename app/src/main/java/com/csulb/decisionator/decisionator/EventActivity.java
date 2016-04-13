@@ -1088,5 +1088,4 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             }
         }
     }
-
 }

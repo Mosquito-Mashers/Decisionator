@@ -278,6 +278,7 @@ public class UsersHistory extends AppCompatActivity {
             return convertView;
         }
     }
+
     class getEvents extends AsyncTask<Void, Void, ArrayList<Event>> {
         protected ArrayList<Event> doInBackground(Void... params) {
             ArrayList<Event> temp = new ArrayList<Event>();
@@ -541,6 +542,14 @@ public class UsersHistory extends AppCompatActivity {
         protected void onPostExecute(PaginatedScanList<User> res) {
             users.addAll(res);
         }
+    }
+
+    //accessors
+    public ArrayList<Event> getEvents() {
+        return events;
+    }
+    public ArrayList<User> getUsers() {
+        return users;
     }
 
 }
