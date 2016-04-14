@@ -458,6 +458,18 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         generateFriendMap(allUsers,googleMap);
     }
 
+    public void setUID(String UID) {
+        this.uID = UID;
+    }
+
+    public void setCurrEvent(Event currEvent) {
+        this.currEvent = currEvent;
+    }
+
+    public Button getJoinButton() {
+        return joinEvent;
+    }
+
     private class FriendAdapter extends ArrayAdapter<User>
     {
         private ArrayList<User> friends;

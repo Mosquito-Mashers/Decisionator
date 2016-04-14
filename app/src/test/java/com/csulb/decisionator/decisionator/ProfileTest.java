@@ -1,5 +1,7 @@
 package com.csulb.decisionator.decisionator;
 
+import android.view.View;
+
 import junit.framework.TestCase;
 
 import org.json.JSONObject;
@@ -91,13 +93,7 @@ public class ProfileTest extends TestCase {
         //seems to be covered in WordCloudTest...
     }
 
-    /*
-    * Test Case Number	Sprint 3 Test Case 4 – User Story #4
-    * As a user I want to be able to join public events
-    * */
-    public void testUserHistory() throws Exception {
-        //Initializing unit under test
-    }
+
     /**
      * Test Case Number	Sprint 2 Test Case 3 – User Story #3 - A
      * As a user I want to be able to provide a general category for the event
