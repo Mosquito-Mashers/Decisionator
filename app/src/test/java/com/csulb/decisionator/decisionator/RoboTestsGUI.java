@@ -1,7 +1,10 @@
 package com.csulb.decisionator.decisionator;
 
+import android.app.Notification;
 import android.content.Intent;
 import android.location.Location;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -116,6 +119,7 @@ public class RoboTestsGUI extends TestCase {
         //Tests to see if the list is not empty
         assertTrue("pass", items.getCount() > 0);
 
+
         //Prints to the console to check if items are working
         //This is where im having trouble grabbing the actual values of the view
         //It seems like Franklin was found but im not sure
@@ -143,4 +147,22 @@ public class RoboTestsGUI extends TestCase {
         assertEquals(shadAct.getNextStartedActivity(), expectedIntent);
 
     }
+
+    @Test
+    public void testScroll(){
+        ShadowApplication shadAct = ShadowApplication.getInstance().getShadowApplication();
+        Intent lobby = new Intent(shadAct.getApplicationContext(), LobbyActivity.class);
+        lobby.putExtra(FacebookLogin.USER_F_NAME, "Russell");
+        lobby.putExtra(FacebookLogin.USER_ID, "1253227638023946");
+        lobby.putExtra(FacebookLogin.POOL_ID, poolID);
+        LobbyActivity lobbyAct = Robolectric.buildActivity(LobbyActivity.class).withIntent(lobby).create().get();
+
+        ListView items = (ListView) lobbyAct.findViewById(R.id.eventList);
+
+        assertEquals(items.getItemAtPosition(0), items.getItemAtPosition(0));
+
+
+
+    }
+
 }

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -78,6 +80,10 @@ public class LobbyActivity extends AppCompatActivity {
     private ArrayList<User> users = new ArrayList<User>();
     private ArrayList<Event> events = new ArrayList<Event>();
 
+    private DrawerLayout drawer;
+    private ListView drawerList;
+    private ArrayAdapter<String> navAdapter;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
@@ -108,9 +114,35 @@ public class LobbyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
 
+        drawerList = (ListView) findViewById(R.id.left_drawer);
+        addItemsToNav();
+
         initializeGlobals();
 
         initializeListeners();
+
+        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        Intent intent = new Intent(LobbyActivity.this, UsersHistory.class);
+                        startActivity(intent);
+                        break;
+                    case 1:
+                        startActivity(viewFeedIntent);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+    }
+
+    private void addItemsToNav(){
+        String[] items = {"User's History", "View Friends Feed"};
+        navAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+        drawerList.setAdapter(navAdapter);
     }
 
     private void initializeGlobals() {
@@ -238,6 +270,7 @@ public class LobbyActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
 
     private class EventAdapter extends ArrayAdapter<Event> {
         private ArrayList<Event> events;
