@@ -99,10 +99,10 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
     //Gui items
     private TextView info;
-    private Intent loginSuccess;
+    public Intent loginSuccess;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //Initialize the facebook api
