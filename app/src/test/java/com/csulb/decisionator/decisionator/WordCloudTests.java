@@ -18,11 +18,13 @@ public class WordCloudTests extends TestCase {
     @Override
     public void setUp()
     {
-        SampleData = "Burger, Burger, burger, Burger, Bgr, Thai Food, Burger, burger, BuRgEr";
+        SampleData = "Burger, Burger, burger, Burger, Bgr, Thai Food, Burger, burger, " +
+                "BuRgEr, Joes Crab Shack, Burger King, BeachHut, The Nugget, The Outpost, " +
+                "MVP's, Spaghetti, Long Beach, Chinese";
     }
 
     @Test
-    public void testEndToEndCloud()
+    public void test_WordCloudGeneration()
     {
         WordCloudGenerator cloudGen = new WordCloudGenerator(SampleData,null);
         cloudGen.createFrequencyMap();
@@ -32,7 +34,6 @@ public class WordCloudTests extends TestCase {
         int maxCount = Integer.parseInt(((Map.Entry) setIter.next()).getValue().toString());
 
         assertNotNull(mySpan);
-        assertEquals(maxCount,7);
-
+        assertEquals(maxCount,8);
     }
 }
