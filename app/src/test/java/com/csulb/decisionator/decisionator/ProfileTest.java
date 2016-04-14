@@ -1,6 +1,13 @@
 package com.csulb.decisionator.decisionator;
 
+import android.view.View;
+
 import junit.framework.TestCase;
+
+import org.json.JSONObject;
+import org.junit.Test;
+
+import java.util.ArrayList;
 
 /**
  * Created by Jose on 3/7/2016.
@@ -13,6 +20,7 @@ public class ProfileTest extends TestCase {
     public User data1 = new User();
     public User data2 = new User();
 
+    @Test
     public void testGetUserID() throws Exception {
 
         assertNull(data.getUserID());
@@ -30,6 +38,7 @@ public class ProfileTest extends TestCase {
         assertEquals(data1.getLatitude(), latitude);
     }
 
+    @Test
     public void testSetUserID() throws Exception {
 
         //pratice
@@ -41,6 +50,7 @@ public class ProfileTest extends TestCase {
         assertSame(data.getUserID(), actual);
     }
 
+    @Test
     public void testVariousVariables() throws Exception {
         //right data
         data1.setUserID("russell-2345");
@@ -71,6 +81,50 @@ public class ProfileTest extends TestCase {
         assertEquals(118.184932, data1.getLongitude());
         assertNotSame(data1.getLongitude(), data2.getLongitude());
 
+    }
+
+    //Lab 4, part 1 -- unit tests
+
+    /*
+    * Test Case Number	Sprint 3 Test Case 1 – User Story #1
+    * As a user I want to be able to see the results of the event in a histogram
+    * */
+    public void testResultGraphFragment() throws Exception{
+        //seems to be covered in WordCloudTest...
+    }
+
+
+    /**
+     * Test Case Number	Sprint 2 Test Case 3 – User Story #3 - A
+     * As a user I want to be able to provide a general category for the event
+     */
+    @Test
+    public void testEventCatagory() {
+        //initialize unit under test
+        EventActivity uut = new EventActivity();
+
+        //setting up test variables
+        ArrayList<JSONObject> result = new ArrayList<JSONObject>();
+        Event testEvent = new Event();
+        testEvent.setDateCreated("01022015");
+        testEvent.setTopic("Party at TGI Fridays!");
+        testEvent.setCategory("Food");
+        testEvent.setLatitude(10);
+        testEvent.setLongitude(10);
+        String api_key = "AIzaSyCpKblHKkLlan0H33WsA_yPgkDe4K6-C38";
+
+        //simulated category selection in JSON
+        String type = testEvent.getCategory();
+        String query = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+        query += "keyword=" + testEvent.getTopic().replace(' ','+');
+        query += "&location="+testEvent.getLatitude() + "," + testEvent.getLongitude();
+        query += "&rankby=distance";
+        query += "&key="+api_key;
+        result = uut.getJSON(query);
+
+        //test asserstions
+        assertNotNull(result);
+        assertEquals("Food", type);
     }
 }
 

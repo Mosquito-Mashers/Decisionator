@@ -26,6 +26,8 @@ import org.robolectric.annotation.Config;
 import org.robolectric.fakes.RoboMenuItem;
 import org.robolectric.shadows.ShadowApplication;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,9 +60,7 @@ public class RoboTests extends TestCase{
     public void test_initFB()
     {
         FacebookLogin act = Robolectric.buildActivity(FacebookLogin.class).create().visible().get();
-
-
-
+        assertNotNull(act);
     }
 
     @Test
@@ -72,7 +72,8 @@ public class RoboTests extends TestCase{
         intent.putExtra(FacebookLogin.USER_F_NAME, "Russell");
         intent.putExtra(FacebookLogin.USER_ID, "1253227638023946");
         intent.putExtra(FacebookLogin.POOL_ID, poolID);
-        LobbyActivity xyz = Robolectric.buildActivity(LobbyActivity.class).withIntent(intent).create().visible().get();
+        LobbyActivity lobb = Robolectric.buildActivity(LobbyActivity.class).withIntent(intent).create().visible().get();
+        assertNotNull(lobb);
     }
 
     @Test
@@ -87,6 +88,7 @@ public class RoboTests extends TestCase{
         intent.putExtra(FacebookLogin.USER_ID, "1253227638023946");
         intent.putExtra(FacebookLogin.POOL_ID, poolID);
         EventCreationActivity evCreatAct = Robolectric.buildActivity(EventCreationActivity.class).withIntent(intent).create().visible().get();
+        assertNotNull(evCreatAct);
 
     }
 
@@ -105,6 +107,7 @@ public class RoboTests extends TestCase{
         intent.putExtra(FacebookLogin.USER_F_NAME, "Russell");
         intent.putExtra(EventCreationActivity.EVENT_ID, "test12345");
         InviteFriendsActivity inviteAct = Robolectric.buildActivity(InviteFriendsActivity.class).withIntent(intent).create().visible().get();
+        assertNotNull(inviteAct);
 
     }
 
@@ -124,7 +127,8 @@ public class RoboTests extends TestCase{
 
         intent.putExtra(FeedActivity.FRIEND_ID, "1253227638023946");
         intent.putExtra(FeedActivity.FRIEND_F_NAME, "Russell");
-        friendEventActivity inviteAct = Robolectric.buildActivity(friendEventActivity.class).withIntent(intent).create().visible().get();
+        friendEventActivity friendAct = Robolectric.buildActivity(friendEventActivity.class).withIntent(intent).create().visible().get();
+        assertNotNull(friendAct);
     }
 
     @Test
@@ -141,6 +145,7 @@ public class RoboTests extends TestCase{
         intent.putExtra(FacebookLogin.USER_F_NAME, "Russell");
         intent.putExtra(EventCreationActivity.EVENT_ID, "test12345");
         FeedActivity inviteAct = Robolectric.buildActivity(FeedActivity.class).withIntent(intent).create().visible().get();
+        assertNotNull(inviteAct);
     }
 
     @Test
@@ -158,7 +163,7 @@ public class RoboTests extends TestCase{
         intent.putExtra(FacebookLogin.USER_F_NAME, "Russell");
         intent.putExtra(EventCreationActivity.EVENT_ID, "test12345");
         EventActivity eventAct = Robolectric.buildActivity(EventActivity.class).withIntent(intent).create().visible().get();
-        assertTrue(true);
+        assertNotNull(eventAct);
     }
 
     @Test
@@ -175,6 +180,7 @@ public class RoboTests extends TestCase{
         intent.putExtra(FacebookLogin.USER_F_NAME, "Russell");
         intent.putExtra(EventCreationActivity.EVENT_ID, "test12345");
         UsersHistory inviteAct = Robolectric.buildActivity(UsersHistory.class).withIntent(intent).create().visible().get();
+        assertNotNull(inviteAct);
     }
 
     @Test
@@ -306,5 +312,79 @@ public class RoboTests extends TestCase{
 
         mapper.delete(before);
         assertNull(mapper.load(uProfile.class, before.getUserID()));
+    }
+
+    /*
+    * Test Case Number	Sprint 3 Test Case 4 – User Story #4
+    * As a user I want to be able to join public events
+    * */
+    @Test
+    @Ignore
+    public void testUserHistory() throws Exception {
+
+        /*
+        joinEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Event temp = currEvent;
+                temp.setAttendees(temp.getAttendees() + "," + uID);
+
+                joinEvent.setVisibility(View.GONE);
+                new addUserToEvent().execute(temp);
+
+            }
+        });
+        */
+        ShadowApplication shadAct = ShadowApplication.getInstance().getShadowApplication();
+
+        Intent intent = new Intent(shadAct.getApplicationContext(), EventActivity.class);
+
+        intent = new Intent(shadAct.getApplicationContext(), EventActivity.class);
+        intent.putExtra(EventCreationActivity.EVENT_TOPIC, "Test");
+        intent.putExtra(FacebookLogin.POOL_ID, poolID);
+        intent.putExtra(FacebookLogin.USER_ID, "1253227638023946");
+        intent.putExtra(FacebookLogin.USER_F_NAME, "Russell");
+        intent.putExtra(EventCreationActivity.EVENT_ID, "test12345");
+        //EventActivity eventAct = Robolectric.buildActivity(EventActivity.class);
+
+
+        EventActivity uut = new EventActivity();
+
+        uut.setUID("russell-2345");
+
+        String eventID = "Test event";
+        String hostID = "russell-2345";
+        String hostName = "Russell Tang";
+        String attendees = "russell-2345";
+        String rsvpList = "russell-2345";
+        String topic = "Chinese Restaurant";
+        SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
+        Date currDate = new Date();
+        String dateCreated = date.format(currDate);
+        String category = "Location Based";
+        String viewedList = "russell-2345";
+        double latitude = 0.0;
+        double longitude = 0.0;
+
+        Event before = new Event();
+        before.setEventID(eventID);
+        before.setHostID(hostID);
+        before.setHostName(hostName);
+        before.setAttendees(attendees);
+        before.setRsvpList(rsvpList);
+        before.setTopic(topic);
+        before.setDateCreated(dateCreated);
+        before.setCategory(category);
+        before.setViewedList(viewedList);
+        before.setLatitude(latitude);
+        before.setLongitude(longitude);
+
+        uut.setCurrEvent(before);
+        //Button joinButton = (Button) eventAct.findViewById(R.id.joinEvent);
+        //joinButton.performClick();
+        //uut.getJoinButton().performClick();
+
+
+        //Initializing unit under test
     }
 }

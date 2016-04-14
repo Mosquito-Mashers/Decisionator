@@ -1,13 +1,9 @@
 package com.csulb.decisionator.decisionator;
 
 import android.content.Intent;
-import android.location.Location;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -20,17 +16,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
-import org.robolectric.internal.Shadow;
 import org.robolectric.internal.ShadowExtractor;
-import org.robolectric.shadows.ShadowAbsListView;
-import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowListView;
 import org.robolectric.shadows.ShadowLog;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -141,6 +131,5 @@ public class RoboTestsGUI extends TestCase {
         //login.performClick();
         shadAct.startActivity(face.loginSuccess);
         assertEquals(shadAct.getNextStartedActivity(), expectedIntent);
-
     }
 }
