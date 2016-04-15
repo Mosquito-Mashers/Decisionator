@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -53,6 +54,7 @@ public class FeedActivity extends AppCompatActivity {
 
     private ListView feedList;
     private Button view;
+    private ProgressBar feedProgress;
     private FriendAdapter friendAdapter;
     private ArrayList<User> peepFriends;
     private ArrayList<User> allUsers = new ArrayList<User>();
@@ -108,6 +110,7 @@ public class FeedActivity extends AppCompatActivity {
 
         peepFriends = new ArrayList<User>();
         feedList = (ListView) findViewById(R.id.feedList);
+        feedProgress = (ProgressBar) findViewById(R.id.friendFeedProgress);
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),    /* get the context for the application */
                 poolID, // Identity Pool ID
@@ -253,6 +256,7 @@ public class FeedActivity extends AppCompatActivity {
 
             feedList = (ListView) findViewById(R.id.feedList);
             feedList.setAdapter(friendAdapter);
+            feedProgress.setVisibility(View.GONE);
         }
     }
 
