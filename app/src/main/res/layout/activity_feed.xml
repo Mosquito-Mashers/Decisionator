@@ -17,6 +17,13 @@
             android:layout_height="wrap_content" android:padding="10dp"
             android:text="See what your friends are up to" android:textSize="20sp" />
 
+        <ProgressBar
+            android:id="@+id/friendFeedProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:textAlignment="center"/>
+
         <ListView android:id="@+id/feedList"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" />
