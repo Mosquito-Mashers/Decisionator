@@ -454,12 +454,16 @@ public class LobbyActivity extends AppCompatActivity {
                 }
             });
 
-            for(int k = 0; k < 7; k++)
-            {
-                if(res.get(k) != null) {
+            for (int k = 0; k < 7; k++) {
+                if (res.size() >= k+1) {
                     recentList.add(res.get(k));
                 }
+                else
+                {
+                    break;
+                }
             }
+
 
             eventAdapter = new EventAdapter(getApplicationContext(), R.layout.list_item_event_info, recentList);
             eventList = (ListView) findViewById(R.id.eventList);

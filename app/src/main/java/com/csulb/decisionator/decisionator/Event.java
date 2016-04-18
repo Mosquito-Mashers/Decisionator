@@ -119,7 +119,7 @@ public class Event {
     }
 
     @DynamoDBAttribute(attributeName = "isPrivate")
-    public boolean isPrivate() {
+    public boolean getIsPrivate() {
         return isPrivate;
     }
 
