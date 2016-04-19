@@ -1,6 +1,5 @@
 package com.csulb.decisionator.decisionator;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,7 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -32,7 +36,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-public class PublicEventsActivity extends Activity {
+public class PublicEventsActivity extends AppCompatActivity {
 
     private String uID;
     private String poolID;
@@ -54,6 +58,31 @@ public class PublicEventsActivity extends Activity {
 
     private ArrayList<Event> events = new ArrayList<Event>();
     private ArrayList<User> users = new ArrayList<User>();
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_resources, menu);
+        MenuItem itemChart = menu.findItem(R.id.chart);
+        itemChart.setVisible(false);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                startActivity(logoutIntent);
+                return true;
+            case R.id.lobby:
+                startActivity(lobbyIntent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
