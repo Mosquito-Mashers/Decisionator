@@ -20,6 +20,7 @@ public class Event {
     private String viewedList;
     private double latitude;
     private double longitude;
+    private boolean isPrivate;
 
     @DynamoDBHashKey(attributeName = "eventID")
     public String getEventID() {
@@ -115,5 +116,14 @@ public class Event {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    @DynamoDBAttribute(attributeName = "isPrivate")
+    public boolean getIsPrivate() {
+        return isPrivate;
+    }
+
+    public void setIsPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
     }
 }

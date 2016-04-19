@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -67,6 +68,7 @@ public class EventCreationActivity extends AppCompatActivity {
     private RadioButton entertainCategory;
     private RadioButton randomCategory;
     private RadioButton selectedCategory;
+    private CheckBox privateEventCheck;
 
     private checkUpdates updateRefresh = new checkUpdates();
     private Intent notificationIntent;
@@ -143,6 +145,7 @@ public class EventCreationActivity extends AppCompatActivity {
         entertainCategory = (RadioButton)findViewById(R.id.radioEntertainment);
         randomCategory = (RadioButton)findViewById(R.id.radioRandom);
         categories = (RadioGroup) findViewById(R.id.eventCategories);
+        privateEventCheck = (CheckBox) findViewById(R.id.privateCheckbox);
 
 
         context = getApplicationContext();
@@ -214,6 +217,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 evnt.setLatitude(33.760605);
                 evnt.setLongitude(-118.156446);
                 evnt.setDateCreated(date.format(currDate));
+                evnt.setIsPrivate(privateEventCheck.isChecked());
 
                 if(categories.getCheckedRadioButtonId() > 0)
                 {
