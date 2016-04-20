@@ -466,7 +466,7 @@ public class LobbyActivity extends AppCompatActivity {
 
             for(int k = 0; k < 7; k++)
             {
-                if(res.size() < k) {
+                if(res.size() > k) {
                     if (res.get(k) != null) {
                         recentList.add(res.get(k));
                     }
