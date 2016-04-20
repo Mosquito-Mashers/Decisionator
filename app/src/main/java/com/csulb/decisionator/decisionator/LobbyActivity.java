@@ -76,6 +76,9 @@ public class LobbyActivity extends AppCompatActivity {
     private ImageButton usersHistory;
     private checkUpdates updateRefresh = new checkUpdates();
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
+    private TextView score;
+
+    int rsvpCount;
 
     private ArrayList<User> users = new ArrayList<User>();
     private ArrayList<Event> events = new ArrayList<Event>();
@@ -113,6 +116,8 @@ public class LobbyActivity extends AppCompatActivity {
         initializeGlobals();
 
         initializeListeners();
+
+
     }
 
     private void initializeGlobals() {
@@ -170,6 +175,9 @@ public class LobbyActivity extends AppCompatActivity {
         new getEvents().execute();
         //new waitAndRemoveView().execute();
         //new checkUpdates().execute();
+
+        score = (TextView) findViewById(R.id.scoreValue);
+        score.setText(rsvpCount);
     }
 
     private void initializeListeners() {
@@ -424,6 +432,18 @@ public class LobbyActivity extends AppCompatActivity {
 
             int k;
             int m;
+
+            for (k = 0; k < result.size(); k++) {
+                Event item = result.get(k);
+                if (item.getRsvpList() != null) {
+                    String[] rsvps = item.getRsvpList().split(",");
+                    for (m = 0; m < rsvps.length; m++) {
+                        if(rsvps[m].contentEquals(uID)) {
+                            rsvpCount += 1;
+                        }
+                    }
+                }
+            }
 
             for (k = 0; k < result.size(); k++) {
                 Event item = result.get(k);

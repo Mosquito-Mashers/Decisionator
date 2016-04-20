@@ -30,6 +30,23 @@
                         android:layout_centerInParent="true"
                         android:textAlignment="center"
                         android:textSize="35dp"/>
+                    <TextView
+                        android:id="@+id/score"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Score:"
+                        android:textSize="25dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_toLeftOf="@+id/publicEvents"
+                        android:layout_toStartOf="@+id/publicEvents" />
+                    <TextView
+                        android:id="@+id/scoreValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="25dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_toRightOf="@+id/score"
+                        android:layout_toEndOf="@+id/score" />
                     <ImageButton
                         android:id="@+id/refreshEvents"
                         android:layout_width="wrap_content"
