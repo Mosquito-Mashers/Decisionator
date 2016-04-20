@@ -39,6 +39,7 @@ public class FeedActivity extends AppCompatActivity {
 
     private Intent lobbyIntent;
     private Intent logoutIntent;
+    private Intent profileIntent;
     private Intent fromLobby;
     private Intent toFriendFeedIntent;
 
@@ -82,6 +83,9 @@ public class FeedActivity extends AppCompatActivity {
             case R.id.lobby:
                 startActivity(lobbyIntent);
                 return true;
+            case R.id.profile:
+                startActivity(profileIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -102,6 +106,7 @@ public class FeedActivity extends AppCompatActivity {
         fromLobby = getIntent();
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
+        profileIntent = new Intent(this, MyProfile.class);
         toFriendFeedIntent = new Intent(this, friendEventActivity.class);
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
         poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
@@ -120,6 +125,10 @@ public class FeedActivity extends AppCompatActivity {
         lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uName);
+        profileIntent.putExtra(FacebookLogin.USER_ID, uID);
+        profileIntent.putExtra(FacebookLogin.POOL_ID,poolID);
+        profileIntent.putExtra(FacebookLogin.USER_F_NAME,uName);
+
         toFriendFeedIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         toFriendFeedIntent.putExtra(FacebookLogin.USER_ID, uID);
         toFriendFeedIntent.putExtra(FacebookLogin.USER_F_NAME, uName);

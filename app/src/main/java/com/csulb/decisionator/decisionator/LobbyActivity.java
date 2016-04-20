@@ -59,6 +59,7 @@ public class LobbyActivity extends AppCompatActivity {
     //Gui items
     private Intent loginSuccess;
     private Intent logoutIntent;
+    private Intent profileIntent;
     private Intent createEventIntent;
     private Intent notificationIntent;
     private Intent viewFeedIntent;
@@ -99,6 +100,10 @@ public class LobbyActivity extends AppCompatActivity {
                 updateRefresh.cancel(true);
                 startActivity(logoutIntent);
                 return true;
+            case R.id.profile:
+                updateRefresh.cancel(true);
+                startActivity(profileIntent);
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -120,6 +125,7 @@ public class LobbyActivity extends AppCompatActivity {
         loginSuccess = getIntent();
         createEventIntent = new Intent(this, EventCreationActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
+        profileIntent = new Intent(this, MyProfile.class);
         viewFeedIntent = new Intent(this, FeedActivity.class);
         publicEventsIntent = new Intent(this, PublicEventsActivity.class);
         events = new ArrayList<Event>();
@@ -161,6 +167,10 @@ public class LobbyActivity extends AppCompatActivity {
         createUsersHistoryIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         createUsersHistoryIntent.putExtra(FacebookLogin.USER_ID, uID);
         createUsersHistoryIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+
+        profileIntent.putExtra(FacebookLogin.USER_ID, uID);
+        profileIntent.putExtra(FacebookLogin.POOL_ID,poolID);
+        profileIntent.putExtra(FacebookLogin.USER_F_NAME,uName);
 
         //GUI Update based on intent
         welcomeString = welcomeMessage.getText() + " " + uName + "!";
