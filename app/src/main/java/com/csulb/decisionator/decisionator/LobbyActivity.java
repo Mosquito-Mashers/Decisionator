@@ -117,7 +117,8 @@ public class LobbyActivity extends AppCompatActivity {
 
         initializeListeners();
 
-
+        score = (TextView) findViewById(R.id.scoreValue);
+        score.setText(String.valueOf(rsvpCount));
     }
 
     private void initializeGlobals() {
@@ -176,8 +177,6 @@ public class LobbyActivity extends AppCompatActivity {
         //new waitAndRemoveView().execute();
         //new checkUpdates().execute();
 
-        score = (TextView) findViewById(R.id.scoreValue);
-        score.setText(rsvpCount);
     }
 
     private void initializeListeners() {
@@ -444,7 +443,6 @@ public class LobbyActivity extends AppCompatActivity {
                     }
                 }
             }
-
             for (k = 0; k < result.size(); k++) {
                 Event item = result.get(k);
                 if (item.getAttendees() != null) {
@@ -519,6 +517,7 @@ public class LobbyActivity extends AppCompatActivity {
             updateRefresh = new checkUpdates();
 
             updateRefresh.execute();
+            score.setText(String.valueOf(rsvpCount));
 
         }
     }
