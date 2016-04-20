@@ -696,12 +696,19 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
+            boolean peopleInvited = false;
+
             DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
             PaginatedScanList<User> userResult = mapper.scan(User.class, scanExpression);
             Event eventResult = mapper.load(Event.class, params[0]);
             currEvent = eventResult;
+            String invitedArray[] = new String[1];
+            if(eventResult.getAttendees() != null)
+            {
+                peopleInvited = true;
+                invitedArray= eventResult.getAttendees().split(",");
+            }
 
-            String invitedArray[] = eventResult.getAttendees().split(",");
             String rsvpList = eventResult.getRsvpList();
 
             int k;
@@ -714,23 +721,20 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 }
                 String itemID = item.getUserID();
 
-                for(int i = 0; i < invitedArray.length; i++)
-                {
-                    if (invitedArray[i].replaceAll("\\s+$", "").contentEquals(itemID))
-                    {
-                        if(rsvpList != null && rsvpList.contains(item.getUserID()))
-                        {
-                            rsvped.add(item.getUserID());
-                            //item.setlName(item.getlName() + "R");
-                        }
-                        else
-                        {
-                            invited.add(item.getUserID());
-                            //item.setlName(item.getlName() + "?");
-                        }
-                        allUsers.add(item);
+                if(peopleInvited) {
+                    for (int i = 0; i < invitedArray.length; i++) {
+                        if (invitedArray[i].replaceAll("\\s+$", "").contentEquals(itemID)) {
+                            if (rsvpList != null && rsvpList.contains(item.getUserID())) {
+                                rsvped.add(item.getUserID());
+                                //item.setlName(item.getlName() + "R");
+                            } else {
+                                invited.add(item.getUserID());
+                                //item.setlName(item.getlName() + "?");
+                            }
+                            allUsers.add(item);
 
-                        continue;
+                            continue;
+                        }
                     }
                 }
             }

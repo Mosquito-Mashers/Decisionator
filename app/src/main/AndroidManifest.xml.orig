@@ -43,8 +43,11 @@
         </activity>
         <activity android:name=".FeedActivity" />
         <activity android:name=".friendEventActivity" />
-        <activity android:name=".PublicEventsActivity" />
+<<<<<<< HEAD
         <activity android:name=".MyProfile" >
+=======
+        <activity android:name=".PublicEventsActivity" >
+>>>>>>> d3bfde84cf67b5625ec78b1cd4a5dc334b32b076
         </activity>
     </application>
 
