@@ -11,8 +11,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        >
+        android:theme="@style/AppTheme" >
         <activity android:name=".FacebookLogin" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,10 +22,10 @@
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id"/>
+            android:value="@string/facebook_app_id" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCpKblHKkLlan0H33WsA_yPgkDe4K6-C38"/>
+            android:value="AIzaSyCpKblHKkLlan0H33WsA_yPgkDe4K6-C38" />
 
         <activity
             android:name="com.facebook.FacebookActivity"
@@ -42,11 +41,10 @@
         </activity>
         <activity android:name=".UsersHistory" >
         </activity>
-        <activity android:name=".FeedActivity"/>
-        <activity android:name=".friendEventActivity"/>
-
-        
-
+        <activity android:name=".FeedActivity" />
+        <activity android:name=".friendEventActivity" />
+        <activity android:name=".MyProfile" >
+        </activity>
     </application>
 
 </manifest>

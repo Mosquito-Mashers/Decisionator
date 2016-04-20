@@ -47,6 +47,7 @@ public class EventCreationActivity extends AppCompatActivity {
     private Intent fromLobby;
     private Intent logoutIntent;
     private Intent lobbyIntent;
+    private Intent profileIntent;
     private Intent moveToInvite;
 
     private static final Map<String, String> intentPairs = new HashMap<String, String>();
@@ -93,6 +94,10 @@ public class EventCreationActivity extends AppCompatActivity {
                 updateRefresh.cancel(true);
                 startActivity(lobbyIntent);
                 return true;
+            case R.id.profile:
+                updateRefresh.cancel(true);
+                startActivity(profileIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -118,6 +123,7 @@ public class EventCreationActivity extends AppCompatActivity {
         moveToInvite = new Intent(this, InviteFriendsActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
+        profileIntent = new Intent(this, MyProfile.class);
         fromLobby = getIntent();
 
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
@@ -133,6 +139,9 @@ public class EventCreationActivity extends AppCompatActivity {
         lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uFname);
+        profileIntent.putExtra(FacebookLogin.USER_ID, uID);
+        profileIntent.putExtra(FacebookLogin.POOL_ID,poolID);
+        profileIntent.putExtra(FacebookLogin.USER_F_NAME,uFname);
 
         eventID = UUID.randomUUID();
         eventPredicate = (TextView) findViewById(R.id.topicPredicate);
