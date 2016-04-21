@@ -177,6 +177,7 @@ public class LobbyActivity extends AppCompatActivity {
         //new waitAndRemoveView().execute();
         //new checkUpdates().execute();
 
+
     }
 
     private void initializeListeners() {
@@ -518,7 +519,21 @@ public class LobbyActivity extends AppCompatActivity {
 
             updateRefresh.execute();
             score.setText(String.valueOf(rsvpCount));
+            new writeRSVP().execute(uID);
 
+        }
+    }
+
+    class writeRSVP extends  AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            User user = mapper.load(User.class, params[0]);
+            user.setRsvpCount(rsvpCount);
+            mapper.save(user);
+            return null;
         }
     }
 
