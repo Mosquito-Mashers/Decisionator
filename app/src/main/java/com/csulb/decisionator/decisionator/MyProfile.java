@@ -123,9 +123,23 @@ public class MyProfile extends AppCompatActivity {
         protected void onPostExecute(Void param)
         {
             profileLoading.setVisibility(View.GONE);
-            picAnalysis.setText(currProfile.getImageTags());
-            locationAnalysis.setText(currProfile.getPlacesTags());
-            likesAnalysis.setText(currProfile.getLikeTags());
+            WordCloudGenerator gen = new WordCloudGenerator(currProfile.getPlacesTags(),null);
+
+            gen.createFrequencyMap();
+
+            locationAnalysis.setText(gen.buildSmallMap());
+
+            gen = new WordCloudGenerator(currProfile.getImageTags(),null);
+
+            gen.createFrequencyMap();
+
+            picAnalysis.setText(gen.buildSmallMap());
+
+            gen = new WordCloudGenerator(currProfile.getLikeTags(),null);
+
+            gen.createFrequencyMap();
+
+            likesAnalysis.setText(gen.buildSmallMap());
         }
     }
 }
