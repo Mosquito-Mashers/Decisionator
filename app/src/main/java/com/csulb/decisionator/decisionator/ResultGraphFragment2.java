@@ -40,25 +40,22 @@ public class ResultGraphFragment2 extends Fragment {
             TextView box = (TextView) view.findViewById(R.id.venues_description);
             //TextView description = (TextView) view.findViewById(R.id.venues_cloud);
             box.setMovementMethod(new ScrollingMovementMethod());
-            if(incoming != null)
-            {
+            if (incoming != null) {
                 sorted_venues = getArguments().getString(EventActivity.TOP_VENUE_DATA);
-                if(sorted_venues != "" && sorted_venues != null)
-                {
+                if (sorted_venues != "" && sorted_venues != null) {
                     String raw[] = sorted_venues.split("\\|");
-                    for(int k = 0; k < raw.length; k++)
-                    {
+                    for (int k = 0; k < raw.length; k++) {
                         String item[] = raw[k].split(",");
-                        sortedResults.put(item[0],Integer.parseInt(item[1]));
+                        sortedResults.put(item[0], Integer.parseInt(item[1]));
                     }
 
                 }
 
-            box.setText(wordCloud);
+                box.setText(wordCloud);
+                return view;
+            }
             return view;
         }
-
-
 
 
 }
