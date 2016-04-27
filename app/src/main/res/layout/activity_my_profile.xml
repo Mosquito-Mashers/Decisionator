@@ -74,8 +74,6 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:text="No data found"/>
-
-
         </LinearLayout>
     </ScrollView>
 

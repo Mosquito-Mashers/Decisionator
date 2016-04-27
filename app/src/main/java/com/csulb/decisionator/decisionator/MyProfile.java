@@ -131,23 +131,30 @@ public class MyProfile extends AppCompatActivity {
             profileWelcome.setText(currUser.getfName() + " " + currUser.getlName());
             new DownloadImageTask(profilePic).execute(currUser.getProfilePic());
             profileLoading.setVisibility(View.GONE);
-            WordCloudGenerator gen = new WordCloudGenerator(currProfile.getPlacesTags(),null);
+            WordCloudGenerator gen;
+            if(currProfile.getPlacesTags() != null) {
+                gen = new WordCloudGenerator(currProfile.getPlacesTags(), null);
 
-            gen.createFrequencyMap();
+                gen.createFrequencyMap();
 
-            locationAnalysis.setText(gen.buildSmallMap());
+                locationAnalysis.setText(gen.buildSmallMap());
+            }
 
-            gen = new WordCloudGenerator(currProfile.getImageTags(),null);
+            if(currProfile.getImageTags() != null) {
+                gen = new WordCloudGenerator(currProfile.getImageTags(), null);
 
-            gen.createFrequencyMap();
+                gen.createFrequencyMap();
 
-            picAnalysis.setText(gen.buildSmallMap());
+                picAnalysis.setText(gen.buildSmallMap());
+            }
 
-            gen = new WordCloudGenerator(currProfile.getLikeTags(),null);
+            if(currProfile.getLikeTags() != null) {
+                gen = new WordCloudGenerator(currProfile.getLikeTags(), null);
 
-            gen.createFrequencyMap();
+                gen.createFrequencyMap();
 
-            likesAnalysis.setText(gen.buildSmallMap());
+                likesAnalysis.setText(gen.buildSmallMap());
+            }
         }
     }
 
