@@ -158,6 +158,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 Bundle fragArgs = new Bundle();
                 fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
                 fragArgs.putString(TOP_VENUE_DATA, topVenues);
+                //fragArgs.putArray
                 ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
                 getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
                 fragContainer.setVisibility(View.VISIBLE);
