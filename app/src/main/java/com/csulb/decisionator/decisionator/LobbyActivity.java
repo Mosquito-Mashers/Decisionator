@@ -435,11 +435,16 @@ public class LobbyActivity extends AppCompatActivity {
 
             for (k = 0; k < result.size(); k++) {
                 Event item = result.get(k);
-                if (item.getRsvpList() != null) {
-                    String[] rsvps = item.getRsvpList().split(",");
-                    for (m = 0; m < rsvps.length; m++) {
-                        if(rsvps[m].contentEquals(uID)) {
-                            rsvpCount += 1;
+                if (item.getHostID().equals(uID))
+                {
+                    if (item.getRsvpList() != null) {
+                        String[] rsvps = item.getRsvpList().split(",");
+                        for (m = 0; m < rsvps.length; m++) {
+                            if(rsvps[m].equals(uID)) {
+                            }
+                            else {
+                                rsvpCount += 1;
+                            }
                         }
                     }
                 }

@@ -38,8 +38,7 @@
                         android:textSize="25dp"
                         android:layout_alignParentBottom="true"
                         android:layout_toLeftOf="@+id/publicEvents"
-                        android:layout_toStartOf="@+id/publicEvents" />
-                    <TextView
+                        android:layout_toStartOf="@+id/publicEvents" /><TextView
                         android:id="@+id/scoreValue"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
