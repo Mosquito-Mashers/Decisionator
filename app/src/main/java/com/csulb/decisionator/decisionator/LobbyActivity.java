@@ -78,7 +78,7 @@ public class LobbyActivity extends AppCompatActivity {
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
     private TextView score;
 
-    int rsvpCount;
+    int rsvpCount = 0;
 
     private ArrayList<User> users = new ArrayList<User>();
     private ArrayList<Event> events = new ArrayList<Event>();
@@ -440,10 +440,9 @@ public class LobbyActivity extends AppCompatActivity {
                     if (item.getRsvpList() != null) {
                         String[] rsvps = item.getRsvpList().split(",");
                         for (m = 0; m < rsvps.length; m++) {
-                            if(rsvps[m].equals(uID)) {
-                            }
-                            else {
-                                rsvpCount += 1;
+                            rsvpCount += 1;
+                            if(rsvps[m].equals(uID)){
+                                rsvpCount -= 1;
                             }
                         }
                     }
