@@ -52,6 +52,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
     private Intent inEvent;
     private Intent logoutIntent;
     private Intent lobbyIntent;
+    private Intent profileIntent;
     private Intent startEvent;
     private Event event;
 
@@ -83,6 +84,10 @@ public class InviteFriendsActivity extends AppCompatActivity {
                 updateRefresh.cancel(true);
                 startActivity(lobbyIntent);
                 return true;
+            case R.id.profile:
+                updateRefresh.cancel(true);
+                startActivity(profileIntent);
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -105,6 +110,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
         startEvent = new Intent(this, EventActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
+        profileIntent = new Intent(this, MyProfile.class);
         fbFriends = new ArrayList<User>();
         invitedFriends = new ArrayList<User>();
 
@@ -124,6 +130,9 @@ public class InviteFriendsActivity extends AppCompatActivity {
         lobbyIntent.putExtra(FacebookLogin.USER_ID,uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID,poolID);
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME,uFName);
+        profileIntent.putExtra(FacebookLogin.USER_ID, uID);
+        profileIntent.putExtra(FacebookLogin.POOL_ID,poolID);
+        profileIntent.putExtra(FacebookLogin.USER_F_NAME,uFName);
 
         inviteButton = (Button) findViewById(R.id.inviteButton);
 
