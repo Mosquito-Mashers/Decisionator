@@ -14,17 +14,18 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/myProfilePic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
             <TextView
                 android:id="@+id/userProfileWelcome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:text="USERS NAME"/>
+                android:textSize="25dp"/>
+
+            <ImageView
+                android:id="@+id/myProfilePic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
 
             <ProgressBar
                 android:id="@+id/profileLoading"
@@ -36,6 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
+                android:textSize="20dp"
                 android:text="Analysis of your profile photo"/>
 
             <TextView
@@ -43,12 +45,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:text="Analysis of your profile photo"/>
+                android:text="No data found"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
+                android:textSize="20dp"
                 android:text="Your location analysis"/>
 
             <TextView
@@ -56,12 +59,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:text="Your location analysis"/>
+                android:text="No data found"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
+                android:textSize="20dp"
                 android:text="Your likes and public text analysis"/>
 
             <TextView
@@ -69,7 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:text="Your likes and public text analysis"/>
+                android:text="No data found"/>
 
 
         </LinearLayout>
