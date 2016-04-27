@@ -1,6 +1,5 @@
 package com.csulb.decisionator.decisionator;
 
-import android.content.Intent;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 
@@ -230,6 +229,7 @@ public class WordCloudGenerator
     }
 
     public Map getSortedMap() {
+        sortedMap = sortByValues(frequencyMap);
         return sortedMap;
     }
 
@@ -387,6 +387,30 @@ public class WordCloudGenerator
                 new TreeMap<K, V>(valueComparator);
         sortedByValues.putAll(map);
         return sortedByValues;
+    }
+
+    public String buildSmallMap()
+    {
+        String items = "";
+        Set set = this.getSortedMap().entrySet();
+
+        // Get an iterator
+        Iterator i = set.iterator();
+
+        int count = 0;
+        // Display elements
+        while(i.hasNext()) {
+            if(count < 10) {
+                Map.Entry me = (Map.Entry) i.next();
+                items += me.getKey() + ": " + me.getValue() + "\n";
+            }
+            else
+            {
+                break;
+            }
+            count++;
+        }
+        return items;
     }
 
 }

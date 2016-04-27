@@ -40,6 +40,7 @@ public class friendEventActivity extends AppCompatActivity {
     private Intent friendLobbyIntent;
     private Intent lobbyIntent;
     private Intent logoutIntent;
+    private Intent profileIntent;
     private Intent notificationIntent;
 
     private String uID;
@@ -81,6 +82,9 @@ public class friendEventActivity extends AppCompatActivity {
             case R.id.lobby:
                 startActivity(lobbyIntent);
                 return true;
+            case R.id.profile:
+                startActivity(profileIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -99,6 +103,7 @@ public class friendEventActivity extends AppCompatActivity {
         fromFeedActivity = getIntent();
         lobbyIntent = new Intent(this, LobbyActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
+        profileIntent = new Intent(this, MyProfile.class);
         events = new ArrayList<Event>();
 
         //GUI assignments
@@ -121,6 +126,9 @@ public class friendEventActivity extends AppCompatActivity {
         lobbyIntent.putExtra(FacebookLogin.USER_ID, uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+        profileIntent.putExtra(FacebookLogin.USER_ID, uID);
+        profileIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        profileIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
         //GUI Update based on intent
         welcomeString = welcomeMessage.getText() + " to " + friendName + "'s feed!";

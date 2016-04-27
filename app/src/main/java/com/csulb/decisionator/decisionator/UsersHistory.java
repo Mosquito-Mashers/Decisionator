@@ -51,6 +51,7 @@ public class UsersHistory extends AppCompatActivity {
     private Intent notificationIntent;
     private Intent lobbyIntent;
     private Intent logoutIntent;
+    private Intent profileIntent;
     private EventAdapter eventAdapter;
     private checkUpdates updateRefresh = new checkUpdates();
 
@@ -81,6 +82,9 @@ public class UsersHistory extends AppCompatActivity {
             case R.id.lobby:
                 startActivity(lobbyIntent);
                 return true;
+            case R.id.profile:
+                startActivity(profileIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -100,6 +104,7 @@ public class UsersHistory extends AppCompatActivity {
         fromLobby = getIntent();
         lobbyIntent = new Intent(this, LobbyActivity.class);
         logoutIntent = new Intent(this, FacebookLogin.class);
+        profileIntent = new Intent(this,MyProfile.class);
 
         uID = fromLobby.getStringExtra(FacebookLogin.USER_ID);
         poolID = fromLobby.getStringExtra(FacebookLogin.POOL_ID);
@@ -116,6 +121,9 @@ public class UsersHistory extends AppCompatActivity {
         lobbyIntent.putExtra(FacebookLogin.USER_ID, uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+        profileIntent.putExtra(FacebookLogin.USER_ID, uID);
+        profileIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        profileIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
         welcomeText.setText(uName+"'s event History");
         new getAllUsers().execute();

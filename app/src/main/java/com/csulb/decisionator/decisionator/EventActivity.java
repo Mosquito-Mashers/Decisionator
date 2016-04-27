@@ -81,6 +81,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private Intent enterEvent;
     private Intent logoutIntent;
     private Intent lobbyIntent;
+    private Intent profileIntent;
     private Map<String, String> intentPairs = new HashMap<String, String>();
     private CognitoCachingCredentialsProvider credentialsProvider;
 
@@ -148,6 +149,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 updateRefresh.cancel(true);
                 startActivity(lobbyIntent);
                 return true;
+            case R.id.profile:
+                updateRefresh.cancel(true);
+                startActivity(profileIntent);
+                return true;
             case R.id.chart:
 
                 Bundle fragArgs = new Bundle();
@@ -196,6 +201,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
+        profileIntent = new Intent(this, MyProfile.class);
 
         enterEvent = getIntent();
         eTopic = enterEvent.getStringExtra(EventCreationActivity.EVENT_TOPIC);
@@ -218,6 +224,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         lobbyIntent.putExtra(FacebookLogin.USER_ID, uID);
         lobbyIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         lobbyIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+        profileIntent.putExtra(FacebookLogin.USER_ID, uID);
+        profileIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        profileIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
         intentPairs.put(FacebookLogin.POOL_ID, poolID);
         intentPairs.put(FacebookLogin.USER_ID, uID);
