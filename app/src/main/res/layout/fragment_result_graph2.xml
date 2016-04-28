@@ -10,14 +10,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"/>
-    <ListView
-        android:id="@+id/venuesList"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:scrollbars = "vertical"
-        android:textColor="@color/cardview_light_background"
-        android:textSize="15dp"
-        android:text="@string/hello_blank_fragment" />
+        android:text="Analysis of top venues"/>
 
+    <TextView
+        android:id="@+id/topVenueAnalysis"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="Analysis of top venues"/>
 </FrameLayout>
