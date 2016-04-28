@@ -409,7 +409,7 @@ public class PublicEventsActivity extends AppCompatActivity {
             PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             Notification nb =
                     new Notification.Builder(getApplicationContext())
-                            .setSmallIcon(R.drawable.notification_icon)
+                            .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle("Decisionator")
                             .setContentText("You have new events on Decisionator!")
                             .setAutoCancel(true)
