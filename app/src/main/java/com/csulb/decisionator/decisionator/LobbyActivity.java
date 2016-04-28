@@ -203,6 +203,7 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 feedProg.setVisibility(View.VISIBLE);
+                rsvpCount = 0;
                 new getEvents().execute();
             }
         });
