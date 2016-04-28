@@ -1,5 +1,8 @@
 # Decisionator 
-![Decisionator](https://github.com/Mosquito-Mashers/Decisionator/blob/rsvp_button_bugs/decisionator_icon_q.png)
+
+<p align="center">
+<img src="https://github.com/Mosquito-Mashers/Decisionator/blob/rsvp_button_bugs/decisionator_icon_q.png">
+</p>
 
 Test Coverage:[![codecov.io](https://codecov.io/github/Mosquito-Mashers/Decisionator/coverage.svg?branch=master)](https://codecov.io/github/Mosquito-Mashers/Decisionator?branch=master)
 Continuous Integration:![Build status](https://travis-ci.org/Mosquito-Mashers/Decisionator.svg)
