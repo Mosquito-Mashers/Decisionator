@@ -32,16 +32,16 @@ public class ResultGraphFragment2 extends Fragment {
     private TextView box;
 
 
-    public static ResultGraphFragment newInstance(Bundle b) {
-        ResultGraphFragment fragment = new ResultGraphFragment();
-        fragment.setArguments(b);
+    public static ResultGraphFragment2 newInstance(Bundle b) {
+        ResultGraphFragment2 fragment2 = new ResultGraphFragment2();
+        fragment2.setArguments(b);
 
-        return fragment;
+        return fragment2;
     }
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_result_graph, container, false);
+            View view = inflater.inflate(R.layout.fragment_result_graph2, container, false);
             Bundle incoming = getArguments();
 
             box = (TextView) view.findViewById(R.id.venues_description);

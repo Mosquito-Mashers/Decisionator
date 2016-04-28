@@ -7,6 +7,11 @@
         android:icon="@mipmap/chart_icon_colored"
         app:showAsAction="always|withText"/>
     <item
+        android:id="@+id/chart2"
+        android:title="Graphs"
+        android:icon="@mipmap/chart_icon_colored"
+        app:showAsAction="always|withText"/>
+    <item
         android:id="@+id/profile"
         android:title="Profile"
         android:icon="@mipmap/my_profile_icon"
