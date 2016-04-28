@@ -96,6 +96,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String strForCloud = "";
     private String topVenues = "";
     private String globalCloud;
+    private boolean isHost = false;
 
     private User currUser;
 
@@ -711,6 +712,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
             String rsvpList = eventResult.getRsvpList();
 
+            if(currUser.getUserID().contentEquals(eventResult.getHostID()))
+            {
+                isHost = true;
+            }
             int k;
             for (k = 0; k < userResult.size(); k++)
             {
@@ -744,6 +749,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         @Override
         protected void onPostExecute(ArrayList<User> res)
         {
+            if(isHost)
+            {
+                rsvp.setVisibility(View.GONE);
+                Toast toast = Toast.makeText(getApplicationContext(), "You are the host!", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+
             friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_user_display,res);
             boolean partOfEvent = false;
             for(int k = 0; k < allUsers.size(); k++)
@@ -757,6 +769,16 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             if(!partOfEvent)
             {
                 joinEvent.setVisibility(View.VISIBLE);
+            }
+            if(!isHost) {
+                for (int k = 0; k < rsvped.size(); k++) {
+                    if (rsvped.get(k).contentEquals(uID)) {
+                        rsvp.setVisibility(View.GONE);
+                        Toast toast = Toast.makeText(getApplicationContext(), "You have already RSVP'ed!", Toast.LENGTH_SHORT);
+                        toast.show();
+                        break;
+                    }
+                }
             }
 
             invitedList = (ListView) findViewById(R.id.invitedList);
