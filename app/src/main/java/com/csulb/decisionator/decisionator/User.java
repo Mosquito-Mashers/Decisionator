@@ -19,6 +19,7 @@ public class User {
     private String profilePic;
     private double latitude;
     private double longitude;
+    private int rsvpCount;
 
 
     @DynamoDBHashKey(attributeName = "userID")
@@ -83,4 +84,9 @@ public class User {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
+    @DynamoDBAttribute(attributeName = "rsvpCount")
+    public int getRsvpCount() {return rsvpCount;}
+
+    public void setRsvpCount(int rsvpCount) { this.rsvpCount = rsvpCount;}
 }

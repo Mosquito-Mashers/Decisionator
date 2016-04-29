@@ -445,11 +445,26 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
 
             uProfile temp = mapper.load(uProfile.class, arg0[0].getUserID());
             if (temp != null) {
-                temp.setMovieLikeTags(arg0[0].getMovieLikeTags());
-                temp.setImageTags(arg0[0].getImageTags());
-                temp.setLikeTags(arg0[0].getLikeTags());
-                temp.setPlacesTags(arg0[0].getPlacesTags());
-                temp.setTextTags(arg0[0].getTextTags());
+                if(arg0[0].getMovieLikeTags() != null) {
+                    temp.setMovieLikeTags(arg0[0].getMovieLikeTags());
+                }
+
+                if(arg0[0].getImageTags() != null) {
+                    temp.setImageTags(arg0[0].getImageTags());
+                }
+
+                if(arg0[0].getLikeTags() != null) {
+                    temp.setLikeTags(arg0[0].getLikeTags());
+                }
+
+                if(arg0[0].getPlacesTags() != null) {
+                    temp.setPlacesTags(arg0[0].getPlacesTags());
+                }
+
+                if(arg0[0].getTextTags() != null) {
+
+                    temp.setTextTags(arg0[0].getTextTags());
+                }
             }
             else
             {

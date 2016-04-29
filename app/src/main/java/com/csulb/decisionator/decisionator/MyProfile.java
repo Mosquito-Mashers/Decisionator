@@ -1,9 +1,12 @@
 package com.csulb.decisionator.decisionator;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +19,8 @@ import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+
+import java.io.InputStream;
 
 public class MyProfile extends AppCompatActivity {
 
@@ -36,6 +41,7 @@ public class MyProfile extends AppCompatActivity {
     private ProgressBar profileLoading;
 
     private uProfile currProfile;
+    private User currUser;
 
     private CognitoCachingCredentialsProvider credentialsProvider;
 
@@ -103,7 +109,6 @@ public class MyProfile extends AppCompatActivity {
         profilePic = (ImageView) findViewById(R.id.myProfilePic);
         profileLoading = (ProgressBar) findViewById(R.id.profileLoading);
 
-        profileWelcome.setText("Welcome to your profile!");
         new getUserProfile().execute(uID);
     }
 
@@ -115,6 +120,7 @@ public class MyProfile extends AppCompatActivity {
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
             currProfile = mapper.load(uProfile.class,params[0]);
+            currUser = mapper.load(User.class,params[0]);
 
             return null;
         }
@@ -122,24 +128,58 @@ public class MyProfile extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void param)
         {
+            profileWelcome.setText(currUser.getfName() + " " + currUser.getlName());
+            new DownloadImageTask(profilePic).execute(currUser.getProfilePic());
             profileLoading.setVisibility(View.GONE);
-            WordCloudGenerator gen = new WordCloudGenerator(currProfile.getPlacesTags(),null);
+            WordCloudGenerator gen;
+            if(currProfile.getPlacesTags() != null) {
+                gen = new WordCloudGenerator(currProfile.getPlacesTags(), null);
 
-            gen.createFrequencyMap();
+                gen.createFrequencyMap();
 
-            locationAnalysis.setText(gen.buildSmallMap());
+                locationAnalysis.setText(gen.buildSmallMap());
+            }
 
-            gen = new WordCloudGenerator(currProfile.getImageTags(),null);
+            if(currProfile.getImageTags() != null) {
+                gen = new WordCloudGenerator(currProfile.getImageTags(), null);
 
-            gen.createFrequencyMap();
+                gen.createFrequencyMap();
 
-            picAnalysis.setText(gen.buildSmallMap());
+                picAnalysis.setText(gen.buildSmallMap());
+            }
 
-            gen = new WordCloudGenerator(currProfile.getLikeTags(),null);
+            if(currProfile.getLikeTags() != null) {
+                gen = new WordCloudGenerator(currProfile.getLikeTags(), null);
 
-            gen.createFrequencyMap();
+                gen.createFrequencyMap();
 
-            likesAnalysis.setText(gen.buildSmallMap());
+                likesAnalysis.setText(gen.buildSmallMap());
+            }
+        }
+    }
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
         }
     }
 }

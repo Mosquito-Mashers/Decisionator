@@ -77,6 +77,9 @@ public class LobbyActivity extends AppCompatActivity {
     private ImageButton usersHistory;
     private checkUpdates updateRefresh = new checkUpdates();
     SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
+    private TextView score;
+
+    int rsvpCount = 0;
 
     private ArrayList<User> users = new ArrayList<User>();
     private ArrayList<Event> events = new ArrayList<Event>();
@@ -118,6 +121,9 @@ public class LobbyActivity extends AppCompatActivity {
         initializeGlobals();
 
         initializeListeners();
+
+        score = (TextView) findViewById(R.id.scoreValue);
+        score.setText(String.valueOf(rsvpCount));
     }
 
     private void initializeGlobals() {
@@ -180,6 +186,8 @@ public class LobbyActivity extends AppCompatActivity {
         new getEvents().execute();
         //new waitAndRemoveView().execute();
         //new checkUpdates().execute();
+
+
     }
 
     private void initializeListeners() {
@@ -195,6 +203,7 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 feedProg.setVisibility(View.VISIBLE);
+                rsvpCount = 0;
                 new getEvents().execute();
             }
         });
@@ -437,6 +446,21 @@ public class LobbyActivity extends AppCompatActivity {
 
             for (k = 0; k < result.size(); k++) {
                 Event item = result.get(k);
+                if (item.getHostID().equals(uID))
+                {
+                    if (item.getRsvpList() != null) {
+                        String[] rsvps = item.getRsvpList().split(",");
+                        for (m = 0; m < rsvps.length; m++) {
+                            rsvpCount += 1;
+                            if(rsvps[m].equals(uID)){
+                                rsvpCount -= 1;
+                            }
+                        }
+                    }
+                }
+            }
+            for (k = 0; k < result.size(); k++) {
+                Event item = result.get(k);
                 if (item.getAttendees() != null) {
 
                     String[] attens = item.getAttendees().split(",");
@@ -509,7 +533,22 @@ public class LobbyActivity extends AppCompatActivity {
             updateRefresh = new checkUpdates();
 
             updateRefresh.execute();
+            score.setText(String.valueOf(rsvpCount));
+            new writeRSVP().execute(uID);
 
+        }
+    }
+
+    class writeRSVP extends  AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            User user = mapper.load(User.class, params[0]);
+            user.setRsvpCount(rsvpCount);
+            mapper.save(user);
+            return null;
         }
     }
 
@@ -659,7 +698,7 @@ public class LobbyActivity extends AppCompatActivity {
             PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             Notification nb =
                     new Notification.Builder(getApplicationContext())
-                            .setSmallIcon(R.drawable.notification_icon)
+                            .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle("Decisionator")
                             .setContentText("You have new events on Decisionator!")
                             .setAutoCancel(true)
