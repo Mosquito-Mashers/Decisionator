@@ -931,7 +931,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         String decisionatedChoice = sortedPlaces.entrySet().iterator().next().getKey();
         int decisionatedWeight = sortedPlaces.entrySet().iterator().next().getValue();
 
-        if(decisionatedWeight > 1)
+        if(decisionatedWeight >= 1)
         {
             Iterator mapIter = sortedPlaces.entrySet().iterator();
             int k = 0;
