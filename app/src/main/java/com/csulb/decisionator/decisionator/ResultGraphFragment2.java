@@ -30,6 +30,7 @@ public class ResultGraphFragment2 extends Fragment {
     private Map<String,Integer> sortedResults = new HashMap<String, Integer>();
 
     private TextView box;
+    private TextView mapText;
 
 
     public static ResultGraphFragment2 newInstance(Bundle b) {
@@ -41,31 +42,33 @@ public class ResultGraphFragment2 extends Fragment {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_result_graph2, container, false);
+            View view2 = inflater.inflate(R.layout.fragment_result_graph2, container, false);
             Bundle incoming = getArguments();
 
-            box = (TextView) view.findViewById(R.id.venues_description);
-            //TextView sortedData
+            box = (TextView) view2.findViewById(R.id.venues_description);
+            mapText = (TextView) view2.findViewById(R.id.topVenueAnalysis);
            // ListView description = (ListView) view.findViewById(R.id.venues_list);
             box.setMovementMethod(new ScrollingMovementMethod());
             if (incoming != null)
                 {
                 data_for_cloud = getArguments().getString(EventActivity.WORD_CLOUD_DATA);
                 top_venues = getArguments().getString(EventActivity.TOP_VENUE_DATA);
-                cloudGen = new WordCloudGenerator(top_venues,null);
-
                 if (top_venues != "" && top_venues != null)
                 {
+                    /*
                     String raw[] = top_venues.split("\\|");
                     for (int k = 0; k < raw.length; k++) {
                         String item[] = raw[k].split(",");
                         sortedResults.put(item[0], Integer.parseInt(item[1]));
                     }
+                    */
+                    cloudGen = new WordCloudGenerator(top_venues,null);
+                    cloudGen.createFrequencyMap();
+                    mapText.setText(cloudGen.buildSmallMap());
                 }
 
-                box.setText(cloudGen.buildSmallMap());
             }
-            return view;
+            return view2;
         }
 
 }

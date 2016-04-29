@@ -4,7 +4,10 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     tools:context="com.csulb.decisionator.decisionator.ResultGraphFragment2">
-
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
     <TextView
         android:id="@+id/venues_description"
         android:layout_width="match_parent"
@@ -22,4 +25,6 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:text="Analysis of top venues"/>
+
+    </LinearLayout>
 </FrameLayout>
