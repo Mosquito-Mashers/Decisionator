@@ -16,6 +16,7 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 /**
@@ -53,18 +54,17 @@ public class ResultGraphFragment2 extends Fragment {
                 {
                 data_for_cloud = getArguments().getString(EventActivity.WORD_CLOUD_DATA);
                 top_venues = getArguments().getString(EventActivity.TOP_VENUE_DATA);
+                    String venues = "";
                 if (top_venues != "" && top_venues != null)
                 {
-                    /*
+
                     String raw[] = top_venues.split("\\|");
                     for (int k = 0; k < raw.length; k++) {
                         String item[] = raw[k].split(",");
                         sortedResults.put(item[0], Integer.parseInt(item[1]));
+                        venues += item[0]+": " + item[1] + "\n";
                     }
-                    */
-                    cloudGen = new WordCloudGenerator(top_venues,null);
-                    cloudGen.createFrequencyMap();
-                    mapText.setText(cloudGen.buildSmallMap());
+                    mapText.setText(venues);
                 }
 
             }

@@ -22,7 +22,6 @@ public class WordCloudGenerator
     private ArrayList<String> possibleChoices;
     private ArrayList<String> stopWordsList;
     private SpannableString cloudString;
-
     /**
      * Constructors
      * @param raw
@@ -387,6 +386,11 @@ public class WordCloudGenerator
                 new TreeMap<K, V>(valueComparator);
         sortedByValues.putAll(map);
         return sortedByValues;
+    }
+
+
+    public TreeMap<String, Integer> getFrequencyMap() {
+        return frequencyMap;
     }
 
     public String buildSmallMap()
