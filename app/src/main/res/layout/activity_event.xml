@@ -96,7 +96,7 @@
             android:background="@color/colorAccent"
             android:layout_alignParentRight="true"/>
         <fragment
-            android:name="com.csulb.decisionator.decisionator.ResultGraphFragment"
+            android:name="com.csulb.decisionator.decisionator.ResultGraphFragment2"
             android:id="@+id/resultGraphFragmentContainer2"
             android:layout_width="350dp"
             android:layout_height="400dp"
