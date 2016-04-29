@@ -319,9 +319,9 @@ public class LeaderBoardActivity extends AppCompatActivity {
         private class ViewHolder
         {
             //RelativeLayout feedContainer;
-
             ImageView profilePic;
             TextView name;
+
             //Button viewButton;
             TextView rsvpScore;
         }
@@ -341,7 +341,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
                 //holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
                 holder.name = (TextView) convertView.findViewById(R.id.userName);
-                holder.rsvpScore = (TextView) convertView.findViewById(R.id.userName);
+                holder.rsvpScore = (TextView) convertView.findViewById(R.id.rsvpScore);
                 convertView.setTag(holder);
             }
             else {
