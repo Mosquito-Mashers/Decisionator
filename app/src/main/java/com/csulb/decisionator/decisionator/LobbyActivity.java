@@ -173,6 +173,9 @@ public class LobbyActivity extends AppCompatActivity {
         publicEventsIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         publicEventsIntent.putExtra(FacebookLogin.USER_ID, uID);
         publicEventsIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+        ladderIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        ladderIntent.putExtra(FacebookLogin.USER_ID, uID);
+        ladderIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
 
         createUsersHistoryIntent.putExtra(FacebookLogin.POOL_ID, poolID);
