@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,7 +37,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import java.util.ArrayList;
 
-public class LeaderBoardActivity extends ListActivity {
+public class LeaderBoardActivity extends AppCompatActivity {
 
     private Intent fromLobby;
     private Intent lobbyIntent;
@@ -161,7 +162,7 @@ public class LeaderBoardActivity extends ListActivity {
         protected void onPostExecute(ArrayList<User> res) {
             friendLadder = (ListView) findViewById(R.id.ladder);
             //adapter = new ArrayAdapter<User>(getApplicationContext(),android.R.layout.simple_list_item_1, res);
-            friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_feed_info,res);
+            friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_leaderboard_info,res);
             friendLadder.setAdapter(friendAdapter);
         }
     }
@@ -321,7 +322,8 @@ public class LeaderBoardActivity extends ListActivity {
 
             ImageView profilePic;
             TextView name;
-            Button viewButton;
+            //Button viewButton;
+            TextView rsvpScore;
         }
 
         @Override
@@ -332,13 +334,14 @@ public class LeaderBoardActivity extends ListActivity {
             if (convertView == null) {
                 LayoutInflater vi = (LayoutInflater) getSystemService(
                         Context.LAYOUT_INFLATER_SERVICE);
-                convertView = vi.inflate(R.layout.list_item_feed_info, null);
+                convertView = vi.inflate(R.layout.list_item_leaderboard_info, null);
 
                 holder = new ViewHolder();
                 //holder.feedContainer = (RelativeLayout) convertView.findViewById(R.id.feedContainer);
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
-                holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
+                //holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
                 holder.name = (TextView) convertView.findViewById(R.id.userName);
+                holder.rsvpScore = (TextView) convertView.findViewById(R.id.userName);
                 convertView.setTag(holder);
             }
             else {
@@ -351,21 +354,6 @@ public class LeaderBoardActivity extends ListActivity {
             final String usersID = user.getUserID();
             final String usersFirstName = user.getfName();
             holder.name.setText(user.getfName() + " " + user.getlName());
-
-            holder.viewButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //add something if you want to get fancy
-                }
-            });
-            if(user.getProfilePic() == null) {
-                holder.profilePic.setImageResource(R.mipmap.ic_launcher);
-            }
-            else
-            {
-                new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
-            }
-            holder.viewButton.setText("View Their Feed");
 
             return convertView;
         }
