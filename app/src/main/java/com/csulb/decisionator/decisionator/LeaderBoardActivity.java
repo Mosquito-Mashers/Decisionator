@@ -1,5 +1,6 @@
 package com.csulb.decisionator.decisionator;
 
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -7,14 +8,24 @@ import android.app.ListActivity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
@@ -35,6 +46,7 @@ public class LeaderBoardActivity extends ListActivity {
 
     private ListView friendLadder;
     private ArrayAdapter adapter;
+    private FriendAdapter friendAdapter;
 
     private String poolID;
     private String uFName;
@@ -84,7 +96,7 @@ public class LeaderBoardActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leader_board);
         initializeGlobals();
-        //initializeListeners();
+        initializeListeners();
     }
 
     private void initializeGlobals() {
@@ -117,7 +129,7 @@ public class LeaderBoardActivity extends ListActivity {
         new getAllFriendsRank().execute();
     }
 
-    private void initializeListenters() {
+    private void initializeListeners() {
 
     }
 
@@ -148,8 +160,9 @@ public class LeaderBoardActivity extends ListActivity {
         @Override
         protected void onPostExecute(ArrayList<User> res) {
             friendLadder = (ListView) findViewById(R.id.ladder);
-            adapter = new ArrayAdapter<User>(getApplicationContext(),android.R.layout.simple_list_item_1, res);
-            friendLadder.setAdapter(adapter);
+            //adapter = new ArrayAdapter<User>(getApplicationContext(),android.R.layout.simple_list_item_1, res);
+            friendAdapter = new FriendAdapter(getApplicationContext(), R.layout.list_item_feed_info,res);
+            friendLadder.setAdapter(friendAdapter);
         }
     }
 
@@ -288,6 +301,97 @@ public class LeaderBoardActivity extends ListActivity {
                     return;
                 }
             }
+        }
+    }
+
+    private class FriendAdapter extends ArrayAdapter<User>
+    {
+        private ArrayList<User> friends;
+
+        public FriendAdapter(Context context, int profilePictureResourceID, ArrayList<User> friendList)
+        {
+            super(context, profilePictureResourceID, friendList);
+            this.friends = new ArrayList<User>();
+            this.friends.addAll(friendList);
+        }
+
+        private class ViewHolder
+        {
+            //RelativeLayout feedContainer;
+
+            ImageView profilePic;
+            TextView name;
+            Button viewButton;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+
+            ViewHolder holder = null;
+
+            if (convertView == null) {
+                LayoutInflater vi = (LayoutInflater) getSystemService(
+                        Context.LAYOUT_INFLATER_SERVICE);
+                convertView = vi.inflate(R.layout.list_item_feed_info, null);
+
+                holder = new ViewHolder();
+                //holder.feedContainer = (RelativeLayout) convertView.findViewById(R.id.feedContainer);
+                holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
+                holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
+                holder.name = (TextView) convertView.findViewById(R.id.userName);
+                convertView.setTag(holder);
+            }
+            else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+            User user = friends.get(position);
+
+
+            final String usersID = user.getUserID();
+            final String usersFirstName = user.getfName();
+            holder.name.setText(user.getfName() + " " + user.getlName());
+
+            holder.viewButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //add something if you want to get fancy
+                }
+            });
+            if(user.getProfilePic() == null) {
+                holder.profilePic.setImageResource(R.mipmap.ic_launcher);
+            }
+            else
+            {
+                new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
+            }
+            holder.viewButton.setText("View Their Feed");
+
+            return convertView;
+        }
+    }
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
         }
     }
 
