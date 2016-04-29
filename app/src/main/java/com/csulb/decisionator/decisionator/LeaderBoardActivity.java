@@ -355,7 +355,12 @@ public class LeaderBoardActivity extends AppCompatActivity {
             final String usersFirstName = user.getfName();
             holder.name.setText(user.getfName() + " " + user.getlName());
 
-            return convertView;
+            if (user.getProfilePic() == null)
+                holder.profilePic.setImageResource(R.mipmap.ic_launcher);
+            else
+                new DownloadImageTask(holder.profilePic).execute(user.getProfilePic());
+
+                return convertView;
         }
     }
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
