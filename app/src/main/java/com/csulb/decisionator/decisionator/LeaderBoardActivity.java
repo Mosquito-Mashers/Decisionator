@@ -1,10 +1,5 @@
 package com.csulb.decisionator.decisionator;
 
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.Comparator;
-
-import android.app.ListActivity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -23,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,7 +29,10 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanLis
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class LeaderBoardActivity extends AppCompatActivity {
 
@@ -149,10 +146,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
             for (k = 0; k < result.size(); k++)
             {
                 User item = result.get(k);
-                if (!item.getUserID().contentEquals(uID))
-                {
-                    friendsInRankedOrder.add(item);
-                }
+                friendsInRankedOrder.add(item);
             }
             Collections.sort(friendsInRankedOrder, new CompareUserRank());
             return friendsInRankedOrder;
@@ -323,7 +317,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
             TextView name;
 
             //Button viewButton;
-            TextView rsvpScore;
+            TextView rsvpScoreView;
         }
 
         @Override
@@ -338,15 +332,17 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
                 holder = new ViewHolder();
                 //holder.feedContainer = (RelativeLayout) convertView.findViewById(R.id.feedContainer);
-                holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
-                //holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
-                holder.name = (TextView) convertView.findViewById(R.id.userName);
-                holder.rsvpScore = (TextView) convertView.findViewById(R.id.rsvpScore);
+
                 convertView.setTag(holder);
             }
             else {
                 holder = (ViewHolder) convertView.getTag();
             }
+
+            holder.profilePic = (ImageView) convertView.findViewById(R.id.userProfilePicture);
+            //holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
+            holder.name = (TextView) convertView.findViewById(R.id.userName);
+            holder.rsvpScoreView = (TextView) convertView.findViewById(R.id.rsvpScore);
 
             User user = friends.get(position);
 
@@ -354,6 +350,14 @@ public class LeaderBoardActivity extends AppCompatActivity {
             final String usersID = user.getUserID();
             final String usersFirstName = user.getfName();
             holder.name.setText(user.getfName() + " " + user.getlName());
+            holder.rsvpScoreView.setText("No Score");
+            if(user.getRsvpCount() > 0) {
+                holder.rsvpScoreView.setText("Score:" + user.getRsvpCount());
+            }
+            else
+            {
+                holder.rsvpScoreView.setText("No Score");
+            }
 
             if (user.getProfilePic() == null)
                 holder.profilePic.setImageResource(R.mipmap.ic_launcher);

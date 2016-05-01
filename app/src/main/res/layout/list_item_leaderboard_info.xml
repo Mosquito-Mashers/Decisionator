@@ -26,11 +26,25 @@
         android:textSize="10dp"
         android:text="" />
 
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/userProfilePicture"
+        android:layout_centerVertical="true">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:text=
+                "HORIZONTALLY SCROLLING TEXT GOES HERE |HORIZONTALLY SCROLLING TEXT GOES HERE |HORIZONTALLY SCROLLING TEXT GOES HERE | HORIZONTALLY SCROLLING TEXT GOES HERE | HORIZONTALLY SCROLLING TEXT GOES HERE | HORIZONTALLY SCROLLING TEXT GOES HERE | HORIZONTALLY SCROLLING TEXT GOES HERE | "
+            />
+    </HorizontalScrollView>
     <TextView
         android:id="@+id/rsvpScore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/userName"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:textSize="10dp"
         android:text="" />
 
