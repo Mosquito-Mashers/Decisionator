@@ -5,7 +5,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -83,6 +82,7 @@ public class LobbyActivity extends AppCompatActivity {
     private TextView score;
 
     int rsvpCount = 0;
+    String Achievements;
 
     private ArrayList<User> users = new ArrayList<User>();
     private ArrayList<Event> events = new ArrayList<Event>();
@@ -458,6 +458,7 @@ public class LobbyActivity extends AppCompatActivity {
             int k;
             int m;
 
+            rsvpCount = 0;
             for (k = 0; k < result.size(); k++) {
                 Event item = result.get(k);
                 if (item.getHostID().equals(uID))
@@ -549,6 +550,7 @@ public class LobbyActivity extends AppCompatActivity {
             updateRefresh.execute();
             score.setText(String.valueOf(rsvpCount));
             new writeRSVP().execute(uID);
+            new earnAchievements().execute(uID);
 
         }
     }
@@ -561,6 +563,29 @@ public class LobbyActivity extends AppCompatActivity {
 
             User user = mapper.load(User.class, params[0]);
             user.setRsvpCount(rsvpCount);
+            mapper.save(user);
+            return null;
+        }
+    }
+
+    class earnAchievements extends  AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            User user = mapper.load(User.class, params[0]);
+            int temp = user.getRsvpCount();
+            if(temp > 0){
+                Achievements = "1";
+            }
+            if(temp > 5){
+                Achievements = Achievements + ",2";
+            }
+            if(temp > 10){
+                Achievements = Achievements + ",3";
+            }
+            user.setAchievements(Achievements);
             mapper.save(user);
             return null;
         }

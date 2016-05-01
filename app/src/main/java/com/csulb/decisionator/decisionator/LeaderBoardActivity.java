@@ -318,6 +318,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
             //Button viewButton;
             TextView rsvpScoreView;
+            TextView achievements;
         }
 
         @Override
@@ -343,6 +344,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
             //holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
             holder.name = (TextView) convertView.findViewById(R.id.userName);
             holder.rsvpScoreView = (TextView) convertView.findViewById(R.id.rsvpScore);
+            holder.achievements = (TextView) convertView.findViewById(R.id.achievementsView);
 
             User user = friends.get(position);
 
@@ -351,6 +353,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
             final String usersFirstName = user.getfName();
             holder.name.setText(user.getfName() + " " + user.getlName());
             holder.rsvpScoreView.setText("No Score");
+            holder.achievements.setText("Achievements Earned: " + user.getAchievements());
             if(user.getRsvpCount() > 0) {
                 holder.rsvpScoreView.setText("Score:" + user.getRsvpCount());
             }

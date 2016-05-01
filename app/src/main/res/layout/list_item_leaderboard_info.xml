@@ -32,6 +32,7 @@
         android:layout_toRightOf="@id/userProfilePicture"
         android:layout_centerVertical="true">
         <TextView
+            android:id="@+id/achievementsView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="10dp"
