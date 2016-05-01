@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 /**
@@ -43,6 +45,7 @@ public class ResultGraphFragment2 extends Fragment {
     private Map<String,Integer> sortedResults = new HashMap<String, Integer>();
     private TextView box;
     private TextView mapText;
+    private LinkedHashMap linkHashSort = new LinkedHashMap();
 
     private PieChart pieChart;
     private SeekBar seekX, seekY;
@@ -78,7 +81,7 @@ public class ResultGraphFragment2 extends Fragment {
             pieChart.setTransparentCircleRadius(50f);
             Legend l = pieChart.getLegend();
             l.setPosition(Legend.LegendPosition.RIGHT_OF_CHART);
-            pieChart.setData(generatePieData());
+           // pieChart.setData(generatePieData());
 
             if (incoming != null)
                 {
@@ -91,7 +94,7 @@ public class ResultGraphFragment2 extends Fragment {
                     String raw[] = top_venues.split("\\|");
                     for (int k = 0; k < raw.length; k++) {
                         String item[] = raw[k].split(",");
-                        sortedResults.put(item[0], Integer.parseInt(item[1]));
+                        //sortedResults.put(item[0], Integer.parseInt(item[1]));
                         venues += item[0]+": " + item[1] + "\n";
                     }
                     mapText.setText(venues);
@@ -101,25 +104,43 @@ public class ResultGraphFragment2 extends Fragment {
             return view2;
         }
 
-   public PieData generatePieData() {
+   public PieData generatePieData()
+   {
+       // Entry will be the weight of the venue
+       List<Entry> pieEntries = new ArrayList<Entry>();
+       List<Integer> entryInt = new ArrayList<Integer>();
+       //xVal will be used for the venue names and legend
+       List<String> xVals = new ArrayList<String>();
     Bundle incoming2 = getArguments();
+    if(incoming2 != null)
+    {
+        data_for_cloud = getArguments().getString(EventActivity.WORD_CLOUD_DATA);
+        top_venues = getArguments().getString(EventActivity.TOP_VENUE_DATA);
+        if (top_venues != "" && top_venues != null)
+        {
+            String raw[] = top_venues.split("\\|");
+            for (int k = 0; k < raw.length; k++)
+            {
+                String item[] = raw[k].split(",");
+                sortedResults.put(item[0], Integer.parseInt(item[1]));
+                // copy in sortHashMapByValuesD if ordering is inconsistent
+               //linkHashSort.sortHashMapByValuesD(sortedResults);
+                xVals = new ArrayList<String>(sortedResults.keySet());
+                entryInt = new ArrayList<Integer>(sortedResults.values());
+                //pieEntries = new ArrayList<Entry>(sortedResults.values());
+
+            }
+        }
+    }
     int count = 4;
 
-    ArrayList<Entry> entries1 = new ArrayList<Entry>();
-    ArrayList<String> xVals = new ArrayList<String>();
-
-    xVals.add("Quarter 1");
-    xVals.add("Quarter 2");
-    xVals.add("Quarter 3");
-    xVals.add("Quarter 4");
-
     for(int i = 0; i < count; i++) {
-        xVals.add("entry" + (i+1));
+       // xVals.add("entry" + (i+1));
 
-        entries1.add(new Entry((float) (Math.random() * 60) + 40, i));
+        pieEntries.add(new Entry((float) entryInt.get(i), i));
     }
 
-    PieDataSet ds1 = new PieDataSet(entries1, "Quarterly Revenues 2015");
+    PieDataSet ds1 = new PieDataSet(pieEntries, "Venue Analysis");
     ds1.setColors(ColorTemplate.VORDIPLOM_COLORS);
     ds1.setSliceSpace(2f);
     ds1.setValueTextColor(Color.WHITE);
@@ -131,7 +152,7 @@ public class ResultGraphFragment2 extends Fragment {
     return d;
 }
     public SpannableString generateCenterText() {
-        SpannableString s = new SpannableString("Revenues\nQuarters 2015");
+        SpannableString s = new SpannableString("Venue\nAnalysis");
         s.setSpan(new RelativeSizeSpan(2f), 0, 8, 0);
         s.setSpan(new ForegroundColorSpan(Color.GRAY), 8, s.length(), 0);
         return s;
