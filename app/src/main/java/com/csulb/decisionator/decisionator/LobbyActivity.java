@@ -65,10 +65,12 @@ public class LobbyActivity extends AppCompatActivity {
     private Intent viewFeedIntent;
     private Intent publicEventsIntent;
     private Intent createUsersHistoryIntent;
+    private Intent ladderIntent;
 
     private TextView welcomeMessage;
     private Button createEvent;
     private ImageButton refreshEvents;
+    private ImageButton ladder;
     private ImageButton publicEvents;
     private ProgressBar feedProg;
     private EventAdapter eventAdapter;
@@ -80,6 +82,7 @@ public class LobbyActivity extends AppCompatActivity {
     private TextView score;
 
     int rsvpCount = 0;
+    String Achievements;
 
     private ArrayList<User> users = new ArrayList<User>();
     private ArrayList<Event> events = new ArrayList<Event>();
@@ -136,11 +139,13 @@ public class LobbyActivity extends AppCompatActivity {
         publicEventsIntent = new Intent(this, PublicEventsActivity.class);
         events = new ArrayList<Event>();
         createUsersHistoryIntent = new Intent(this, UsersHistory.class);
+        ladderIntent = new Intent(this, LeaderBoardActivity.class);
 
         //GUI assignments
         welcomeMessage = (TextView) findViewById(R.id.welcomeText);
         createEvent = (Button) findViewById(R.id.createEvent);
         refreshEvents = (ImageButton) findViewById(R.id.refreshEvents);
+        ladder = (ImageButton) findViewById(R.id.openLadder);
         publicEvents = (ImageButton)findViewById(R.id.publicEvents);
         feedProg = (ProgressBar) findViewById(R.id.feedLoading);
 
@@ -168,6 +173,9 @@ public class LobbyActivity extends AppCompatActivity {
         publicEventsIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         publicEventsIntent.putExtra(FacebookLogin.USER_ID, uID);
         publicEventsIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+        ladderIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        ladderIntent.putExtra(FacebookLogin.USER_ID, uID);
+        ladderIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
 
         createUsersHistoryIntent.putExtra(FacebookLogin.POOL_ID, poolID);
@@ -203,8 +211,14 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 feedProg.setVisibility(View.VISIBLE);
-                rsvpCount = 0;
                 new getEvents().execute();
+            }
+        });
+
+        ladder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(ladderIntent);
             }
         });
 
@@ -444,6 +458,7 @@ public class LobbyActivity extends AppCompatActivity {
             int k;
             int m;
 
+            rsvpCount = 0;
             for (k = 0; k < result.size(); k++) {
                 Event item = result.get(k);
                 if (item.getHostID().equals(uID))
@@ -535,6 +550,7 @@ public class LobbyActivity extends AppCompatActivity {
             updateRefresh.execute();
             score.setText(String.valueOf(rsvpCount));
             new writeRSVP().execute(uID);
+            new earnAchievements().execute(uID);
 
         }
     }
@@ -547,6 +563,29 @@ public class LobbyActivity extends AppCompatActivity {
 
             User user = mapper.load(User.class, params[0]);
             user.setRsvpCount(rsvpCount);
+            mapper.save(user);
+            return null;
+        }
+    }
+
+    class earnAchievements extends  AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            User user = mapper.load(User.class, params[0]);
+            int temp = user.getRsvpCount();
+            if(temp > 0){
+                Achievements = "1";
+            }
+            if(temp > 5){
+                Achievements = Achievements + ",2";
+            }
+            if(temp > 10){
+                Achievements = Achievements + ",3";
+            }
+            user.setAchievements(Achievements);
             mapper.save(user);
             return null;
         }
@@ -698,7 +737,7 @@ public class LobbyActivity extends AppCompatActivity {
             PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             Notification nb =
                     new Notification.Builder(getApplicationContext())
-                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setSmallIcon(R.drawable.notification_icon)
                             .setContentTitle("Decisionator")
                             .setContentText("You have new events on Decisionator!")
                             .setAutoCancel(true)

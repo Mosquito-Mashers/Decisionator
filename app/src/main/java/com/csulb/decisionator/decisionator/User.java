@@ -20,6 +20,7 @@ public class User {
     private double latitude;
     private double longitude;
     private int rsvpCount;
+    private String achievements;
 
 
     @DynamoDBHashKey(attributeName = "userID")
@@ -89,4 +90,9 @@ public class User {
     public int getRsvpCount() {return rsvpCount;}
 
     public void setRsvpCount(int rsvpCount) { this.rsvpCount = rsvpCount;}
+
+    @DynamoDBAttribute(attributeName = "achievements")
+    public String getAchievements() { return achievements;}
+
+    public void setAchievements(String achievements) { this.achievements = achievements;}
 }
