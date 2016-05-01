@@ -2,7 +2,6 @@ package com.csulb.decisionator.decisionator;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.SpannableString;
 import android.text.method.ScrollingMovementMethod;
@@ -11,8 +10,6 @@ import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -23,16 +20,11 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 /**
  * Created by Ron on 4/26/2016.
  */
@@ -110,10 +102,15 @@ public class ResultGraphFragment2 extends Fragment {
        List<Entry> pieEntries = new ArrayList<Entry>();
        List<Integer> entryInt = new ArrayList<Integer>();
        //xVal will be used for the venue names and legend
+       PieDataSet ds1 = new PieDataSet(pieEntries, "Venue Analysis");
+
        List<String> xVals = new ArrayList<String>();
+       PieData d = new PieData(xVals, ds1);
     Bundle incoming2 = getArguments();
     if(incoming2 != null)
     {
+
+
         data_for_cloud = getArguments().getString(EventActivity.WORD_CLOUD_DATA);
         top_venues = getArguments().getString(EventActivity.TOP_VENUE_DATA);
         if (top_venues != "" && top_venues != null)
@@ -134,19 +131,22 @@ public class ResultGraphFragment2 extends Fragment {
     }
     int count = 4;
 
-    for(int i = 0; i < count; i++) {
-       // xVals.add("entry" + (i+1));
+    if(entryInt.size() > 0) {
+        for (int i = 0; i < count; i++) {
+            // xVals.add("entry" + (i+1));
 
-        pieEntries.add(new Entry((float) entryInt.get(i), i));
+            pieEntries.add(new Entry((float) entryInt.get(i), i));
+        }
+
+        ds1 = new PieDataSet(pieEntries, "Venue Analysis");
+
+        ds1.setColors(ColorTemplate.VORDIPLOM_COLORS);
+        ds1.setSliceSpace(2f);
+        ds1.setValueTextColor(Color.WHITE);
+        ds1.setValueTextSize(12f);
+
+        d = new PieData(xVals, ds1);
     }
-
-    PieDataSet ds1 = new PieDataSet(pieEntries, "Venue Analysis");
-    ds1.setColors(ColorTemplate.VORDIPLOM_COLORS);
-    ds1.setSliceSpace(2f);
-    ds1.setValueTextColor(Color.WHITE);
-    ds1.setValueTextSize(12f);
-
-    PieData d = new PieData(xVals, ds1);
     d.setValueTypeface(tf);
 
     return d;
