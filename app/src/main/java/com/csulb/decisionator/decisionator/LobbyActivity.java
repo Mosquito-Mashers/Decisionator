@@ -65,10 +65,12 @@ public class LobbyActivity extends AppCompatActivity {
     private Intent viewFeedIntent;
     private Intent publicEventsIntent;
     private Intent createUsersHistoryIntent;
+    private Intent ladderIntent;
 
     private TextView welcomeMessage;
     private Button createEvent;
     private ImageButton refreshEvents;
+    private ImageButton ladder;
     private ImageButton publicEvents;
     private ProgressBar feedProg;
     private EventAdapter eventAdapter;
@@ -137,11 +139,13 @@ public class LobbyActivity extends AppCompatActivity {
         publicEventsIntent = new Intent(this, PublicEventsActivity.class);
         events = new ArrayList<Event>();
         createUsersHistoryIntent = new Intent(this, UsersHistory.class);
+        ladderIntent = new Intent(this, LeaderBoardActivity.class);
 
         //GUI assignments
         welcomeMessage = (TextView) findViewById(R.id.welcomeText);
         createEvent = (Button) findViewById(R.id.createEvent);
         refreshEvents = (ImageButton) findViewById(R.id.refreshEvents);
+        ladder = (ImageButton) findViewById(R.id.openLadder);
         publicEvents = (ImageButton)findViewById(R.id.publicEvents);
         feedProg = (ProgressBar) findViewById(R.id.feedLoading);
 
@@ -169,6 +173,9 @@ public class LobbyActivity extends AppCompatActivity {
         publicEventsIntent.putExtra(FacebookLogin.POOL_ID, poolID);
         publicEventsIntent.putExtra(FacebookLogin.USER_ID, uID);
         publicEventsIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
+        ladderIntent.putExtra(FacebookLogin.POOL_ID, poolID);
+        ladderIntent.putExtra(FacebookLogin.USER_ID, uID);
+        ladderIntent.putExtra(FacebookLogin.USER_F_NAME, uName);
 
 
         createUsersHistoryIntent.putExtra(FacebookLogin.POOL_ID, poolID);
@@ -204,8 +211,14 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 feedProg.setVisibility(View.VISIBLE);
-                rsvpCount = 0;
                 new getEvents().execute();
+            }
+        });
+
+        ladder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(ladderIntent);
             }
         });
 
@@ -445,6 +458,7 @@ public class LobbyActivity extends AppCompatActivity {
             int k;
             int m;
 
+            rsvpCount = 0;
             for (k = 0; k < result.size(); k++) {
                 Event item = result.get(k);
                 if (item.getHostID().equals(uID))
@@ -723,7 +737,7 @@ public class LobbyActivity extends AppCompatActivity {
             PendingIntent pendIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             Notification nb =
                     new Notification.Builder(getApplicationContext())
-                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setSmallIcon(R.drawable.notification_icon)
                             .setContentTitle("Decisionator")
                             .setContentText("You have new events on Decisionator!")
                             .setAutoCancel(true)

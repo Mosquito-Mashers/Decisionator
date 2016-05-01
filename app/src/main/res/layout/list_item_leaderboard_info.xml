@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/feedContainer"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/accentTransparent"
+    android:padding="6dip">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <ImageView
+        android:id="@+id/userProfilePicture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true" />
+
+    <TextView
+        android:id="@+id/userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/userProfilePicture"
+        android:textSize="10dp"
+        android:text="" />
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/userProfilePicture"
+        android:layout_centerVertical="true">
+        <TextView
+            android:id="@+id/achievementsView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:text=
+                "HORIZONTALLY SCROLLING TEXT GOES HERE |HORIZONTALLY SCROLLING TEXT GOES HERE |HORIZONTALLY SCROLLING TEXT GOES HERE | HORIZONTALLY SCROLLING TEXT GOES HERE | HORIZONTALLY SCROLLING TEXT GOES HERE | HORIZONTALLY SCROLLING TEXT GOES HERE | HORIZONTALLY SCROLLING TEXT GOES HERE | "
+            />
+    </HorizontalScrollView>
+    <TextView
+        android:id="@+id/rsvpScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="10dp"
+        android:text="" />
+
+
+
+</RelativeLayout>
