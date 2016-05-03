@@ -4,7 +4,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +12,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -70,9 +68,8 @@ public class ResultGraphFragment2 extends Fragment {
             // radius of the center hole in percent of maximum radius
             pieChart.setHoleRadius(45f);
             pieChart.setTransparentCircleRadius(50f);
-            Legend l = pieChart.getLegend();
-            l.setPosition(Legend.LegendPosition.BELOW_CHART_LEFT);
-           // pieChart.setData(generatePieData());
+            pieChart.getLegend().setEnabled(false);
+
 
             if (incoming != null)
                 {
@@ -85,10 +82,8 @@ public class ResultGraphFragment2 extends Fragment {
                     String raw[] = top_venues.split("\\|");
                     for (int k = 0; k < raw.length; k++) {
                         String item[] = raw[k].split(",");
-                        //sortedResults.put(item[0], Integer.parseInt(item[1]));
                         venues += item[0]+": " + item[1] + "\n";
                     }
-                    //mapText.setText(venues);
                 }
                     pieChart.setData(generatePieData());
             }
@@ -132,16 +127,16 @@ public class ResultGraphFragment2 extends Fragment {
 
     if(entryInt.size() > 0) {
         for (int i = 0; i < count; i++) {
-            // xVals.add("entry" + (i+1));
-
-            pieEntries.add(new Entry((float) entryInt.get(i), i));
+            if(entryInt.get(i) > 0) {
+                pieEntries.add(new Entry((float) entryInt.get(i), i));
+            }
         }
 
         ds1 = new PieDataSet(pieEntries, "Venue Analysis");
 
         ds1.setColors(ColorTemplate.VORDIPLOM_COLORS);
         ds1.setSliceSpace(2f);
-        ds1.setValueTextColor(Color.WHITE);
+        ds1.setValueTextColor(Color.BLACK);
         ds1.setValueTextSize(12f);
 
         d = new PieData(xVals, ds1);
@@ -152,8 +147,7 @@ public class ResultGraphFragment2 extends Fragment {
 }
     public SpannableString generateCenterText() {
         SpannableString s = new SpannableString("Venue\nAnalysis");
-        s.setSpan(new RelativeSizeSpan(2f), 0, 8, 0);
-        s.setSpan(new ForegroundColorSpan(Color.GRAY), 8, s.length(), 0);
+        s.setSpan(new RelativeSizeSpan(2f), 0, 14, 0);
         return s;
     }
 
