@@ -18,6 +18,7 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +110,8 @@ public class ResultGraphFragment2 extends Fragment {
             }
         }
     }
+       Collections.reverse(entryInt);
+       Collections.reverse(xVals);
     int count = 4;
 
     if(entryInt.size() > 0) {
