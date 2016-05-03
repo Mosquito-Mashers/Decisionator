@@ -109,10 +109,11 @@ public class ResultGraphFragment2 extends Fragment {
                 entryInt = new ArrayList<Integer>(sortedResults.values());
             }
         }
+
     }
        Collections.reverse(entryInt);
        Collections.reverse(xVals);
-    int count = 4;
+    int count = 5;
 
     if(entryInt.size() > 0) {
         for (int i = 0; i < count; i++) {
