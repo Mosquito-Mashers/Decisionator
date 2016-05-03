@@ -19,7 +19,6 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 /**
@@ -29,12 +28,7 @@ public class ResultGraphFragment2 extends Fragment {
 
     private String data_for_cloud = "";
     private String top_venues = "";
-    private SpannableString wordCloud;
-    WordCloudGenerator cloudGen;
     private Map<String,Integer> sortedResults = new HashMap<String, Integer>();
-    private TextView box;
-    private TextView mapText;
-    private LinkedHashMap linkHashSort = new LinkedHashMap();
 
     private PieChart pieChart;
     private SeekBar seekX, seekY;
@@ -53,10 +47,6 @@ public class ResultGraphFragment2 extends Fragment {
                 Bundle savedInstanceState) {
             View view2 = inflater.inflate(R.layout.fragment_result_graph2, container, false);
             Bundle incoming = getArguments();
-
-            //box = (TextView) view2.findViewById(R.id.venues_description);
-            //mapText = (TextView) view2.findViewById(R.id.topVenueAnalysis);
-            //box.setMovementMethod(new ScrollingMovementMethod());
 
             pieChart = (PieChart) view2.findViewById(R.id.piechart);
             pieChart.setDescription("");
@@ -114,12 +104,8 @@ public class ResultGraphFragment2 extends Fragment {
             {
                 String item[] = raw[k].split(",");
                 sortedResults.put(item[0], Integer.parseInt(item[1]));
-                // copy in sortHashMapByValuesD if ordering is inconsistent
-               //linkHashSort.sortHashMapByValuesD(sortedResults);
                 xVals = new ArrayList<String>(sortedResults.keySet());
                 entryInt = new ArrayList<Integer>(sortedResults.values());
-                //pieEntries = new ArrayList<Entry>(sortedResults.values());
-
             }
         }
     }
@@ -150,7 +136,6 @@ public class ResultGraphFragment2 extends Fragment {
         s.setSpan(new RelativeSizeSpan(2f), 0, 14, 0);
         return s;
     }
-
 }
 
 
