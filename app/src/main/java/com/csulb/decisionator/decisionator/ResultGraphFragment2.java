@@ -4,7 +4,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.SpannableString;
-import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
@@ -57,9 +56,9 @@ public class ResultGraphFragment2 extends Fragment {
             View view2 = inflater.inflate(R.layout.fragment_result_graph2, container, false);
             Bundle incoming = getArguments();
 
-            box = (TextView) view2.findViewById(R.id.venues_description);
-            mapText = (TextView) view2.findViewById(R.id.topVenueAnalysis);
-            box.setMovementMethod(new ScrollingMovementMethod());
+            //box = (TextView) view2.findViewById(R.id.venues_description);
+            //mapText = (TextView) view2.findViewById(R.id.topVenueAnalysis);
+            //box.setMovementMethod(new ScrollingMovementMethod());
 
             pieChart = (PieChart) view2.findViewById(R.id.piechart);
             pieChart.setDescription("");
@@ -72,7 +71,7 @@ public class ResultGraphFragment2 extends Fragment {
             pieChart.setHoleRadius(45f);
             pieChart.setTransparentCircleRadius(50f);
             Legend l = pieChart.getLegend();
-            l.setPosition(Legend.LegendPosition.RIGHT_OF_CHART);
+            l.setPosition(Legend.LegendPosition.BELOW_CHART_LEFT);
            // pieChart.setData(generatePieData());
 
             if (incoming != null)
@@ -89,7 +88,7 @@ public class ResultGraphFragment2 extends Fragment {
                         //sortedResults.put(item[0], Integer.parseInt(item[1]));
                         venues += item[0]+": " + item[1] + "\n";
                     }
-                    mapText.setText(venues);
+                    //mapText.setText(venues);
                 }
                     pieChart.setData(generatePieData());
             }
