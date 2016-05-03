@@ -74,6 +74,17 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:text="No data found"/>
+
+            <HorizontalScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ListView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Achievements" />
+            </HorizontalScrollView>
+
         </LinearLayout>
     </ScrollView>
 

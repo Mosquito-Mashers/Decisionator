@@ -1,17 +1,24 @@
 package com.csulb.decisionator.decisionator;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -39,6 +46,8 @@ public class MyProfile extends AppCompatActivity {
     private TextView likesAnalysis;
     private ImageView profilePic;
     private ProgressBar profileLoading;
+    private ListView achieve;
+    private AchievementAdapter achievementAdaptor1;
 
     private uProfile currProfile;
     private User currUser;
@@ -108,8 +117,10 @@ public class MyProfile extends AppCompatActivity {
         likesAnalysis = (TextView) findViewById(R.id.publicLikesAnalysis);
         profilePic = (ImageView) findViewById(R.id.myProfilePic);
         profileLoading = (ProgressBar) findViewById(R.id.profileLoading);
+        achieve = (ListView) findViewById(R.id.Achievements);
 
         new getUserProfile().execute(uID);
+        new SetAchievements().execute(uID);
     }
 
     class getUserProfile extends AsyncTask<String,Void,Void>{
@@ -180,6 +191,58 @@ public class MyProfile extends AppCompatActivity {
 
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
+        }
+    }
+
+    private class SetAchievements extends  AsyncTask<String, Void, Void> {
+        @Override
+        public Void doInBackground(String... params){
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            User user = mapper.load(User.class, params[0]);
+            String [] achieve1 = user.getAchievements().split(",");
+            achievementAdaptor1 = new AchievementAdapter(getApplicationContext(), achieve1);
+            return null;
+        }
+
+        public void onPostExecute() {
+            achieve.setAdapter(achievementAdaptor1);
+        }
+
+    }
+    private class AchievementAdapter extends ArrayAdapter<String>{
+
+        private String[] values;
+
+        public AchievementAdapter(Context context, String[] values){
+            super(context, 0 ,values);
+            this.values = values;
+        }
+
+        public View getView(int position, View convertView, ViewGroup Parent){
+            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = inflater.inflate(android.R.layout.activity_list_item, null);
+            ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
+            if(values[position].equals(1)){
+                imageView.setImageResource(R.mipmap.star_icon);
+            }
+            else {
+                imageView.setImageResource(R.mipmap.clear_icon);
+            }
+            if(values[position].equals(2)){
+                imageView.setImageResource(R.mipmap.star_icon);
+            }
+            else {
+                imageView.setImageResource(R.mipmap.clear_icon);
+            }
+            if(values[position].equals(3)){
+                imageView.setImageResource(R.mipmap.star_icon);
+            }
+            else {
+                imageView.setImageResource(R.mipmap.clear_icon);
+            }
+            return rowView;
         }
     }
 }
