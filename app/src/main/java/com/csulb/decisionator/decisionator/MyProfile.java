@@ -1,24 +1,19 @@
 package com.csulb.decisionator.decisionator;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -46,8 +41,8 @@ public class MyProfile extends AppCompatActivity {
     private TextView likesAnalysis;
     private ImageView profilePic;
     private ProgressBar profileLoading;
-    private ListView achieve;
-    private AchievementAdapter achievementAdaptor1;
+    private String [] achieveString;
+    private LinearLayout gallery;
 
     private uProfile currProfile;
     private User currUser;
@@ -117,10 +112,42 @@ public class MyProfile extends AppCompatActivity {
         likesAnalysis = (TextView) findViewById(R.id.publicLikesAnalysis);
         profilePic = (ImageView) findViewById(R.id.myProfilePic);
         profileLoading = (ProgressBar) findViewById(R.id.profileLoading);
-        achieve = (ListView) findViewById(R.id.Achievements);
+
+        gallery = (LinearLayout) findViewById(R.id.Gallery);
 
         new getUserProfile().execute(uID);
         new SetAchievements().execute(uID);
+
+        //imageView.setImageResource(R.mipmap.star_icon);
+    }
+    private void uiChange(){
+        ImageView achieve1 = new ImageView(getApplicationContext());
+        achieve1.setImageResource(R.mipmap.clear_icon);
+        achieve1.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gallery.addView(achieve1);
+
+        ImageView achieve2 = new ImageView(getApplicationContext());
+        achieve2.setImageResource(R.mipmap.clear_icon);
+        achieve2.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gallery.addView(achieve2);
+
+        ImageView achieve3 = new ImageView(getApplicationContext());
+        achieve3.setImageResource(R.mipmap.clear_icon);
+        achieve3.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gallery.addView(achieve3);
+
+        for(int i = 0; i < achieveString.length; i++){
+            if(achieveString[i].equals("1")){
+                achieve1.setImageResource(R.mipmap.star_icon);
+            }
+            if(achieveString[i].equals("2")){
+                achieve2.setImageResource(R.mipmap.star_icon);
+            }
+            if(achieveString[i].equals("3")){
+                achieve3.setImageResource(R.mipmap.star_icon);
+            }
+
+        }
     }
 
     class getUserProfile extends AsyncTask<String,Void,Void>{
@@ -195,54 +222,21 @@ public class MyProfile extends AppCompatActivity {
     }
 
     private class SetAchievements extends  AsyncTask<String, Void, Void> {
+
         @Override
         public Void doInBackground(String... params){
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
             User user = mapper.load(User.class, params[0]);
-            String [] achieve1 = user.getAchievements().split(",");
-            achievementAdaptor1 = new AchievementAdapter(getApplicationContext(), achieve1);
+            achieveString = user.getAchievements().split(",");
             return null;
         }
 
-        public void onPostExecute() {
-            achieve.setAdapter(achievementAdaptor1);
+        @Override
+        public void onPostExecute(Void v) {
+            uiChange();
         }
 
-    }
-    private class AchievementAdapter extends ArrayAdapter<String>{
-
-        private String[] values;
-
-        public AchievementAdapter(Context context, String[] values){
-            super(context, 0 ,values);
-            this.values = values;
-        }
-
-        public View getView(int position, View convertView, ViewGroup Parent){
-            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(android.R.layout.activity_list_item, null);
-            ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
-            if(values[position].equals(1)){
-                imageView.setImageResource(R.mipmap.star_icon);
-            }
-            else {
-                imageView.setImageResource(R.mipmap.clear_icon);
-            }
-            if(values[position].equals(2)){
-                imageView.setImageResource(R.mipmap.star_icon);
-            }
-            else {
-                imageView.setImageResource(R.mipmap.clear_icon);
-            }
-            if(values[position].equals(3)){
-                imageView.setImageResource(R.mipmap.star_icon);
-            }
-            else {
-                imageView.setImageResource(R.mipmap.clear_icon);
-            }
-            return rowView;
-        }
     }
 }
