@@ -8,23 +8,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
- * Created by Russell-Test on 4/7/2016.
+ * Created by Russell-Tan on 4/7/2016.
  */
 public class Decisionate
 {
     private ArrayList <String>cloudData;
-    private ArrayList<String> possiblities;
-    private String finalDecision;
-    private double finalLat;
-    private double finalLon;
+    private ArrayList<String> possibilities;
 
-    public Decisionate(ArrayList<String> cloudItems, ArrayList<String> possiblePlaces, String finalDec, double lat, double lon)
+    public Decisionate(ArrayList<String> cloudItems, ArrayList<String> possiblePlaces)
     {
         cloudData = cloudItems;
-        possiblities = possiblePlaces;
-        finalDecision = finalDec;
-        finalLat = lat;
-        finalLon = lon;
+        possibilities = possiblePlaces;
     }
 
     public HashMap<String,Integer> accumulatePoints()
@@ -33,14 +27,16 @@ public class Decisionate
         HashMap<String,Integer> pointsPerVenue = new HashMap<String,Integer>();
         String wordsInVenue[];
 
-
-        for(k = 0; k < possiblities.size(); k++)
+        //Iterates through the venues
+        for(k = 0; k < possibilities.size(); k++)
         {
             runningTotal = 0;
-            wordsInVenue = possiblities.get(k).split(" ");
+            wordsInVenue = possibilities.get(k).split(" ");
 
+            //Iterates through each word in the venue
             for(j = 0; j < wordsInVenue.length; j++)
             {
+                //Iterates through each word in the combined tag data for all the users
                 for(m = 0; m < cloudData.size(); m++)
                 {
                     if(wordsInVenue[j].toLowerCase().contentEquals(cloudData.get(m)))
@@ -49,15 +45,14 @@ public class Decisionate
                     }
                 }
             }
-            pointsPerVenue.put(possiblities.get(k),runningTotal);
-
+            pointsPerVenue.put(possibilities.get(k),runningTotal);
         }
 
-        pointsPerVenue = this.sortHashMapByValuesD(pointsPerVenue);
+        pointsPerVenue = this.sortHashMapByValues(pointsPerVenue);
         return pointsPerVenue;
     }
 
-    public LinkedHashMap sortHashMapByValuesD(HashMap passedMap) {
+    public LinkedHashMap sortHashMapByValues(HashMap passedMap) {
         List mapKeys = new ArrayList(passedMap.keySet());
         List mapValues = new ArrayList(passedMap.values());
         Collections.sort(mapValues,Collections.reverseOrder());
@@ -81,9 +76,7 @@ public class Decisionate
                     sortedMap.put((String)key, (Integer)val);
                     break;
                 }
-
             }
-
         }
         return sortedMap;
     }

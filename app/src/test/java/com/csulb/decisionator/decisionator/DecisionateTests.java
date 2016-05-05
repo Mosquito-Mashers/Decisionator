@@ -46,7 +46,7 @@ public class DecisionateTests extends TestCase {
 
         String decisionatedVenue = "";
         int decisionatedWeight = 0;
-        Decisionate terminator = new Decisionate(cloudItems,SampleChoices,null,0,0);
+        Decisionate terminator = new Decisionate(cloudItems,SampleChoices);
 
         HashMap<String, Integer> decisionatedResult = terminator.accumulatePoints();
 
