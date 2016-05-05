@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -45,6 +46,8 @@ public class LeaderBoardActivity extends AppCompatActivity {
     private ListView friendLadder;
     private ArrayAdapter adapter;
     private FriendAdapter friendAdapter;
+    private String [] achieveString;
+    private LinearLayout gallery;
 
     private String poolID;
     private String uFName;
@@ -318,7 +321,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
             //Button viewButton;
             TextView rsvpScoreView;
-            TextView achievements;
+            LinearLayout achievements;
         }
 
         @Override
@@ -344,16 +347,27 @@ public class LeaderBoardActivity extends AppCompatActivity {
             //holder.viewButton = (Button) convertView.findViewById(R.id.goToFriendFeed);
             holder.name = (TextView) convertView.findViewById(R.id.userName);
             holder.rsvpScoreView = (TextView) convertView.findViewById(R.id.rsvpScore);
-            holder.achievements = (TextView) convertView.findViewById(R.id.achievementsView);
+            holder.achievements = (LinearLayout) convertView.findViewById(R.id.UserGallery);
+
 
             User user = friends.get(position);
 
+            if(user.getAchievements() != null)
+            {
+                achieveString = user.getAchievements().split(",");
+            }
+            else
+            {
+                achieveString = new String[1];
+                achieveString[0] = "0";
+            }
+            uiChange(holder.achievements);
 
             final String usersID = user.getUserID();
             final String usersFirstName = user.getfName();
             holder.name.setText(user.getfName() + " " + user.getlName());
             holder.rsvpScoreView.setText("No Score");
-            holder.achievements.setText("Achievements Earned: " + user.getAchievements());
+            //holder.achievements.setText("Achievements Earned: " + user.getAchievements());
             if(user.getRsvpCount() > 0) {
                 holder.rsvpScoreView.setText("Score:" + user.getRsvpCount());
             }
@@ -370,6 +384,37 @@ public class LeaderBoardActivity extends AppCompatActivity {
                 return convertView;
         }
     }
+
+    private void uiChange(LinearLayout gal){
+        ImageView achieve1 = new ImageView(getApplicationContext());
+        achieve1.setImageResource(R.mipmap.clear_icon);
+        achieve1.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gal.addView(achieve1);
+
+        ImageView achieve2 = new ImageView(getApplicationContext());
+        achieve2.setImageResource(R.mipmap.clear_icon);
+        achieve2.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gal.addView(achieve2);
+
+        ImageView achieve3 = new ImageView(getApplicationContext());
+        achieve3.setImageResource(R.mipmap.clear_icon);
+        achieve3.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gal.addView(achieve3);
+
+        for(int i = 0; i < achieveString.length; i++){
+            if(achieveString[i].equals("1")){
+                achieve1.setImageResource(R.mipmap.star_icon);
+            }
+            if(achieveString[i].equals("2")){
+                achieve2.setImageResource(R.mipmap.star_icon);
+            }
+            if(achieveString[i].equals("3")){
+                achieve3.setImageResource(R.mipmap.star_icon);
+            }
+
+        }
+    }
+
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
 
@@ -392,7 +437,26 @@ public class LeaderBoardActivity extends AppCompatActivity {
 
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
+            //new SetAchievements().execute(uID);
         }
+    }
+
+    private class SetAchievements extends  AsyncTask<String, Void, Void> {
+
+        @Override
+        public Void doInBackground(String... params){
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            User user = mapper.load(User.class, params[0]);
+            return null;
+        }
+
+        @Override
+        public void onPostExecute(Void v) {
+            //uiChange();
+        }
+
     }
 
 }
