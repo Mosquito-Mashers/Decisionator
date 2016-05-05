@@ -38,7 +38,7 @@ public class DecisionateTests extends TestCase {
     public void testDecisionate()
     {
 
-        WordCloudGenerator gen = new WordCloudGenerator(cloudString,SampleChoices);
+        WordCloudGenerator gen = new WordCloudGenerator(cloudString);
         String cleaned = gen.removeStopWords(cloudString);
         String trimmed[] = gen.splitAndTrimText();
         ArrayList<String> cloudItems = new ArrayList<String>();
@@ -46,7 +46,7 @@ public class DecisionateTests extends TestCase {
 
         String decisionatedVenue = "";
         int decisionatedWeight = 0;
-        Decisionate terminator = new Decisionate(cloudItems,SampleChoices,null,0,0);
+        Decisionate terminator = new Decisionate(cloudItems,SampleChoices);
 
         HashMap<String, Integer> decisionatedResult = terminator.accumulatePoints();
 

@@ -919,13 +919,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
     public String makeFinalDecision(ArrayList<String> choices)
     {
-        WordCloudGenerator gen = new WordCloudGenerator(strForCloud,choices);
+        WordCloudGenerator gen = new WordCloudGenerator(strForCloud);
         String cleaned = gen.removeStopWords(strForCloud);
         String trimmed[] = gen.splitAndTrimText();
         ArrayList<String> cloudItems = new ArrayList<String>();
         cloudItems.addAll(Arrays.asList(trimmed));
 
-        Decisionate terminator = new Decisionate(cloudItems,choices,"null",0,0);
+        Decisionate terminator = new Decisionate(cloudItems,choices);
         Map<String,Integer> sortedPlaces = terminator.accumulatePoints();
 
         String decisionatedChoice = sortedPlaces.entrySet().iterator().next().getKey();

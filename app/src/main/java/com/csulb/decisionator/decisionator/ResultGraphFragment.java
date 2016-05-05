@@ -44,7 +44,7 @@ public class ResultGraphFragment extends Fragment {
         if(incoming != null) {
             data_for_cloud = getArguments().getString(EventActivity.WORD_CLOUD_DATA);
             top_venues = getArguments().getString(EventActivity.TOP_VENUE_DATA);
-            cloudGen = new WordCloudGenerator(data_for_cloud,null);
+            cloudGen = new WordCloudGenerator(data_for_cloud);
             if(top_venues != "" && top_venues != null)
             {
                 String raw[] = top_venues.split("\\|");
