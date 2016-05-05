@@ -19,17 +19,15 @@ public class WordCloudGenerator
     private String rawText;
     private TreeMap<String,Integer> frequencyMap;
     private Map sortedMap;
-    private ArrayList<String> possibleChoices;
     private ArrayList<String> stopWordsList;
     private SpannableString cloudString;
     /**
      * Constructors
      * @param raw
      */
-    public WordCloudGenerator(String raw, ArrayList<String> choices)
+    public WordCloudGenerator(String raw)
     {
         rawText = raw;
-        possibleChoices = choices;
 
         frequencyMap = new TreeMap<String, Integer>();
         stopWordsList = new ArrayList<String>();
@@ -218,27 +216,14 @@ public class WordCloudGenerator
         stopWordsList.add("yourselves");
     }
 
-    /**
-     * Getters and setters
-     * @return
-     */
-    public String getRawText()
-    {
-        return rawText;
-    }
-
     public Map getSortedMap() {
         sortedMap = sortByValues(frequencyMap);
         return sortedMap;
     }
 
-    /**
-     * Public methods
-     * @return
-     */
     public String[] splitAndTrimText()
     {
-        String noStops = this.removeStopWords(this.getRawText().toLowerCase().replaceAll(","," "));
+        String noStops = this.removeStopWords(rawText.toLowerCase().replaceAll(",", " "));
         String rawSplit[] = noStops.split(" ");
 
         return rawSplit;
@@ -277,9 +262,6 @@ public class WordCloudGenerator
 
     public SpannableString getSpannableString()
     {
-        int k;
-        int maxSize;
-        int minSize;
         int currPointer = 0;
         String tempSpan = "";
 
@@ -298,13 +280,10 @@ public class WordCloudGenerator
 
         frequencyMap = tempMap;
 
-        //this.setFrequencyMap(this.sortByComparator(frequencyMap));
-        // Calling the method sortByvalues
         sortedMap = sortByValues(frequencyMap);
-        Set set = sortedMap.entrySet();
 
         // Get an iterator
-        Iterator i = set.iterator();
+        Iterator i = sortedMap.entrySet().iterator();
 
         // Display elements
         while(i.hasNext()) {
@@ -314,13 +293,11 @@ public class WordCloudGenerator
 
         cloudString = new SpannableString(tempSpan);
         // Get an iterator
-        i = set.iterator();
+        i = sortedMap.entrySet().iterator();
 
         // Display elements
         while(i.hasNext()) {
             Map.Entry me = (Map.Entry) i.next();
-            System.out.print(me.getKey() + ": ");
-            System.out.println(me.getValue());
 
             int len = me.getKey().toString().length();
             int size = Integer.parseInt(me.getValue().toString());
@@ -329,7 +306,6 @@ public class WordCloudGenerator
         }
         return cloudString;
     }
-
 
     public SpannableString getSpannableString(Map<String,Integer> venueMap)
     {
@@ -386,11 +362,6 @@ public class WordCloudGenerator
                 new TreeMap<K, V>(valueComparator);
         sortedByValues.putAll(map);
         return sortedByValues;
-    }
-
-
-    public TreeMap<String, Integer> getFrequencyMap() {
-        return frequencyMap;
     }
 
     public String buildSmallMap()

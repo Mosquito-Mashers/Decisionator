@@ -38,7 +38,7 @@ public class DecisionateTests extends TestCase {
     public void testDecisionate()
     {
 
-        WordCloudGenerator gen = new WordCloudGenerator(cloudString,SampleChoices);
+        WordCloudGenerator gen = new WordCloudGenerator(cloudString);
         String cleaned = gen.removeStopWords(cloudString);
         String trimmed[] = gen.splitAndTrimText();
         ArrayList<String> cloudItems = new ArrayList<String>();

@@ -26,7 +26,7 @@ public class WordCloudTests extends TestCase {
     @Test
     public void test_WordCloudGeneration()
     {
-        WordCloudGenerator cloudGen = new WordCloudGenerator(SampleData,null);
+        WordCloudGenerator cloudGen = new WordCloudGenerator(SampleData);
         cloudGen.createFrequencyMap();
         SpannableString mySpan = cloudGen.getSpannableString();
         Iterator setIter = cloudGen.getSortedMap().entrySet().iterator();
