@@ -124,13 +124,16 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private GoogleMap map;
     private ShareDialog shareDialog;
 
+    //Ron testing
+    private RelativeLayout fragContainer2;
+    private ImageButton clearFragment2;
 
     private checkUpdates updateRefresh = new checkUpdates();
     private Intent notificationIntent;
     private static final int notifyID = 111;
 
     private ResultGraphFragment frag;
-
+    private ResultGraphFragment2 frag2;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
@@ -162,6 +165,16 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
                 getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
                 fragContainer.setVisibility(View.VISIBLE);
+                enableDisableView(findViewById(R.id.event_main_container), false);
+                return true;
+            case R.id.chart2:
+
+                Bundle fragArgs2 = new Bundle();
+                fragArgs2.putString(WORD_CLOUD_DATA, strForCloud);
+                fragArgs2.putString(TOP_VENUE_DATA, topVenues);
+                ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
+                getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
+                fragContainer2.setVisibility(View.VISIBLE);
                 enableDisableView(findViewById(R.id.event_main_container), false);
                 return true;
             default:
@@ -199,6 +212,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private void initializeGlobals()
     {
         frag = new ResultGraphFragment();
+        frag2 = new ResultGraphFragment2();
 
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
@@ -244,15 +258,26 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         fragContainer = (RelativeLayout) findViewById(R.id.fragment_Conatiner);
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
-
+        //Ron Test
+        clearFragment2 = (ImageButton) findViewById(R.id.clear_Fragment2);
+        fragContainer2 = (RelativeLayout) findViewById(R.id.fragment_Conatiner2);
 
         clearFragment.setImageResource(R.mipmap.clear_icon);
+        clearFragment2.setImageResource(R.mipmap.clear_icon);
 
         Bundle fragArgs = new Bundle();
         fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
         fragArgs.putString(TOP_VENUE_DATA, topVenues);
         ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
         getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
+
+        //MORE RON
+        Bundle fragArgs2 = new Bundle();
+        fragArgs2.putString(WORD_CLOUD_DATA, strForCloud);
+        fragArgs2.putString(TOP_VENUE_DATA, topVenues);
+        ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
+        getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
+        fragContainer2.setVisibility(View.GONE);
 
         fragContainer.setVisibility(View.GONE);
 
@@ -293,6 +318,19 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
                 getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
                 fragContainer.setVisibility(View.GONE);
+                enableDisableView(findViewById(R.id.event_main_container), true);
+            }
+        });
+        clearFragment2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Bundle fragArgs2 = new Bundle();
+                fragArgs2.putString(WORD_CLOUD_DATA, strForCloud);
+                fragArgs2.putString(TOP_VENUE_DATA, topVenues);
+                ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
+                getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
+                fragContainer2.setVisibility(View.GONE);
                 enableDisableView(findViewById(R.id.event_main_container), true);
             }
         });
@@ -687,7 +725,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             globalCloud = val;
             ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
-
+            //Ron Test Below
+            Bundle fragArgs2 = new Bundle();
+            fragArgs2.putString(WORD_CLOUD_DATA,val);
+            ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
+            getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
         }
     }
 
@@ -889,7 +931,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         String decisionatedChoice = sortedPlaces.entrySet().iterator().next().getKey();
         int decisionatedWeight = sortedPlaces.entrySet().iterator().next().getValue();
 
-        if(decisionatedWeight > 1)
+        if(decisionatedWeight >= 1)
         {
             Iterator mapIter = sortedPlaces.entrySet().iterator();
             int k = 0;
