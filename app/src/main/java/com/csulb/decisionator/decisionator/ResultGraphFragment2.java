@@ -18,8 +18,8 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 /**
@@ -105,34 +105,32 @@ public class ResultGraphFragment2 extends Fragment {
             {
                 String item[] = raw[k].split(",");
                 sortedResults.put(item[0], Integer.parseInt(item[1]));
-                xVals = new ArrayList<String>(sortedResults.keySet());
-                entryInt = new ArrayList<Integer>(sortedResults.values());
             }
         }
 
     }
-       Collections.reverse(entryInt);
-       Collections.reverse(xVals);
-    int count = 5;
+       if(sortedResults.size() > 0) {
+           Iterator mapIter = sortedResults.entrySet().iterator();
+           xVals = new ArrayList<String>();
+           int count = 0;
+           while (mapIter.hasNext() || count < 5) {
+               Map.Entry ent = (Map.Entry) mapIter.next();
+               if((int)ent.getValue() > 0) {
+                   pieEntries.add(new Entry((float) ((int) (ent.getValue())), count));
+                   xVals.add(count, ent.getKey().toString());
+                   count++;
+               }
+           }
+           ds1 = new PieDataSet(pieEntries, "Venue Analysis");
 
-    if(entryInt.size() > 0) {
-        for (int i = 0; i < count; i++) {
-            if(entryInt.get(i) > 0) {
-                pieEntries.add(new Entry((float) entryInt.get(i), i));
-            }
-        }
+           ds1.setColors(ColorTemplate.VORDIPLOM_COLORS);
+           ds1.setSliceSpace(2f);
+           ds1.setValueTextColor(Color.BLACK);
+           ds1.setValueTextSize(12f);
 
-        ds1 = new PieDataSet(pieEntries, "Venue Analysis");
-
-        ds1.setColors(ColorTemplate.VORDIPLOM_COLORS);
-        ds1.setSliceSpace(2f);
-        ds1.setValueTextColor(Color.BLACK);
-        ds1.setValueTextSize(12f);
-
-        d = new PieData(xVals, ds1);
-    }
-    d.setValueTypeface(tf);
-
+           d = new PieData(xVals, ds1);
+           d.setValueTypeface(tf);
+       }
     return d;
 }
     public SpannableString generateCenterText() {
