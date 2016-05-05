@@ -113,7 +113,7 @@ public class ResultGraphFragment2 extends Fragment {
            Iterator mapIter = sortedResults.entrySet().iterator();
            xVals = new ArrayList<String>();
            int count = 0;
-           while (mapIter.hasNext() || count < 5) {
+           while (mapIter.hasNext() && count < 5) {
                Map.Entry ent = (Map.Entry) mapIter.next();
                if((int)ent.getValue() > 0) {
                    pieEntries.add(new Entry((float) ((int) (ent.getValue())), count));
