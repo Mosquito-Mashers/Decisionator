@@ -171,7 +171,7 @@ public class MyProfile extends AppCompatActivity {
             profileLoading.setVisibility(View.GONE);
             WordCloudGenerator gen;
             if(currProfile.getPlacesTags() != null) {
-                gen = new WordCloudGenerator(currProfile.getPlacesTags(), null);
+                gen = new WordCloudGenerator(currProfile.getPlacesTags());
 
                 gen.createFrequencyMap();
 
@@ -179,7 +179,7 @@ public class MyProfile extends AppCompatActivity {
             }
 
             if(currProfile.getImageTags() != null) {
-                gen = new WordCloudGenerator(currProfile.getImageTags(), null);
+                gen = new WordCloudGenerator(currProfile.getImageTags());
 
                 gen.createFrequencyMap();
 
@@ -187,7 +187,7 @@ public class MyProfile extends AppCompatActivity {
             }
 
             if(currProfile.getLikeTags() != null) {
-                gen = new WordCloudGenerator(currProfile.getLikeTags(), null);
+                gen = new WordCloudGenerator(currProfile.getLikeTags());
 
                 gen.createFrequencyMap();
 
