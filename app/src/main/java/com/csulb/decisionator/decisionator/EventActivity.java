@@ -90,6 +90,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String eInvites;
     private String eCategory;
     private String eID;
+    private String eHostID;
     private String poolID;
     private String uID;
     private String uName;
@@ -298,6 +299,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     }
 
     private void initializeListeners() {
+
         rsvp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -305,6 +307,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 toast.show();
                 rsvp.setVisibility(View.GONE);
                 new updateEvent().execute(eID);
+                new updateRsvp().execute(eID);
             }
         });
 
@@ -640,6 +643,22 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             event.setRsvpList(rsvps);
 
             mapper.save(event);
+            return null;
+        }
+    }
+
+    class updateRsvp extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+            Event event = mapper.load(Event.class, params[0]);
+            String eHostID = event.getHostID();
+            User user = mapper.load(User.class, eHostID);
+            int rsvpCount = user.getRsvpCount();
+            int newRsvp = rsvpCount + 1;
+            user.setRsvpCount(newRsvp);
+            mapper.save(user);
             return null;
         }
     }

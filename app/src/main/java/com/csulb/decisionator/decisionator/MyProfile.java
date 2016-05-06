@@ -11,7 +11,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -39,6 +41,8 @@ public class MyProfile extends AppCompatActivity {
     private TextView likesAnalysis;
     private ImageView profilePic;
     private ProgressBar profileLoading;
+    private String [] achieveString;
+    private LinearLayout gallery;
 
     private uProfile currProfile;
     private User currUser;
@@ -109,7 +113,41 @@ public class MyProfile extends AppCompatActivity {
         profilePic = (ImageView) findViewById(R.id.myProfilePic);
         profileLoading = (ProgressBar) findViewById(R.id.profileLoading);
 
+        gallery = (LinearLayout) findViewById(R.id.Gallery);
+
         new getUserProfile().execute(uID);
+        new SetAchievements().execute(uID);
+
+        //imageView.setImageResource(R.mipmap.star_icon);
+    }
+    private void uiChange(){
+        ImageView achieve1 = new ImageView(getApplicationContext());
+        achieve1.setImageResource(R.mipmap.clear_icon);
+        achieve1.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gallery.addView(achieve1);
+
+        ImageView achieve2 = new ImageView(getApplicationContext());
+        achieve2.setImageResource(R.mipmap.clear_icon);
+        achieve2.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gallery.addView(achieve2);
+
+        ImageView achieve3 = new ImageView(getApplicationContext());
+        achieve3.setImageResource(R.mipmap.clear_icon);
+        achieve3.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gallery.addView(achieve3);
+
+        for(int i = 0; i < achieveString.length; i++){
+            if(achieveString[i].equals("1")){
+                achieve1.setImageResource(R.mipmap.star_icon);
+            }
+            if(achieveString[i].equals("2")){
+                achieve2.setImageResource(R.mipmap.star_icon);
+            }
+            if(achieveString[i].equals("3")){
+                achieve3.setImageResource(R.mipmap.star_icon);
+            }
+
+        }
     }
 
     class getUserProfile extends AsyncTask<String,Void,Void>{
@@ -181,5 +219,24 @@ public class MyProfile extends AppCompatActivity {
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
         }
+    }
+
+    private class SetAchievements extends  AsyncTask<String, Void, Void> {
+
+        @Override
+        public Void doInBackground(String... params){
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            User user = mapper.load(User.class, params[0]);
+            achieveString = user.getAchievements().split(",");
+            return null;
+        }
+
+        @Override
+        public void onPostExecute(Void v) {
+            uiChange();
+        }
+
     }
 }
