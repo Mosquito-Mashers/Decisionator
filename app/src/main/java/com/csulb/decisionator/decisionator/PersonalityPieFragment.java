@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class PersonalityPieFragment extends Fragment {
     private PieChart ppChart;
-
+    private String allUsersTagsStr = "";
 
     public static PersonalityPieFragment newInstance(Bundle b) {
         PersonalityPieFragment ppFrag = new PersonalityPieFragment();
@@ -52,6 +52,12 @@ public class PersonalityPieFragment extends Fragment {
         ppChart.setHoleRadius(45f);
         ppChart.setTransparentCircleRadius(50f);
         ppChart.getLegend().setEnabled(false);
+
+        if(incoming != null)
+        {
+            allUsersTagsStr = getArguments().getString(EventActivity.PERSONALITY_DATA);
+
+        }
 
 
         return ppView;

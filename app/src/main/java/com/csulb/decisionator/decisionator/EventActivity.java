@@ -39,6 +39,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
+import com.github.mikephil.charting.charts.PieChart;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -73,7 +74,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
-
+    protected final static String PERSONALITY_DATA = "com.csulb.decisionator.PERSONALITY_DATA";
     protected final static String WORD_CLOUD_DATA = "com.csulb.decisionator.WORD_CLOUD_DATA";
     protected final static String TOP_VENUE_DATA = "com.csulb.decisionator.TOP_VENUE_DATA";
     private FriendAdapter friendAdapter;
@@ -130,6 +131,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private RelativeLayout fragContainer2;
     private ImageButton clearFragment2;
 
+    //5/7 Personality Pie
+    private RelativeLayout ppFragContainer;
+    private ImageButton clearFragment3;
+
     private checkUpdates updateRefresh = new checkUpdates();
     private Intent notificationIntent;
     private static final int notifyID = 111;
@@ -181,6 +186,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 fragContainer2.setVisibility(View.VISIBLE);
                 enableDisableView(findViewById(R.id.event_main_container), false);
                 return true;
+            case R.id.ppChart:
+                Bundle ppArgs = new Bundle;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -217,6 +224,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     {
         frag = new ResultGraphFragment();
         frag2 = new ResultGraphFragment2();
+        PersonalityPieFragment ppFrag = new PersonalityPieFragment();
 
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
@@ -281,8 +289,14 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         fragArgs2.putString(TOP_VENUE_DATA, topVenues);
         ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
         getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
-        fragContainer2.setVisibility(View.GONE);
+        //TEST 5/6
+        Bundle ppFragArgs = new Bundle();
+        ppFragArgs.putString(WORD_CLOUD_DATA, allTagsStrForCloud);
+        PersonalityPieFragment ppFragInfo = PersonalityPieFragment.newInstance(ppFragArgs);
+        getSupportFragmentManager().beginTransaction().replace(R.id.FragmentContainer, ppFragInfo ).commit();
 
+        ppFragContainer.setVisibility(View.GONE);
+        fragContainer2.setVisibility(View.GONE);
         fragContainer.setVisibility(View.GONE);
 
         shareDialog = new ShareDialog(this);
@@ -814,8 +828,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         protected void onPostExecute(String valAT)
         {
             Bundle ppFragArgs = new Bundle();
-            ppFragArgs.putString(WORD_CLOUD_DATA, valAT);
+            ppFragArgs.putString(PERSONALITY_DATA, valAT);
             PersonalityPieFragment ppFragInfo = PersonalityPieFragment.newInstance(ppFragArgs);
+            //where do i create the fragment container in the layout??
+            //Do i create it in the list_item...*, and then assign something to the ViewHolder
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, ppFragInfo).commit();
         }
     }
@@ -913,6 +929,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
             new populatePlaces().execute();
+            new populatePersonality().execute();
             generateFriendMap(res, map);
         }
     }
