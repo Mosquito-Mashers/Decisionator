@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
@@ -56,6 +57,7 @@ public class PersonalityPieFragment extends Fragment {
         if(incoming != null)
         {
             allUsersTagsStr = getArguments().getString(EventActivity.PERSONALITY_DATA);
+            //Toast.makeText(getContext(), allUsersTagsStr, Toast.LENGTH_SHORT).show();
 
         }
 

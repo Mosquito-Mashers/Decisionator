@@ -130,6 +130,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     //Ron testing
     private RelativeLayout fragContainer2;
     private ImageButton clearFragment2;
+    private RelativeLayout fragContainer3;
 
     //5/7 Personality Pie
     private RelativeLayout ppFragContainer;
@@ -272,10 +273,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         //Ron Test
         clearFragment2 = (ImageButton) findViewById(R.id.clear_Fragment2);
+        clearFragment3 = (ImageButton) findViewById(R.id.clear_personality_Fragment);
         fragContainer2 = (RelativeLayout) findViewById(R.id.fragment_Conatiner2);
+        ppFragContainer = (RelativeLayout) findViewById(R.id.fragment_Conatiner3);
 
         clearFragment.setImageResource(R.mipmap.clear_icon);
         clearFragment2.setImageResource(R.mipmap.clear_icon);
+        clearFragment3.setImageResource(R.mipmap.clear_icon);
 
         Bundle fragArgs = new Bundle();
         fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
@@ -289,15 +293,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         fragArgs2.putString(TOP_VENUE_DATA, topVenues);
         ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
         getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
-        /*
-        //TEST 5/6
-        Bundle ppFragArgs = new Bundle();
-        ppFragArgs.putString(WORD_CLOUD_DATA, allTagsStrForCloud);
-        PersonalityPieFragment ppFragInfo = PersonalityPieFragment.newInstance(ppFragArgs);
-        getSupportFragmentManager().beginTransaction().replace(R.id.FragmentContainer, ppFragInfo ).commit();
+
 
         ppFragContainer.setVisibility(View.GONE);
-        */
         fragContainer2.setVisibility(View.GONE);
         fragContainer.setVisibility(View.GONE);
 
@@ -353,6 +351,18 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
                 getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
                 fragContainer2.setVisibility(View.GONE);
+                enableDisableView(findViewById(R.id.event_main_container), true);
+            }
+        });
+        clearFragment3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Bundle ppFragArgs = new Bundle();
+                ppFragArgs.putString(PERSONALITY_DATA, allTagsStrForCloud);
+                PersonalityPieFragment fragInfo3 = PersonalityPieFragment.newInstance(ppFragArgs);
+                getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, fragInfo3).commit();
+                ppFragContainer.setVisibility(View.GONE);
                 enableDisableView(findViewById(R.id.event_main_container), true);
             }
         });
@@ -589,6 +599,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(getApplicationContext(), "you clicked on the interest chart for " + uName + " vs " + friends.get(position).getfName(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), allTagsStrForCloud, Toast.LENGTH_LONG).show();
+                    ppFragContainer.setVisibility(View.VISIBLE);
                 }
             });
 
@@ -843,7 +855,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             PersonalityPieFragment ppFragInfo = PersonalityPieFragment.newInstance(ppFragArgs);
             //where do i create the fragment container in the layout??
             //Do i create it in the list_item...*, and then assign something to the ViewHolder
-            getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, ppFragInfo).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, ppFragInfo).commit();
+            //TEST 5/6
+            ppFragContainer.setVisibility(View.GONE);
+
         }
     }
     // END OF RON TEST personality pie
