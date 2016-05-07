@@ -32,6 +32,7 @@ public class PersonalityPieFragment extends Fragment {
     private String allMyTags = "";
     private String allFriendTags = "";
     private Typeface tf;
+    WordCloudGenerator myGen, friendGen;
 
     public static PersonalityPieFragment newInstance(Bundle b) {
         PersonalityPieFragment ppFrag = new PersonalityPieFragment();
@@ -62,7 +63,13 @@ public class PersonalityPieFragment extends Fragment {
             allUsersTagsStr = getArguments().getString(EventActivity.PERSONALITY_DATA);
             //Toast.makeText(getContext(), allUsersTagsStr, Toast.LENGTH_SHORT).show();
             allMyTags = getArguments().getString(EventActivity.CURRENT_USER_DATA);
+            myGen = new WordCloudGenerator(allMyTags);
             allFriendTags = getArguments().getString(EventActivity.FRIEND_DATA);
+            friendGen = new WordCloudGenerator(allFriendTags);
+            myGen.createFrequencyMap();
+            friendGen.createFrequencyMap();
+
+
             ppChart.setData(generatePieData());
 
         }
@@ -72,22 +79,7 @@ public class PersonalityPieFragment extends Fragment {
     }
     public PieData generatePieData()
     {
-        // Entry will be the weight of the venue
-        List<Entry> pieEntries = new ArrayList<Entry>();
-        List<Integer> entryInt = new ArrayList<Integer>();
-        //xVal will be used for the venue names and legend
-        PieDataSet ds1 = new PieDataSet(pieEntries, "Personality Analysis");
 
-        List<String> xVals = new ArrayList<String>();
-        PieData d = new PieData(xVals, ds1);
-        ds1.setColors(ColorTemplate.VORDIPLOM_COLORS);
-        ds1.setSliceSpace(2f);
-        ds1.setValueTextColor(Color.BLACK);
-        ds1.setValueTextSize(12f);
-
-        d = new PieData(xVals, ds1);
-        d.setValueTypeface(tf);
-        return d;
     }
 
 
