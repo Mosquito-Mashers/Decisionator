@@ -98,6 +98,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String topVenues = "";
     private String globalCloud;
     private boolean isHost = false;
+    private String allTagsStrForCloud = "";
 
     private User currUser;
 
@@ -113,7 +114,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
     private ArrayList<String> invited = new ArrayList<String>();
     private ArrayList<String> rsvped = new ArrayList<String>();
-
+    private ArrayList<String> personalityCloud = new ArrayList<String>();
     private SpannableString wordCloud;
 
     private ListView invitedList;
@@ -140,6 +141,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.actionbar_resources, menu);
+        MenuItem itemChart = menu.findItem(R.id.chart);
+        itemChart.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -736,6 +739,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             return strForCloud;
         }
 
+
         @Override
         protected void onPostExecute(String val)
         {
@@ -744,14 +748,78 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             globalCloud = val;
             ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
-            //Ron Test Below
+            //Ron Test Below for Places Pie Chart
             Bundle fragArgs2 = new Bundle();
             fragArgs2.putString(WORD_CLOUD_DATA,val);
             ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
         }
     }
+    // RON TESTING for PERSONALITY PIE  5/6-5/7
+    class populatePersonality extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<uProfile> profileResult = mapper.scan(uProfile.class, scanExpression);
+
+            int k;
+            for (k = 0; k < profileResult.size(); k++)
+            {
+                uProfile item = profileResult.get(k);
+                for(int i = 0; i < allUsers.size(); i++)
+                {
+                    if(item.getPlacesTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getPlacesTags().split(","));
+                            allTagsStrForCloud += item.getPlacesTags();
+                        }
+                    }
+                    if(item.getImageTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getImageTags().split(","));
+                            allTagsStrForCloud += item.getImageTags();
+                        }
+                    }
+                    if(item.getTextTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getTextTags().split(","));
+                            allTagsStrForCloud += item.getTextTags();
+                        }
+                    }
+                    if(item.getLikeTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getLikeTags().split(","));
+                            allTagsStrForCloud += item.getLikeTags();
+                        }
+                    }
+                    if(item.getMovieLikeTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getMovieLikeTags().split(","));
+                            allTagsStrForCloud += item.getMovieLikeTags();
+                        }
+                    }
+                }
+            }
+            return allTagsStrForCloud;
+        }
+        @Override
+        protected void onPostExecute(String valAT)
+        {
+            Bundle ppFragArgs = new Bundle();
+            ppFragArgs.putString(WORD_CLOUD_DATA, valAT);
+            PersonalityPieFragment ppFragInfo = PersonalityPieFragment.newInstance(ppFragArgs);
+            getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, ppFragInfo).commit();
+        }
+    }
+    // END OF RON TEST personality pie
     class getAllFriends extends AsyncTask<String, Void, ArrayList<User>> {
         @Override
         protected ArrayList<User> doInBackground(String... params) {

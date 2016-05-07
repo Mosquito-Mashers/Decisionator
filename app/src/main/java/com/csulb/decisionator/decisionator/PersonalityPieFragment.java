@@ -28,6 +28,7 @@ import java.util.Map;
 public class PersonalityPieFragment extends Fragment {
     private PieChart ppChart;
 
+
     public static PersonalityPieFragment newInstance(Bundle b) {
         PersonalityPieFragment ppFrag = new PersonalityPieFragment();
         ppFrag.setArguments(b);
@@ -36,7 +37,8 @@ public class PersonalityPieFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
         View ppView = inflater.inflate(R.layout.fragment_personality_pie, container, false);
         Bundle incoming = getArguments();
         ppChart = (PieChart) ppView.findViewById(R.id.profilepiechart);
@@ -55,8 +57,10 @@ public class PersonalityPieFragment extends Fragment {
         return ppView;
     }
 
+
+
     public SpannableString generateCenterText() {
-        SpannableString s = new SpannableString("Venue\nAnalysis");
+        SpannableString s = new SpannableString("Common\nInterest");
         s.setSpan(new RelativeSizeSpan(2f), 0, 14, 0);
         return s;
     }
