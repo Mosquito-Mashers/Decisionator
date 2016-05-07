@@ -386,6 +386,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
     }
 
     private void uiChange(LinearLayout gal){
+        gal.removeAllViewsInLayout();
         ImageView achieve1 = new ImageView(getApplicationContext());
         achieve1.setImageResource(R.mipmap.clear_icon);
         achieve1.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
