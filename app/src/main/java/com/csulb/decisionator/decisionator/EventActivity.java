@@ -186,8 +186,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 fragContainer2.setVisibility(View.VISIBLE);
                 enableDisableView(findViewById(R.id.event_main_container), false);
                 return true;
-            case R.id.ppChart:
-                Bundle ppArgs = new Bundle;
+            //case R.id.ppChart:
+            //    Bundle ppArgs = new Bundle;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -289,6 +289,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         fragArgs2.putString(TOP_VENUE_DATA, topVenues);
         ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
         getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
+        /*
         //TEST 5/6
         Bundle ppFragArgs = new Bundle();
         ppFragArgs.putString(WORD_CLOUD_DATA, allTagsStrForCloud);
@@ -296,6 +297,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         getSupportFragmentManager().beginTransaction().replace(R.id.FragmentContainer, ppFragInfo ).commit();
 
         ppFragContainer.setVisibility(View.GONE);
+        */
         fragContainer2.setVisibility(View.GONE);
         fragContainer.setVisibility(View.GONE);
 
@@ -555,6 +557,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             ImageView rsvpStatus;
             ImageView profilePic;
             TextView name;
+            ImageButton interestChart;
         }
 
         @Override
@@ -572,6 +575,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 holder.rsvpStatus = (ImageView) convertView.findViewById(R.id.rsvpStatus);
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.invUserProfilePicture);
                 holder.name = (TextView) convertView.findViewById(R.id.invUserName);
+                holder.interestChart = (ImageButton) convertView.findViewById(R.id.interestChart);
 
                 convertView.setTag(holder);
             }
@@ -580,6 +584,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             }
 
             User user = friends.get(position);
+
+            holder.interestChart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getApplicationContext(), "you clicked on the interest chart for " + uName + " vs " + friends.get(position).getfName(), Toast.LENGTH_SHORT).show();
+                }
+            });
 
             if(user.getProfilePic() == null) {
                 holder.profilePic.setImageResource(R.mipmap.ic_launcher);
