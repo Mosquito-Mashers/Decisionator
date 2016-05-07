@@ -102,6 +102,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String allTagsStrForCloud = "";
 
     private User currUser;
+    private uProfile currProfile;
+    //private ArrayList<uProfile> allProfiles = new ArrayList<uProfile>()
 
 
     private Event currEvent;
@@ -550,6 +552,19 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         return joinEvent;
     }
 
+    public String getAllTagData(uProfile prof)
+    {
+        String temp = "";
+        if(prof != null) {
+            temp += prof.getImageTags();
+            temp += prof.getLikeTags();
+            temp += prof.getMovieLikeTags();
+            temp += prof.getTextTags();
+            temp += prof.getPlacesTags();
+        }
+        return temp;
+    }
+
     private class FriendAdapter extends ArrayAdapter<User>
     {
         private ArrayList<User> friends;
@@ -598,7 +613,24 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             holder.interestChart.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    User friend = friends.get(position);
+                    uProfile friendProf = new uProfile();
+                    int k;
+                    for(k = 0; k < allProfiles.size(); k++)
+                    {
+                        if(friend.getUserID().contentEquals(allProfiles.get(k).getUserID()) && allProfiles.get(k) != null)
+                        {
+                            friendProf = allProfiles.get(k);
+                            break;
+                        }
+                    }
+                    String currentProfData = getAllTagData(currProfile);
+                    String friendProfData = getAllTagData(friendProf);
                     Toast.makeText(getApplicationContext(), "you clicked on the interest chart for " + uName + " vs " + friends.get(position).getfName(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), uName, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), currentProfData, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), friend.getfName(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), friendProfData, Toast.LENGTH_LONG).show();
                     //Toast.makeText(getApplicationContext(), allTagsStrForCloud, Toast.LENGTH_LONG).show();
                     ppFragContainer.setVisibility(View.VISIBLE);
                 }
@@ -806,6 +838,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             for (k = 0; k < profileResult.size(); k++)
             {
                 uProfile item = profileResult.get(k);
+                if(item.getUserID().contentEquals(uID) && currProfile == null)
+                {
+                    currProfile = item;
+                }
+                allProfiles.add(item);
                 for(int i = 0; i < allUsers.size(); i++)
                 {
                     if(item.getPlacesTags() != null) {
