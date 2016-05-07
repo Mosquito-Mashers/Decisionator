@@ -75,6 +75,8 @@ import java.util.TreeMap;
 
 public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
     protected final static String PERSONALITY_DATA = "com.csulb.decisionator.PERSONALITY_DATA";
+    protected final static String CURRENT_USER_DATA = "com.csulb.decisionator.PERSONALITY_DATA";
+    protected final static String FRIEND_DATA = "com.csulb.decisionator.PERSONALITY_DATA";
     protected final static String WORD_CLOUD_DATA = "com.csulb.decisionator.WORD_CLOUD_DATA";
     protected final static String TOP_VENUE_DATA = "com.csulb.decisionator.TOP_VENUE_DATA";
     private FriendAdapter friendAdapter;
@@ -100,6 +102,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String globalCloud;
     private boolean isHost = false;
     private String allTagsStrForCloud = "";
+    private String allTagsStrForMe = "";
+    private String allTagsStrForFriend = "";
 
     private User currUser;
     private uProfile currProfile;
@@ -361,6 +365,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             public void onClick(View v) {
 
                 Bundle ppFragArgs = new Bundle();
+                ppFragArgs.putString(CURRENT_USER_DATA, allTagsStrForMe);
+                ppFragArgs.putString(FRIEND_DATA, allTagsStrForFriend);
                 ppFragArgs.putString(PERSONALITY_DATA, allTagsStrForCloud);
                 PersonalityPieFragment fragInfo3 = PersonalityPieFragment.newInstance(ppFragArgs);
                 getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, fragInfo3).commit();
@@ -625,7 +631,9 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                         }
                     }
                     String currentProfData = getAllTagData(currProfile);
+                    allTagsStrForMe += currentProfData;
                     String friendProfData = getAllTagData(friendProf);
+                    allTagsStrForFriend += friendProfData;
                     Toast.makeText(getApplicationContext(), "you clicked on the interest chart for " + uName + " vs " + friends.get(position).getfName(), Toast.LENGTH_SHORT).show();
                     Toast.makeText(getApplicationContext(), uName, Toast.LENGTH_SHORT).show();
                     Toast.makeText(getApplicationContext(), currentProfData, Toast.LENGTH_LONG).show();
