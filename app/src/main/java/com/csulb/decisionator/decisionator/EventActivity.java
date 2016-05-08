@@ -104,7 +104,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String allTagsStrForCloud = "";
     private String allTagsStrForMe = "";
     private String allTagsStrForFriend = "";
-
+    private String allCommonTags = "";
     private User currUser;
     private uProfile currProfile;
     //private ArrayList<uProfile> allProfiles = new ArrayList<uProfile>()
@@ -211,8 +211,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         {
             MapsInitializer.initialize(getApplicationContext());
         }
-
-
+        
         initializeGlobals();
 
         initializeListeners();
@@ -365,9 +364,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             public void onClick(View v) {
 
                 Bundle ppFragArgs = new Bundle();
-                ppFragArgs.putString(CURRENT_USER_DATA, allTagsStrForMe);
-                ppFragArgs.putString(FRIEND_DATA, allTagsStrForFriend);
-                ppFragArgs.putString(PERSONALITY_DATA, allTagsStrForCloud);
+                ppFragArgs.putString(CURRENT_USER_DATA, allCommonTags);
                 PersonalityPieFragment fragInfo3 = PersonalityPieFragment.newInstance(ppFragArgs);
                 getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, fragInfo3).commit();
                 ppFragContainer.setVisibility(View.GONE);
@@ -631,9 +628,32 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                         }
                     }
                     String currentProfData = getAllTagData(currProfile);
-                    allTagsStrForMe += currentProfData;
+                    //allTagsStrForMe += currentProfData;
                     String friendProfData = getAllTagData(friendProf);
-                    allTagsStrForFriend += friendProfData;
+                    //allTagsStrForFriend += friendProfData;
+                    //Alternate method to only pass 1 string to fragment below
+                    List<String> myTagList = new ArrayList<String> (Arrays.asList(currentProfData.split(",")));
+                    List<String> friendTagList = new ArrayList<String> (Arrays.asList(friendProfData.split(",")));
+                    HashMap<String, Integer> myTagMap = new HashMap<String, Integer>();
+                    for (String s : myTagList)
+                    {
+                        myTagMap.put(s, 0);
+                    }
+                    // then we can iterate over the map entries, count word frequency and put it as entry value
+                    for (Map.Entry<String, Integer> me : myTagMap.entrySet())
+                    {
+                        int f = Collections.frequency(friendTagList, me.getKey());
+                        me.setValue(f);
+                    }
+                    Iterator mapIter = myTagMap.entrySet().iterator();
+                    while(mapIter.hasNext())
+                    {
+                        Map.Entry<String, Integer> me = (Map.Entry<String, Integer>)mapIter.next();
+                        String word = me.getKey();
+                        int freq = me.getValue();
+                        allCommonTags += word.replace(","," ") + "," + freq + "|";
+                    }
+
                     Toast.makeText(getApplicationContext(), "you clicked on the interest chart for " + uName + " vs " + friends.get(position).getfName(), Toast.LENGTH_SHORT).show();
                     Toast.makeText(getApplicationContext(), uName, Toast.LENGTH_SHORT).show();
                     Toast.makeText(getApplicationContext(), currentProfData, Toast.LENGTH_LONG).show();
@@ -832,7 +852,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
         }
     }
-    // RON TESTING for PERSONALITY PIE  5/6-5/7
+    // RON TESTING for PERSONALITY PIE  5/6-5/7 WILL REMOVE WHEN PIE FRAG IS WORKING
+    /*
     class populatePersonality extends AsyncTask<Void, Void, String> {
         @Override
         protected String doInBackground(Void... params) {
@@ -907,6 +928,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         }
     }
     // END OF RON TEST personality pie
+    */
     class getAllFriends extends AsyncTask<String, Void, ArrayList<User>> {
         @Override
         protected ArrayList<User> doInBackground(String... params) {
@@ -1000,7 +1022,6 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
             new populatePlaces().execute();
-            new populatePersonality().execute();
             generateFriendMap(res, map);
         }
     }
