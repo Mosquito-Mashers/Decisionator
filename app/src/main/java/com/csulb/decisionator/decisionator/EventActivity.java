@@ -672,10 +672,6 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 }
             });
 
-            if (user.getUserID().contentEquals(uID))
-            {
-                holder.interestChart.setVisibility(View.GONE);
-            }
             if(user.getProfilePic() == null) {
                 holder.profilePic.setImageResource(R.mipmap.ic_launcher);
             }
@@ -692,7 +688,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             if(user.getUserID().contentEquals(uID))
             {
                 holder.rsvpStatus.setImageResource(R.mipmap.host_icon);
+                holder.interestChart.setVisibility(View.GONE);
                 assignedImage = true;
+            }
+            else
+            {
+                holder.interestChart.setVisibility(View.VISIBLE);
             }
 
             for(k = 0; k < rsvped.size(); k++)
