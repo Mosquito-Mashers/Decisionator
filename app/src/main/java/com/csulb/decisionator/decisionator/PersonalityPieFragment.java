@@ -128,8 +128,8 @@ public class PersonalityPieFragment extends Fragment {
 
 
     public SpannableString generateCenterText() {
-        SpannableString s = new SpannableString("Common\nInterest");
-        s.setSpan(new RelativeSizeSpan(2f), 0, 14, 0);
+        SpannableString s = new SpannableString("Profile\nAnalysis");
+        s.setSpan(new RelativeSizeSpan(2f), 0, 16, 0);
         return s;
     }
 }

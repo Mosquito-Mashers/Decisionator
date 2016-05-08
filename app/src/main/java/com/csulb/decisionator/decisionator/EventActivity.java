@@ -560,11 +560,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     {
         String temp = "";
         if(prof != null) {
-            temp += prof.getImageTags();
+
             temp += prof.getLikeTags();
             temp += prof.getMovieLikeTags();
             temp += prof.getTextTags();
             temp += prof.getPlacesTags();
+            temp += prof.getImageTags();
         }
         return temp;
     }
@@ -655,11 +656,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                         allCommonTags += word.replace(","," ") + "," + freq + "|";
                     }
 
-                    Toast.makeText(getApplicationContext(), "you clicked on the interest chart for " + uName + " vs " + friends.get(position).getfName(), Toast.LENGTH_SHORT).show();
-                    Toast.makeText(getApplicationContext(), uName, Toast.LENGTH_SHORT).show();
-                    Toast.makeText(getApplicationContext(), currentProfData, Toast.LENGTH_LONG).show();
-                    Toast.makeText(getApplicationContext(), friend.getfName(), Toast.LENGTH_SHORT).show();
-                    Toast.makeText(getApplicationContext(), friendProfData, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), "you clicked on the interest chart for " + uName + " vs " + friends.get(position).getfName(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), uName, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), currentProfData, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), friend.getfName(), Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getApplicationContext(), friendProfData, Toast.LENGTH_LONG).show();
                     //Toast.makeText(getApplicationContext(), allTagsStrForCloud, Toast.LENGTH_LONG).show();
                     Bundle fragArgs = new Bundle();
                     fragArgs.putString(PERSONALITY_DATA, allCommonTags);
@@ -669,6 +670,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 }
             });
 
+            if (user.getUserID().contentEquals(uID))
+            {
+                holder.interestChart.setVisibility(View.GONE);
+            }
             if(user.getProfilePic() == null) {
                 holder.profilePic.setImageResource(R.mipmap.ic_launcher);
             }
