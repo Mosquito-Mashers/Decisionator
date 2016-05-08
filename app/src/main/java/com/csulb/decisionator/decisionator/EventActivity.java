@@ -661,6 +661,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     Toast.makeText(getApplicationContext(), friend.getfName(), Toast.LENGTH_SHORT).show();
                     Toast.makeText(getApplicationContext(), friendProfData, Toast.LENGTH_LONG).show();
                     //Toast.makeText(getApplicationContext(), allTagsStrForCloud, Toast.LENGTH_LONG).show();
+                    Bundle fragArgs = new Bundle();
+                    fragArgs.putString(PERSONALITY_DATA, allCommonTags);
+                    PersonalityPieFragment fragInfo = PersonalityPieFragment.newInstance(fragArgs);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, fragInfo).commit();
                     ppFragContainer.setVisibility(View.VISIBLE);
                 }
             });
@@ -848,13 +852,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
             //Ron Test Below for Places Pie Chart
             Bundle fragArgs2 = new Bundle();
-            fragArgs2.putString(WORD_CLOUD_DATA,val);
+            fragArgs2.putString(WORD_CLOUD_DATA, val);
             ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
         }
     }
     // RON TESTING for PERSONALITY PIE  5/6-5/7 WILL REMOVE WHEN PIE FRAG IS WORKING
-    /*
+
     class populatePersonality extends AsyncTask<Void, Void, String> {
         @Override
         protected String doInBackground(Void... params) {
@@ -917,19 +921,18 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         @Override
         protected void onPostExecute(String valAT)
         {
-            Bundle ppFragArgs = new Bundle();
-            ppFragArgs.putString(PERSONALITY_DATA, valAT);
-            PersonalityPieFragment ppFragInfo = PersonalityPieFragment.newInstance(ppFragArgs);
+            //Bundle ppFragArgs = new Bundle();
+            //ppFragArgs.putString(PERSONALITY_DATA, valAT);
+            //PersonalityPieFragment ppFragInfo = PersonalityPieFragment.newInstance(ppFragArgs);
             //where do i create the fragment container in the layout??
             //Do i create it in the list_item...*, and then assign something to the ViewHolder
-            getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, ppFragInfo).commit();
+            //getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, ppFragInfo).commit();
             //TEST 5/6
-            ppFragContainer.setVisibility(View.GONE);
+            //ppFragContainer.setVisibility(View.GONE);
 
         }
     }
     // END OF RON TEST personality pie
-    */
     class getAllFriends extends AsyncTask<String, Void, ArrayList<User>> {
         @Override
         protected ArrayList<User> doInBackground(String... params) {
@@ -1023,6 +1026,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
             new populatePlaces().execute();
+            new populatePersonality().execute();
             generateFriendMap(res, map);
         }
     }
