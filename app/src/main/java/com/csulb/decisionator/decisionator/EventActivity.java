@@ -155,6 +155,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         inflater.inflate(R.menu.actionbar_resources, menu);
         MenuItem itemChart = menu.findItem(R.id.chart);
         itemChart.setVisible(false);
+        MenuItem itemProfile = menu.findItem(R.id.profile);
+        itemProfile.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 

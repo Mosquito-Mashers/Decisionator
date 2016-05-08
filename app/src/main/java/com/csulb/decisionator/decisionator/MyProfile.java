@@ -58,6 +58,8 @@ public class MyProfile extends AppCompatActivity {
         itemChart.setVisible(false);
         MenuItem itemProfile = menu.findItem(R.id.profile);
         itemProfile.setVisible(false);
+        MenuItem itemChart2 = menu.findItem(R.id.chart2);
+        itemChart2.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
