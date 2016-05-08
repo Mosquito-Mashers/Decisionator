@@ -211,7 +211,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         {
             MapsInitializer.initialize(getApplicationContext());
         }
-        
+
+
         initializeGlobals();
 
         initializeListeners();

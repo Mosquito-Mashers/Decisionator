@@ -31,6 +31,8 @@ public class PersonalityPieFragment extends Fragment {
     private String allUsersTagsStr = "";
     private String allMyTags = "";
     private String allFriendTags = "";
+    private String allCommonTags = "";
+    private Map<String,Integer> commonTagMap = new HashMap<String, Integer>();
     private Typeface tf;
     WordCloudGenerator myGen, friendGen;
 
@@ -79,7 +81,49 @@ public class PersonalityPieFragment extends Fragment {
     }
     public PieData generatePieData()
     {
+        List<Entry> pieEntries = new ArrayList<Entry>();
+        List<Integer> entryInt = new ArrayList<Integer>();
+        PieDataSet ds1 = new PieDataSet(pieEntries, "Personality Analysis");
+        List<String> xVals = new ArrayList<String>();
+        PieData d = new PieData(xVals, ds1);
+        Bundle incoming = getArguments();
 
+        if(incoming != null)
+        {
+            allCommonTags = getArguments().getString(EventActivity.PERSONALITY_DATA);
+            if(allCommonTags != "" && allCommonTags != null)
+            {
+                String raw[] = allCommonTags.split("\\|");
+                for (int k = 0; k < raw.length; k++)
+                {
+                    String item[] = raw[k].split(",");
+                    commonTagMap.put(item[0], Integer.parseInt(item[1]));
+                }
+            }
+        }
+        if(commonTagMap.size() > 0) {
+            Iterator mapIter = commonTagMap.entrySet().iterator();
+            xVals = new ArrayList<String>();
+            int count = 0;
+            while (mapIter.hasNext()) {
+                Map.Entry ent = (Map.Entry) mapIter.next();
+                if((int)ent.getValue() > 0) {
+                    pieEntries.add(new Entry((float) ((int) (ent.getValue())), count));
+                    xVals.add(count, ent.getKey().toString());
+                    count++;
+                }
+            }
+            ds1 = new PieDataSet(pieEntries, "Profile Analysis");
+
+            ds1.setColors(ColorTemplate.VORDIPLOM_COLORS);
+            ds1.setSliceSpace(2f);
+            ds1.setValueTextColor(Color.BLACK);
+            ds1.setValueTextSize(12f);
+
+            d = new PieData(xVals, ds1);
+            d.setValueTypeface(tf);
+        }
+        return d;
     }
 
 
