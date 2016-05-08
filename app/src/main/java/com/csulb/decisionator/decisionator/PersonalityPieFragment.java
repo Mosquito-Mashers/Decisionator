@@ -76,7 +76,6 @@ public class PersonalityPieFragment extends Fragment {
 
         }
 
-
         return ppView;
     }
     public PieData generatePieData()

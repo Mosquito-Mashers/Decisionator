@@ -365,7 +365,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             public void onClick(View v) {
 
                 Bundle ppFragArgs = new Bundle();
-                ppFragArgs.putString(CURRENT_USER_DATA, allCommonTags);
+                ppFragArgs.putString(PERSONALITY_DATA, allCommonTags);
                 PersonalityPieFragment fragInfo3 = PersonalityPieFragment.newInstance(ppFragArgs);
                 getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, fragInfo3).commit();
                 ppFragContainer.setVisibility(View.GONE);
