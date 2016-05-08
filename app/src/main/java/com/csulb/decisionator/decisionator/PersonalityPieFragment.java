@@ -104,7 +104,7 @@ public class PersonalityPieFragment extends Fragment {
             Iterator mapIter = commonTagMap.entrySet().iterator();
             xVals = new ArrayList<String>();
             int count = 0;
-            while (mapIter.hasNext()) {
+            while (mapIter.hasNext() && count < 10) {
                 Map.Entry ent = (Map.Entry) mapIter.next();
                 if((int)ent.getValue() > 0) {
                     pieEntries.add(new Entry((float) ((int) (ent.getValue())), count));
