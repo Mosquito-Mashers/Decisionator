@@ -106,7 +106,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String allCommonTags = "";
     private User currUser;
     private uProfile currProfile;
-    //private ArrayList<uProfile> allProfiles = new ArrayList<uProfile>()
+
 
 
     private Event currEvent;
@@ -624,9 +624,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     int k;
                     for(k = 0; k < allProfiles.size(); k++)
                     {
+
                         if(friend.getUserID().contentEquals(allProfiles.get(k).getUserID()) && allProfiles.get(k) != null)
                         {
                             friendProf = allProfiles.get(k);
+
                             break;
                         }
                     }
@@ -835,6 +837,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 uProfile item = profileResult.get(k);
                 for(int i = 0; i < allUsers.size(); i++)
                 {
+                    if(item.getUserID().contentEquals(uID) && currProfile == null)
+                    {
+                        currProfile = item;
+                    }
+                    allProfiles.add(item);
                     if(item.getPlacesTags() != null) {
                         User usr = allUsers.get(i);
                         if (item.getUserID().contentEquals(usr.getUserID())) {
@@ -864,82 +871,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
         }
     }
-    // RON TESTING for PERSONALITY PIE  5/6-5/7 WILL REMOVE WHEN PIE FRAG IS WORKING
 
-    class populatePersonality extends AsyncTask<Void, Void, String> {
-        @Override
-        protected String doInBackground(Void... params) {
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-            PaginatedScanList<uProfile> profileResult = mapper.scan(uProfile.class, scanExpression);
-
-            int k;
-            for (k = 0; k < profileResult.size(); k++)
-            {
-                uProfile item = profileResult.get(k);
-                if(item.getUserID().contentEquals(uID) && currProfile == null)
-                {
-                    currProfile = item;
-                }
-                allProfiles.add(item);
-                for(int i = 0; i < allUsers.size(); i++)
-                {
-                    if(item.getPlacesTags() != null) {
-                        User usr = allUsers.get(i);
-                        if (item.getUserID().contentEquals(usr.getUserID())) {
-                            Collections.addAll(placesCloud, item.getPlacesTags().split(","));
-                            allTagsStrForCloud += item.getPlacesTags();
-                        }
-                    }
-                    if(item.getImageTags() != null) {
-                        User usr = allUsers.get(i);
-                        if (item.getUserID().contentEquals(usr.getUserID())) {
-                            Collections.addAll(placesCloud, item.getImageTags().split(","));
-                            allTagsStrForCloud += item.getImageTags();
-                        }
-                    }
-                    if(item.getTextTags() != null) {
-                        User usr = allUsers.get(i);
-                        if (item.getUserID().contentEquals(usr.getUserID())) {
-                            Collections.addAll(placesCloud, item.getTextTags().split(","));
-                            allTagsStrForCloud += item.getTextTags();
-                        }
-                    }
-                    if(item.getLikeTags() != null) {
-                        User usr = allUsers.get(i);
-                        if (item.getUserID().contentEquals(usr.getUserID())) {
-                            Collections.addAll(placesCloud, item.getLikeTags().split(","));
-                            allTagsStrForCloud += item.getLikeTags();
-                        }
-                    }
-                    if(item.getMovieLikeTags() != null) {
-                        User usr = allUsers.get(i);
-                        if (item.getUserID().contentEquals(usr.getUserID())) {
-                            Collections.addAll(placesCloud, item.getMovieLikeTags().split(","));
-                            allTagsStrForCloud += item.getMovieLikeTags();
-                        }
-                    }
-                }
-            }
-            return allTagsStrForCloud;
-        }
-        @Override
-        protected void onPostExecute(String valAT)
-        {
-            //Bundle ppFragArgs = new Bundle();
-            //ppFragArgs.putString(PERSONALITY_DATA, valAT);
-            //PersonalityPieFragment ppFragInfo = PersonalityPieFragment.newInstance(ppFragArgs);
-            //where do i create the fragment container in the layout??
-            //Do i create it in the list_item...*, and then assign something to the ViewHolder
-            //getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, ppFragInfo).commit();
-            //TEST 5/6
-            //ppFragContainer.setVisibility(View.GONE);
-
-        }
-    }
-    // END OF RON TEST personality pie
     class getAllFriends extends AsyncTask<String, Void, ArrayList<User>> {
         @Override
         protected ArrayList<User> doInBackground(String... params) {
@@ -1033,7 +965,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
             new populatePlaces().execute();
-            new populatePersonality().execute();
+            //new populatePersonality().execute();
             generateFriendMap(res, map);
         }
     }
