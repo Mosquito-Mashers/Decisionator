@@ -31,6 +31,7 @@ public class PersonalityPieFragment extends Fragment {
     private String allMyTags = "";
     private String allFriendTags = "";
     private String allCommonTags = "";
+    private int commonTraits = 0;
     private HashMap<String,Integer> commonTagMap = new HashMap<String, Integer>();
     private Typeface tf;
     WordCloudGenerator myGen, friendGen;
@@ -72,6 +73,7 @@ public class PersonalityPieFragment extends Fragment {
 
 
             ppChart.setData(generatePieData());
+            ppChart.setCenterText(generateCenterText());
 
         }
 
@@ -104,15 +106,18 @@ public class PersonalityPieFragment extends Fragment {
             Iterator mapIter = commonTagMap.entrySet().iterator();
             xVals = new ArrayList<String>();
             int count = 0;
-            while (mapIter.hasNext() && count < 10) {
+            while (mapIter.hasNext()) {
                 Map.Entry ent = (Map.Entry) mapIter.next();
-                if((int)ent.getValue() > 0) {
-                    pieEntries.add(new Entry((float) ((int) (ent.getValue())), count));
-                    xVals.add(count, ent.getKey().toString());
-                    count++;
+                if((int)ent.getValue() >= 1) {
+                    commonTraits++;
+                    if( count < 10) {
+                        pieEntries.add(new Entry((float) ((int) (ent.getValue())), count));
+                        xVals.add(count, ent.getKey().toString());
+                        count++;
+                    }
                 }
             }
-            ds1 = new PieDataSet(pieEntries, "Profile Analysis");
+            ds1 = new PieDataSet(pieEntries, "You have " + commonTraits + " traits in common");
 
             ds1.setColors(ColorTemplate.VORDIPLOM_COLORS);
             ds1.setSliceSpace(2f);
@@ -128,8 +133,9 @@ public class PersonalityPieFragment extends Fragment {
 
 
     public SpannableString generateCenterText() {
-        SpannableString s = new SpannableString("Profile\nAnalysis");
-        s.setSpan(new RelativeSizeSpan(2f), 0, 16, 0);
+        String chartTitle =  "You have " + commonTraits + " traits in common";
+        SpannableString s = new SpannableString(chartTitle);
+        s.setSpan(new RelativeSizeSpan(2f), 0, chartTitle.length(), 0);
         return s;
     }
 
