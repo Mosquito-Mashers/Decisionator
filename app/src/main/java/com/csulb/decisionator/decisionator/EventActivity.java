@@ -73,7 +73,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class EventActivity extends AppCompatActivity  implements OnMapReadyCallback {
-
+    protected final static String PERSONALITY_DATA = "com.csulb.decisionator.PERSONALITY_DATA";
+    protected final static String CURRENT_USER_DATA = "com.csulb.decisionator.PERSONALITY_DATA";
+    protected final static String FRIEND_DATA = "com.csulb.decisionator.PERSONALITY_DATA";
     protected final static String WORD_CLOUD_DATA = "com.csulb.decisionator.WORD_CLOUD_DATA";
     protected final static String TOP_VENUE_DATA = "com.csulb.decisionator.TOP_VENUE_DATA";
     private FriendAdapter friendAdapter;
@@ -98,8 +100,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private String topVenues = "";
     private String globalCloud;
     private boolean isHost = false;
-
+    private String allTagsStrForCloud = "";
+    private String allTagsStrForMe = "";
+    private String allTagsStrForFriend = "";
+    private String allCommonTags = "";
     private User currUser;
+    private uProfile currProfile;
+    //private ArrayList<uProfile> allProfiles = new ArrayList<uProfile>()
 
 
     private Event currEvent;
@@ -113,7 +120,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     private ArrayList<Bitmap> userPics = new ArrayList<Bitmap>();
     private ArrayList<String> invited = new ArrayList<String>();
     private ArrayList<String> rsvped = new ArrayList<String>();
-
+    private ArrayList<String> personalityCloud = new ArrayList<String>();
     private SpannableString wordCloud;
 
     private ListView invitedList;
@@ -128,6 +135,11 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     //Ron testing
     private RelativeLayout fragContainer2;
     private ImageButton clearFragment2;
+    private RelativeLayout fragContainer3;
+
+    //5/7 Personality Pie
+    private RelativeLayout ppFragContainer;
+    private ImageButton clearFragment3;
 
     private checkUpdates updateRefresh = new checkUpdates();
     private Intent notificationIntent;
@@ -140,6 +152,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.actionbar_resources, menu);
+        MenuItem itemChart = menu.findItem(R.id.chart);
+        itemChart.setVisible(false);
+        MenuItem itemProfile = menu.findItem(R.id.profile);
+        itemProfile.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -178,6 +194,8 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 fragContainer2.setVisibility(View.VISIBLE);
                 enableDisableView(findViewById(R.id.event_main_container), false);
                 return true;
+            //case R.id.ppChart:
+            //    Bundle ppArgs = new Bundle;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -214,6 +232,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
     {
         frag = new ResultGraphFragment();
         frag2 = new ResultGraphFragment2();
+        PersonalityPieFragment ppFrag = new PersonalityPieFragment();
 
         logoutIntent = new Intent(this, FacebookLogin.class);
         lobbyIntent = new Intent(this, LobbyActivity.class);
@@ -261,10 +280,13 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
         //Ron Test
         clearFragment2 = (ImageButton) findViewById(R.id.clear_Fragment2);
+        clearFragment3 = (ImageButton) findViewById(R.id.clear_personality_Fragment);
         fragContainer2 = (RelativeLayout) findViewById(R.id.fragment_Conatiner2);
+        ppFragContainer = (RelativeLayout) findViewById(R.id.fragment_Conatiner3);
 
         clearFragment.setImageResource(R.mipmap.clear_icon);
         clearFragment2.setImageResource(R.mipmap.clear_icon);
+        clearFragment3.setImageResource(R.mipmap.clear_icon);
 
         Bundle fragArgs = new Bundle();
         fragArgs.putString(WORD_CLOUD_DATA, strForCloud);
@@ -278,8 +300,10 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         fragArgs2.putString(TOP_VENUE_DATA, topVenues);
         ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
         getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
-        fragContainer2.setVisibility(View.GONE);
 
+
+        ppFragContainer.setVisibility(View.GONE);
+        fragContainer2.setVisibility(View.GONE);
         fragContainer.setVisibility(View.GONE);
 
         shareDialog = new ShareDialog(this);
@@ -334,6 +358,18 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
                 getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
                 fragContainer2.setVisibility(View.GONE);
+                enableDisableView(findViewById(R.id.event_main_container), true);
+            }
+        });
+        clearFragment3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Bundle ppFragArgs = new Bundle();
+                ppFragArgs.putString(PERSONALITY_DATA, allCommonTags);
+                PersonalityPieFragment fragInfo3 = PersonalityPieFragment.newInstance(ppFragArgs);
+                getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, fragInfo3).commit();
+                ppFragContainer.setVisibility(View.GONE);
                 enableDisableView(findViewById(R.id.event_main_container), true);
             }
         });
@@ -521,6 +557,20 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
         return joinEvent;
     }
 
+    public String getAllTagData(uProfile prof)
+    {
+        String temp = "";
+        if(prof != null) {
+
+            temp += prof.getLikeTags();
+            temp += prof.getMovieLikeTags();
+            temp += prof.getTextTags();
+            temp += prof.getPlacesTags();
+            //temp += prof.getImageTags();
+        }
+        return temp;
+    }
+
     private class FriendAdapter extends ArrayAdapter<User>
     {
         private ArrayList<User> friends;
@@ -538,6 +588,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             ImageView rsvpStatus;
             ImageView profilePic;
             TextView name;
+            ImageButton interestChart;
         }
 
         @Override
@@ -555,6 +606,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                 holder.rsvpStatus = (ImageView) convertView.findViewById(R.id.rsvpStatus);
                 holder.profilePic = (ImageView) convertView.findViewById(R.id.invUserProfilePicture);
                 holder.name = (TextView) convertView.findViewById(R.id.invUserName);
+                holder.interestChart = (ImageButton) convertView.findViewById(R.id.interestChart);
 
                 convertView.setTag(holder);
             }
@@ -563,6 +615,61 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             }
 
             User user = friends.get(position);
+
+            holder.interestChart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    User friend = friends.get(position);
+                    uProfile friendProf = new uProfile();
+                    int k;
+                    for(k = 0; k < allProfiles.size(); k++)
+                    {
+                        if(friend.getUserID().contentEquals(allProfiles.get(k).getUserID()) && allProfiles.get(k) != null)
+                        {
+                            friendProf = allProfiles.get(k);
+                            break;
+                        }
+                    }
+                    String currentProfData = getAllTagData(currProfile);
+                    //allTagsStrForMe += currentProfData;
+                    String friendProfData = getAllTagData(friendProf);
+                    //allTagsStrForFriend += friendProfData;
+                    //Alternate method to only pass 1 string to fragment below
+                    List<String> myTagList = new ArrayList<String> (Arrays.asList(currentProfData.split(",")));
+                    List<String> friendTagList = new ArrayList<String> (Arrays.asList(friendProfData.split(",")));
+                    HashMap<String, Integer> myTagMap = new HashMap<String, Integer>();
+                    for (String s : myTagList)
+                    {
+                        myTagMap.put(s, 0);
+                    }
+                    // then we can iterate over the map entries, count word frequency and put it as entry value
+                    for (Map.Entry<String, Integer> me : myTagMap.entrySet())
+                    {
+                        int f = Collections.frequency(friendTagList, me.getKey());
+                        me.setValue(f);
+                    }
+                    Iterator mapIter = myTagMap.entrySet().iterator();
+                    while(mapIter.hasNext())
+                    {
+                        Map.Entry<String, Integer> me = (Map.Entry<String, Integer>)mapIter.next();
+                        String word = me.getKey();
+                        int freq = me.getValue();
+                        allCommonTags += word.replace(","," ") + "," + freq + "|";
+                    }
+
+                    //Toast.makeText(getApplicationContext(), "you clicked on the interest chart for " + uName + " vs " + friends.get(position).getfName(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), uName, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), currentProfData, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), friend.getfName(), Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getApplicationContext(), friendProfData, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), allTagsStrForCloud, Toast.LENGTH_LONG).show();
+                    Bundle fragArgs = new Bundle();
+                    fragArgs.putString(PERSONALITY_DATA, allCommonTags);
+                    PersonalityPieFragment fragInfo = PersonalityPieFragment.newInstance(fragArgs);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, fragInfo).commit();
+                    ppFragContainer.setVisibility(View.VISIBLE);
+                }
+            });
 
             if(user.getProfilePic() == null) {
                 holder.profilePic.setImageResource(R.mipmap.ic_launcher);
@@ -580,7 +687,12 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             if(user.getUserID().contentEquals(uID))
             {
                 holder.rsvpStatus.setImageResource(R.mipmap.host_icon);
+                holder.interestChart.setVisibility(View.GONE);
                 assignedImage = true;
+            }
+            else
+            {
+                holder.interestChart.setVisibility(View.VISIBLE);
             }
 
             for(k = 0; k < rsvped.size(); k++)
@@ -736,6 +848,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             return strForCloud;
         }
 
+
         @Override
         protected void onPostExecute(String val)
         {
@@ -744,14 +857,89 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             globalCloud = val;
             ResultGraphFragment fragInfo = ResultGraphFragment.newInstance(fragArgs);
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer, fragInfo).commit();
-            //Ron Test Below
+            //Ron Test Below for Places Pie Chart
             Bundle fragArgs2 = new Bundle();
-            fragArgs2.putString(WORD_CLOUD_DATA,val);
+            fragArgs2.putString(WORD_CLOUD_DATA, val);
             ResultGraphFragment2 fragInfo2 = ResultGraphFragment2.newInstance(fragArgs2);
             getSupportFragmentManager().beginTransaction().replace(R.id.resultGraphFragmentContainer2, fragInfo2).commit();
         }
     }
+    // RON TESTING for PERSONALITY PIE  5/6-5/7 WILL REMOVE WHEN PIE FRAG IS WORKING
 
+    class populatePersonality extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... params) {
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+            PaginatedScanList<uProfile> profileResult = mapper.scan(uProfile.class, scanExpression);
+
+            int k;
+            for (k = 0; k < profileResult.size(); k++)
+            {
+                uProfile item = profileResult.get(k);
+                if(item.getUserID().contentEquals(uID) && currProfile == null)
+                {
+                    currProfile = item;
+                }
+                allProfiles.add(item);
+                for(int i = 0; i < allUsers.size(); i++)
+                {
+                    if(item.getPlacesTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getPlacesTags().split(","));
+                            allTagsStrForCloud += item.getPlacesTags();
+                        }
+                    }
+                    if(item.getImageTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getImageTags().split(","));
+                            allTagsStrForCloud += item.getImageTags();
+                        }
+                    }
+                    if(item.getTextTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getTextTags().split(","));
+                            allTagsStrForCloud += item.getTextTags();
+                        }
+                    }
+                    if(item.getLikeTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getLikeTags().split(","));
+                            allTagsStrForCloud += item.getLikeTags();
+                        }
+                    }
+                    if(item.getMovieLikeTags() != null) {
+                        User usr = allUsers.get(i);
+                        if (item.getUserID().contentEquals(usr.getUserID())) {
+                            Collections.addAll(placesCloud, item.getMovieLikeTags().split(","));
+                            allTagsStrForCloud += item.getMovieLikeTags();
+                        }
+                    }
+                }
+            }
+            return allTagsStrForCloud;
+        }
+        @Override
+        protected void onPostExecute(String valAT)
+        {
+            //Bundle ppFragArgs = new Bundle();
+            //ppFragArgs.putString(PERSONALITY_DATA, valAT);
+            //PersonalityPieFragment ppFragInfo = PersonalityPieFragment.newInstance(ppFragArgs);
+            //where do i create the fragment container in the layout??
+            //Do i create it in the list_item...*, and then assign something to the ViewHolder
+            //getSupportFragmentManager().beginTransaction().replace(R.id.personality_frag_container, ppFragInfo).commit();
+            //TEST 5/6
+            //ppFragContainer.setVisibility(View.GONE);
+
+        }
+    }
+    // END OF RON TEST personality pie
     class getAllFriends extends AsyncTask<String, Void, ArrayList<User>> {
         @Override
         protected ArrayList<User> doInBackground(String... params) {
@@ -845,6 +1033,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             invitedList = (ListView) findViewById(R.id.invitedList);
             invitedList.setAdapter(friendAdapter);
             new populatePlaces().execute();
+            new populatePersonality().execute();
             generateFriendMap(res, map);
         }
     }

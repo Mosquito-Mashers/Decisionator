@@ -21,6 +21,14 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/invUserName"/>
 
+    <ImageButton
+        android:id="@+id/interestChart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rsvpStatus"
+        android:background="@color/transparent"
+        android:src="@mipmap/chart_icon_colored"/>
+
     <ImageView
         android:id="@+id/invUserProfilePicture"
         android:layout_width="wrap_content"
