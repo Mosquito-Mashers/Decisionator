@@ -39,7 +39,6 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
-import com.github.mikephil.charting.charts.PieChart;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -567,7 +566,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
             temp += prof.getMovieLikeTags();
             temp += prof.getTextTags();
             temp += prof.getPlacesTags();
-            temp += prof.getImageTags();
+            //temp += prof.getImageTags();
         }
         return temp;
     }
