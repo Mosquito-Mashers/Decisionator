@@ -130,8 +130,6 @@ public class PersonalityPieFragment extends Fragment {
         return d;
     }
 
-
-
     public SpannableString generateCenterText() {
         String chartTitle =  "You have " + commonTraits + " traits in common";
         SpannableString s = new SpannableString(chartTitle);
