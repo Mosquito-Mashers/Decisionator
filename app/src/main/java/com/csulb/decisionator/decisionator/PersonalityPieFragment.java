@@ -8,9 +8,6 @@ import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
@@ -19,8 +16,10 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 /**
@@ -32,7 +31,7 @@ public class PersonalityPieFragment extends Fragment {
     private String allMyTags = "";
     private String allFriendTags = "";
     private String allCommonTags = "";
-    private Map<String,Integer> commonTagMap = new HashMap<String, Integer>();
+    private HashMap<String,Integer> commonTagMap = new HashMap<String, Integer>();
     private Typeface tf;
     WordCloudGenerator myGen, friendGen;
 
@@ -100,6 +99,7 @@ public class PersonalityPieFragment extends Fragment {
                 }
             }
         }
+        commonTagMap = this.sortHashMapByValues(commonTagMap);
         if(commonTagMap.size() > 0) {
             Iterator mapIter = commonTagMap.entrySet().iterator();
             xVals = new ArrayList<String>();
@@ -131,5 +131,34 @@ public class PersonalityPieFragment extends Fragment {
         SpannableString s = new SpannableString("Profile\nAnalysis");
         s.setSpan(new RelativeSizeSpan(2f), 0, 16, 0);
         return s;
+    }
+
+    public LinkedHashMap sortHashMapByValues(HashMap passedMap) {
+        List mapKeys = new ArrayList(passedMap.keySet());
+        List mapValues = new ArrayList(passedMap.values());
+        Collections.sort(mapValues, Collections.reverseOrder());
+        Collections.sort(mapKeys,Collections.reverseOrder());
+
+        LinkedHashMap sortedMap = new LinkedHashMap();
+
+        Iterator valueIt = mapValues.iterator();
+        while (valueIt.hasNext()) {
+            Object val = valueIt.next();
+            Iterator keyIt = mapKeys.iterator();
+
+            while (keyIt.hasNext()) {
+                Object key = keyIt.next();
+                String comp1 = passedMap.get(key).toString();
+                String comp2 = val.toString();
+
+                if (comp2.equals(comp1)){
+                    passedMap.remove(key);
+                    mapKeys.remove(key);
+                    sortedMap.put((String)key, (Integer)val);
+                    break;
+                }
+            }
+        }
+        return sortedMap;
     }
 }
