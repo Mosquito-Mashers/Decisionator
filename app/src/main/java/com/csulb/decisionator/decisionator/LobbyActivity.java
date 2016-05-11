@@ -587,6 +587,12 @@ public class LobbyActivity extends AppCompatActivity {
             if(temp > 10){
                 Achievements = Achievements + ",3";
             }
+            if(temp > 20) {
+                Achievements = Achievements + ",4";
+            }
+            if(temp > 40) {
+                Achievements = Achievements + ",5";
+            }
             user.setAchievements(Achievements);
             mapper.save(user);
             return null;
