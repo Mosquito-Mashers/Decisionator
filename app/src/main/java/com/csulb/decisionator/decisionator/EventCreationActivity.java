@@ -82,6 +82,10 @@ public class EventCreationActivity extends AppCompatActivity {
         inflater.inflate(R.menu.actionbar_resources, menu);
         MenuItem itemChart = menu.findItem(R.id.chart);
         itemChart.setVisible(false);
+        MenuItem itemProfile = menu.findItem(R.id.profile);
+        itemProfile.setVisible(false);
+        MenuItem itemChart2 = menu.findItem(R.id.chart2);
+        itemChart2.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 

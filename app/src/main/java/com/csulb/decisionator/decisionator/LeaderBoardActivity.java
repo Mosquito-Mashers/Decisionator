@@ -67,6 +67,10 @@ public class LeaderBoardActivity extends AppCompatActivity {
         inflater.inflate(R.menu.actionbar_resources, menu);
         MenuItem itemChart = menu.findItem(R.id.chart);
         itemChart.setVisible(false);
+        MenuItem itemProfile = menu.findItem(R.id.profile);
+        itemProfile.setVisible(false);
+        MenuItem itemChart2 = menu.findItem(R.id.chart2);
+        itemChart2.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -386,6 +390,7 @@ public class LeaderBoardActivity extends AppCompatActivity {
     }
 
     private void uiChange(LinearLayout gal){
+        gal.removeAllViewsInLayout();
         ImageView achieve1 = new ImageView(getApplicationContext());
         achieve1.setImageResource(R.mipmap.clear_icon);
         achieve1.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));

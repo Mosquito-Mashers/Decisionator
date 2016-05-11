@@ -105,6 +105,27 @@
             tools:layout="@layout/fragment_result_graph2">
         </fragment>
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/fragment_Conatiner3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary">
+        <ImageButton
+            android:id="@+id/clear_personality_Fragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
+            android:layout_alignParentRight="true"/>
+        <fragment
+            android:name="com.csulb.decisionator.decisionator.ResultGraphFragment2"
+            android:id="@+id/personality_frag_container"
+            android:layout_width="350dp"
+            android:layout_height="400dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            tools:layout="@layout/fragment_result_graph2">
+        </fragment>
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/testingCloud"

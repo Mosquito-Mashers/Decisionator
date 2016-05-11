@@ -18,18 +18,10 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:layout_weight="1">
-            <TextView
+            <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:textSize="35dp"
-                android:text="Welcome to the decisionator!"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:textSize="35dp"
-                android:text="Please Login:"/>
+                android:layout_height="match_parent"
+                android:src="@mipmap/ic_launcher"/>
 
 
         </LinearLayout>
