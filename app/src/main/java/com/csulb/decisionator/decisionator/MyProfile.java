@@ -150,19 +150,19 @@ public class MyProfile extends AppCompatActivity {
 
         for(int i = 0; i < achieveString.length; i++){
             if(achieveString[i].equals("1")){
-                achieve1.setImageResource(R.mipmap.trophy_sample);
+                achieve1.setImageResource(R.mipmap.trophy1);
             }
             if(achieveString[i].equals("2")){
-                achieve2.setImageResource(R.mipmap.trophy_sample2);
+                achieve2.setImageResource(R.mipmap.trophy2);
             }
             if(achieveString[i].equals("3")){
-                achieve3.setImageResource(R.mipmap.trophy_sample3);
+                achieve3.setImageResource(R.mipmap.trophy3);
             }
             if(achieveString[i].equals("4")){
-                achieve3.setImageResource(R.mipmap.trophy_sample4);
+                achieve3.setImageResource(R.mipmap.trophy4);
             }
             if(achieveString[i].equals("5")){
-                achieve3.setImageResource(R.mipmap.trophy_sample5);
+                achieve3.setImageResource(R.mipmap.trophy5);
             }
 
         }

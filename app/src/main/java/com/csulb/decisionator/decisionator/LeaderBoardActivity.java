@@ -394,29 +394,44 @@ public class LeaderBoardActivity extends AppCompatActivity {
         ImageView achieve1 = new ImageView(getApplicationContext());
         achieve1.setImageResource(R.mipmap.clear_icon);
         achieve1.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
-        gal.addView(achieve1);
+        gallery.addView(achieve1);
 
         ImageView achieve2 = new ImageView(getApplicationContext());
         achieve2.setImageResource(R.mipmap.clear_icon);
         achieve2.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
-        gal.addView(achieve2);
+        gallery.addView(achieve2);
 
         ImageView achieve3 = new ImageView(getApplicationContext());
         achieve3.setImageResource(R.mipmap.clear_icon);
         achieve3.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
-        gal.addView(achieve3);
+        gallery.addView(achieve3);
+
+        ImageView achieve4 = new ImageView(getApplicationContext());
+        achieve4.setImageResource(R.mipmap.clear_icon);
+        achieve4.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gallery.addView(achieve4);
+
+        ImageView achieve5 = new ImageView(getApplicationContext());
+        achieve5.setImageResource(R.mipmap.clear_icon);
+        achieve5.setLayoutParams(new ViewGroup.LayoutParams(220, ViewGroup.LayoutParams.MATCH_PARENT));
+        gallery.addView(achieve5);
 
         for(int i = 0; i < achieveString.length; i++){
             if(achieveString[i].equals("1")){
-                achieve1.setImageResource(R.mipmap.star_icon);
+                achieve1.setImageResource(R.mipmap.trophy1);
             }
             if(achieveString[i].equals("2")){
-                achieve2.setImageResource(R.mipmap.star_icon);
+                achieve2.setImageResource(R.mipmap.trophy2);
             }
             if(achieveString[i].equals("3")){
-                achieve3.setImageResource(R.mipmap.star_icon);
+                achieve3.setImageResource(R.mipmap.trophy3);
             }
-
+            if(achieveString[i].equals("4")){
+                achieve3.setImageResource(R.mipmap.trophy4);
+            }
+            if(achieveString[i].equals("5")){
+                achieve3.setImageResource(R.mipmap.trophy5);
+            }
         }
     }
 
