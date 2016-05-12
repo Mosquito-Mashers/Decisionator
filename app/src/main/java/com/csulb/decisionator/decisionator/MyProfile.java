@@ -247,7 +247,15 @@ public class MyProfile extends AppCompatActivity {
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
             User user = mapper.load(User.class, params[0]);
-            achieveString = user.getAchievements().split(",");
+            if(user.getAchievements() != null) {
+                achieveString = user.getAchievements().split(",");
+            }
+            else
+            {
+                String [] temp = new String[1];
+                temp[0] = "0";
+                achieveString = temp;
+            }
             return null;
         }
 
