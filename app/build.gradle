@@ -52,5 +52,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.android.support:support-v4:23.2.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.4'
+    compile 'org.mongodb:mongo-java-driver:3.0.3'
 
 }

@@ -40,6 +40,11 @@ import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -422,6 +427,14 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
+            MongoClientURI uri = new MongoClientURI( "mongodb://decisionatorUser:decisionate365@ds019633.mlab.com:19633/decisionator" );
+            MongoClient mongoClient = new MongoClient(uri);
+            DB db = mongoClient.getDB(uri.getDatabase());
+            DBCollection users = db.getCollection("Users");
+            BasicDBObject finalUser = new BasicDBObject();
+
+
+
             User temp = mapper.load(User.class, arg0[0].getUserID());
             if (temp != null) {
                 temp.setProfilePic(arg0[0].getProfilePic());
@@ -431,7 +444,19 @@ public class FacebookLogin extends AppCompatActivity implements LocationListener
             } else {
                 temp = arg0[0];
             }
+
+            finalUser.put("userID",temp.getUserID());
+            finalUser.put("profilePic",temp.getProfilePic());
+            finalUser.put("fName",temp.getfName());
+            finalUser.put("lName",temp.getlName());
+            finalUser.put("lastLogin",temp.getLastLogin());
+            finalUser.put("longitude", temp.getLongitude());
+            finalUser.put("latitude",temp.getLatitude());
+            finalUser.put("rsvpCount",temp.getRsvpCount());
+            finalUser.put("achievements",temp.getAchievements());
             mapper.save(temp);
+            users.insert(finalUser);
+
             return null;
         }
     }
