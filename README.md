@@ -41,10 +41,6 @@ What tools we use
 * Travis CI
 * Java
 
-## Architechure
-___
-Different diagrams and methodologies used
-
 ## Contributing
 ___
 
