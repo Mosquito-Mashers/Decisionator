@@ -37,6 +37,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpr
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.facebook.FacebookSdk;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -230,6 +231,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
 
     private void initializeGlobals()
     {
+        FacebookSdk.sdkInitialize(this);
         frag = new ResultGraphFragment();
         frag2 = new ResultGraphFragment2();
         PersonalityPieFragment ppFrag = new PersonalityPieFragment();
@@ -1035,7 +1037,7 @@ public class EventActivity extends AppCompatActivity  implements OnMapReadyCallb
                     e.printStackTrace();
                 }
 
-                //makeFinalDecision(resultingPlaces);
+                makeFinalDecision(resultingPlaces);
                 if(finalLoc.latitude == 0 || finalLoc.longitude == 0)
                 {
                     finalLoc = new LatLng(33.78705292, -118.1564652);
